@@ -87,3 +87,93 @@ export {
 } from './path/index.js'
 
 export type { ParsedPath } from './path/index.js'
+
+export {
+  groupBy,
+  keyBy,
+  omit,
+  pick,
+  pluck,
+  shuffle,
+  sample,
+  sampleSize,
+  chunk,
+  sortBy,
+  orderBy,
+  uniqueBy,
+  flatten,
+  uniq,
+  first,
+  last,
+  isEmpty,
+} from './collection/index.js'
+
+export {
+  capitalize,
+  camelCase,
+  kebabCase,
+  snakeCase,
+  pascalCase,
+  truncate,
+  template,
+  uuid,
+  nanoid,
+  escapeHtml,
+  unescapeHtml,
+  trim,
+  trimStart,
+  trimEnd,
+  pad,
+  padStart,
+  padEnd,
+  reverse,
+  words,
+  slugify,
+  countOccurrences,
+} from './string/index.js'
+
+export {
+  sleep,
+  timeout,
+  raceWithTimeout,
+  allSettledMap,
+  parallelMap,
+  retryAsync,
+  pipeline,
+  deferred,
+} from './async/index.js'
+
+export type { Deferred } from './async/index.js'
+
+export {
+  parseCsv,
+  stringifyCsv,
+  safeJsonParse,
+  env,
+  envInt,
+  envBool,
+} from './io/index.js'
+
+export type { CsvOptions } from './io/index.js'
+
+export {
+  isString,
+  isNumber,
+  isBoolean,
+  isObject,
+  isArray,
+  isFunction,
+  isDate,
+  isRegExp,
+  isMap,
+  isSet,
+  isPromise,
+  isNull,
+  isUndefined,
+  isNil,
+  assertDefined,
+  assertType,
+  ensureArray,
+  castArray,
+  getType,
+} from './type/index.js'
