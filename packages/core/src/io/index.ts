@@ -34,6 +34,7 @@ export function parseCsv(input: string, options?: CsvOptions): Record<string, st
     return body.map(row => {
       const record: Record<string, string> = {}
       for (let i = 0; i < head.length; i++) {
+        if (head[i] === '__proto__' || head[i] === 'constructor' || head[i] === 'prototype') continue
         record[head[i]!] = row[i] ?? ''
       }
       return record

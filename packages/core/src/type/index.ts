@@ -135,12 +135,8 @@ export function ensureArray<T>(value: T | T[]): T[] {
   return Array.isArray(value) ? value : [value]
 }
 
-/**
- * Alias for ensureArray.
- */
-export function castArray<T>(value: T | T[]): T[] {
-  return ensureArray(value)
-}
+/** Alias for ensureArray. Wraps a value in an array if it is not already one. */
+export const castArray = ensureArray
 
 /**
  * Returns a string representation of the value's type.

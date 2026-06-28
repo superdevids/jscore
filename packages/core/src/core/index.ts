@@ -123,6 +123,7 @@ export function deepMerge<T extends Record<string, unknown>>(...objects: Partial
     const keys = Object.keys(obj) as (keyof T)[]
     for (let j = 0; j < keys.length; j++) {
       const key = keys[j]!
+      if (key === '__proto__' || key === 'constructor' || key === 'prototype') continue
       const val = obj[key]
       const existing = result[key]
 

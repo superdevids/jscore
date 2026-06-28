@@ -39,15 +39,12 @@ export function simpleHash(str: string): string {
 }
 
 function getRandomBytes(size: number): Uint8Array {
-  const bytes = new Uint8Array(size)
   if (typeof crypto !== 'undefined' && typeof crypto.getRandomValues === 'function') {
+    const bytes = new Uint8Array(size)
     crypto.getRandomValues(bytes)
-  } else {
-    for (let i = 0; i < size; i++) {
-      bytes[i] = Math.floor(Math.random() * 256)
-    }
+    return bytes
   }
-  return bytes
+  throw new Error('Crypto API unavailable. Cannot generate secure random bytes.')
 }
 
 /**

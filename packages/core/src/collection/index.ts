@@ -285,6 +285,12 @@ export function deepGet<T = unknown>(obj: unknown, path: string, default_?: T): 
  */
 export function deepSet<T extends Record<string, unknown>>(obj: T, path: string, value: unknown): T {
   const keys = path.split('.')
+  const PROTO_KEYS = new Set(['__proto__', 'constructor', 'prototype'])
+  for (const key of keys) {
+    if (PROTO_KEYS.has(key)) {
+      return { ...obj } as T
+    }
+  }
   const result = { ...obj } as Record<string, unknown>
   let current = result
   for (let i = 0; i < keys.length - 1; i++) {

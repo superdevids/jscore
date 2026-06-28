@@ -60,6 +60,7 @@ export function truncate(str: string, maxLength: number, suffix = '...'): string
  */
 export function template(str: string, data: Record<string, string | number>): string {
   return str.replace(/\{\{(\w+)\}\}/g, (_, key: string) => {
+    if (key === '__proto__' || key === 'constructor' || key === 'prototype') return `{{${key}}}`
     const value = data[key]
     return value !== undefined ? String(value) : `{{${key}}}`
   })
@@ -96,9 +97,15 @@ export function uuid(): string {
  */
 export function nanoid(size = 21, alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_-'): string {
   const len = alphabet.length
+  const bytes = new Uint8Array(size)
+  if (typeof crypto !== 'undefined' && typeof crypto.getRandomValues === 'function') {
+    crypto.getRandomValues(bytes)
+  } else {
+    throw new Error('Crypto API unavailable. Cannot generate secure random ID.')
+  }
   let result = ''
   for (let i = 0; i < size; i++) {
-    result += alphabet[Math.floor(Math.random() * len)]!
+    result += alphabet[bytes[i]! % len]!
   }
   return result
 }
@@ -109,6 +116,8 @@ const HTML_ESCAPE_MAP: Record<string, string> = {
   '>': '&gt;',
   '"': '&quot;',
   "'": '&#39;',
+  '`': '&#96;',
+  '/': '&#x2F;',
 }
 
 const HTML_UNESCAPE_MAP: Record<string, string> = {
@@ -118,20 +127,22 @@ const HTML_UNESCAPE_MAP: Record<string, string> = {
   '&quot;': '"',
   '&#39;': "'",
   '&#x27;': "'",
+  '&#96;': '`',
+  '&#x2F;': '/',
 }
 
 /**
  * Escapes HTML special characters (&, <, >, ", ').
  */
 export function escapeHtml(str: string): string {
-  return str.replace(/[&<>"']/g, ch => HTML_ESCAPE_MAP[ch] ?? ch)
+  return str.replace(/[&<>"'`\/]/g, ch => HTML_ESCAPE_MAP[ch] ?? ch)
 }
 
 /**
  * Unescapes common HTML entities.
  */
 export function unescapeHtml(str: string): string {
-  return str.replace(/&(?:amp|lt|gt|quot|#39|#x27);/g, entity => HTML_UNESCAPE_MAP[entity] ?? entity)
+  return str.replace(/&(?:amp|lt|gt|quot|#39|#x27|#96|#x2F);/g, entity => HTML_UNESCAPE_MAP[entity] ?? entity)
 }
 
 /**
@@ -395,9 +406,15 @@ export function formatBytes(bytes: number, options?: { decimals?: number }): str
  */
 export function randomString(length: number = 16): string {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+  const bytes = new Uint8Array(length)
+  if (typeof crypto !== 'undefined' && typeof crypto.getRandomValues === 'function') {
+    crypto.getRandomValues(bytes)
+  } else {
+    throw new Error('Crypto API unavailable. Cannot generate secure random string.')
+  }
   let result = ''
   for (let i = 0; i < length; i++) {
-    result += chars[Math.floor(Math.random() * chars.length)]
+    result += chars[bytes[i]! % chars.length]
   }
   return result
 }

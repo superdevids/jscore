@@ -1,6 +1,13 @@
 {
-  "name": "superjs",
+  "name": "superjs-monorepo",
   "version": "1.0.0",
   "private": true,
-  "description": "superjs-core — JS toolkit all-in-one buat developer Indonesia"
+  "description": "SuperJS Monorepo — superjs-core (utility library) + superjs (fullstack framework) 🇮🇩",
+  "scripts": {
+    "build:core": "cd packages/core && npm run build",
+    "build:superjs": "cd packages/superjs && npm run build",
+    "build:all": "npm run build:core && npm run build:superjs",
+    "publish:core": "cd packages/core && npm publish",
+    "publish:superjs": "cd packages/superjs && npm publish"
+  }
 }
