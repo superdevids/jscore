@@ -1,4 +1,4 @@
-# Contributing to superjs-core
+# Kontribusi ke superjs-core
 
 ## Setup Development
 
@@ -9,20 +9,19 @@ npx tsup
 npx vitest run
 ```
 
-## Adding a New Function
+## Cara Nambah Fungsi Baru
 
-1. Add the function in the appropriate module under `packages/core/src/<module>/`
-2. Export it from the module's `index.ts`
-3. Add comprehensive tests in `packages/core/tests/`
-4. Run `npx vitest run` to verify (757 tests)
-5. Run `npx tsup` to confirm build succeeds
-6. Update `SUMMARY.md` with the new function
-7. Update `README.md` module table
+1. Tambah fungsi di module yang sesuai `packages/core/src/<module>/`
+2. Export dari `index.ts` module tersebut
+3. Tambah test di `packages/core/tests/`
+4. Jalankan `npx vitest run` (810 tests harus passing)
+5. Jalankan `npx tsup` biar build sukses
+6. Update `SUMMARY.md` sama `README.md`
 
-## Modules Available
+## Module yang Tersedia
 
-| Module | Location |
-|--------|----------|
+| Module | Lokasi |
+|--------|--------|
 | core | `src/core/` |
 | math | `src/math/` |
 | date | `src/date/` |
@@ -33,23 +32,24 @@ npx vitest run
 | type | `src/type/` |
 | crypto | `src/crypto/` |
 | path | `src/path/` |
+| color | `src/color/` |
 | validation | `src/validation/` |
 | error | `src/error/` |
 | logger | `src/logger/` |
 | dep-exray | `src/dep-exray/` |
 
-## Commit Convention
+## Aturan Commit
 
-This project uses [Conventional Commits](https://www.conventionalcommits.org/):
+Pake [Conventional Commits](https://www.conventionalcommits.org/):
 
 ```
-feat(core): add deepMerge function
-fix(math): correct floating point rounding
-docs: update README with new API examples
+feat(core): nambah deepMerge function
+fix(math): benerin floating point rounding
+docs: update README
 ```
 
-## Pull Request Process
+## Pull Request
 
-1. Create a branch from `master` with a descriptive name
-2. Ensure `npx tsup && npx vitest run` passes
-3. Open a PR against `master` with clear title and description
+1. Bikin branch dari `master`
+2. Pastikan `npx tsup && npx vitest run` lolos
+3. Buka PR ke `master` dengan judul dan deskripsi jelas

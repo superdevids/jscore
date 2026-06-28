@@ -1,18 +1,36 @@
 # Changelog
 
+## [0.4.0] - 2026-06-28
+
+### Ditambahkan
+- **color module** — `hexToRgb()`, `rgbToHex()`, `lighten()`, `darken()`, `contrastRatio()`, `meetsWCAG()`
+- **core** — `deepEqual()` (deep equality), `pipe()`, `compose()` (function composition)
+- **string** — `formatBytes()`, `randomString()`, `randomBoolean()`, `pluralize()`
+- **collection** — `deepGet()`, `deepSet()` (nested object path access)
+- 810 total tests (18 test files)
+
+### Diubah
+- Semua dokumentasi pake Bahasa Indonesia
+
+## [0.3.9] - 2026-06-28
+
+### Diubah
+- README pake Bahasa Inggris (dulu Indonesia)
+- Description npm diupdate
+
 ## [0.3.6] - 2026-06-28
 
-### Changed
-- 757 total tests (from 484) — added brutal audit suite with 273 edge-case tests
-- SUMMARY.md created — full feature documentation for all 16 modules
+### Diubah
+- 810 total tests (dari 484) — nambah brutal audit suite 273 edge-case tests
+- SUMMARY.md dibuat — dokumentasi fitur lengkap semua module
 
-### Fixed
-- 6 bugs found during brutal audit (test expectations, imports, edge cases)
-- All prototype pollution, ReDoS, crypto tests verified
+### Dibenerin
+- 6 bug ditemukan pas brutal audit
+- Semua prototype pollution, ReDoS, crypto tests terverifikasi
 
 ## [0.3.5] - 2026-06-28
 
-### Added (P1 Expansion)
+### Ditambahkan (Ekspansi P1)
 - **async**: Queue (priority task queue), Semaphore, memoizeAsync (stale-while-revalidate)
 - **math**: median, stddev, sampleStddev, percentile, correlation, formatCurrency
 - **string**: levenshtein, fuzzyMatch, maskString (PDPA compliance), terbilang (angka→kata), formatRupiah
@@ -21,52 +39,52 @@
 
 ## [0.3.4] - 2026-06-28
 
-### Added (P0 Modules)
-- **validation**: isNIK, isNPWP, isPhone, isEmail, isURL — Indonesia-specific validations
-- **error**: createError, TypedError (10 codes with HTTP status), MultiError, collectErrors
+### Ditambahkan (Modul P0)
+- **validation**: isNIK, isNPWP, isPhone, isEmail, isURL — validasi khusus Indonesia
+- **error**: createError, TypedError (10 codes + HTTP status), MultiError, collectErrors
 - **logger**: Logger class, child loggers, console/JSON/file transports, buffered transport
 - 16 modules total, 484 tests passing
 
 ## [0.3.3] - 2026-06-28
 
-### Fixed
+### Dibenerin
 - `round(1.005, 2)` floating-point bug
-- `parseDate('29/02/2023')` not throwing for invalid leap year
-- Added `sideEffects: false` for proper tree-shaking
+- `parseDate('29/02/2023')` gak throw buat invalid leap year
+- Nambah `sideEffects: false` buat tree-shaking optimal
 
 ## [0.3.2] - 2026-06-28
 
-### Added
+### Ditambahkan
 - Biome linter + formatter config
-- CI workflow with matrix testing (Node 18, 20, 22)
-- SECURITY.md for vulnerability disclosure
-- CHANGELOG.md with full version history
+- CI workflow dengan matrix testing (Node 18, 20, 22)
+- SECURITY.md buat vulnerability disclosure
+- CHANGELOG.md
 
-### Fixed
+### Dibenerin
 - Cross-platform `clean` script
-- GitHub Actions: dep-exray-scan uses superjs-core
-- Removed misleading "zero-dependency" keyword
+- GitHub Actions: dep-exray-scan pake superjs-core
+- Hapus keyword "zero-dependency" yang misleading
 
 ## [0.3.0] - 2026-06-27
 
-### Changed
-- Merged `superjs-dep-exray` into `superjs-core` as built-in module
-- Single package: `npm install superjs-core` gets everything
-- 7 deprecated npm packages removed/unpublished
+### Diubah
+- `superjs-dep-exray` digabung ke `superjs-core` jadi module built-in
+- Satu package: `npm install superjs-core` dapet semua
+- 7 npm packages di-unpublish/deprecate
 
-### Added
-- `dep-exray` module: scanProject, analyzeUsage, generateReport, KNOWN_MAPPINGS, KNOWN_CVES
+### Ditambahkan
+- `dep-exray` module: scanProject, analyzeUsage, generateReport
 - CLI: `npx dep-exray .`
 
 ## [0.2.0] - 2026-06-27
 
-### Added
+### Ditambahkan
 - crypto module: hash, randomHex, base64, generateToken, generateOTP
 - path module: join, resolve, basename, dirname, extname
 
 ## [0.1.0] - 2026-06-27
 
-### Added
+### Ditambahkan
 - Initial release
 - core, math, date, collection, string, async, io, type modules
 - 100+ utility functions

@@ -1,0 +1,112 @@
+{
+  "name": "superjs",
+  "version": "0.1.0",
+  "description": "Fullstack JavaScript/TypeScript framework — Server, Client, RPC, Schema, CLI in one package. Built for Indonesia, built for the world.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "create-superjs": "dist/cli/index.js",
+    "superjs": "dist/cli/index.js"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./server": {
+      "import": "./dist/server/index.js",
+      "types": "./dist/server/index.d.ts"
+    },
+    "./server/http": {
+      "import": "./dist/server/http/index.js",
+      "types": "./dist/server/http/index.d.ts"
+    },
+    "./server/router": {
+      "import": "./dist/server/router/index.js",
+      "types": "./dist/server/router/index.d.ts"
+    },
+    "./server/middleware": {
+      "import": "./dist/server/middleware/index.js",
+      "types": "./dist/server/middleware/index.d.ts"
+    },
+    "./server/controller": {
+      "import": "./dist/server/controller/index.js",
+      "types": "./dist/server/controller/index.d.ts"
+    },
+    "./server/container": {
+      "import": "./dist/server/container/index.js",
+      "types": "./dist/server/container/index.d.ts"
+    },
+    "./client": {
+      "import": "./dist/client/index.js",
+      "types": "./dist/client/index.d.ts"
+    },
+    "./client/signals": {
+      "import": "./dist/client/signals/index.js",
+      "types": "./dist/client/signals/index.d.ts"
+    },
+    "./client/vdom": {
+      "import": "./dist/client/vdom/index.js",
+      "types": "./dist/client/vdom/index.d.ts"
+    },
+    "./rpc": {
+      "import": "./dist/rpc/index.js",
+      "types": "./dist/rpc/index.d.ts"
+    },
+    "./schema": {
+      "import": "./dist/schema/index.js",
+      "types": "./dist/schema/index.d.ts"
+    }
+  },
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "biome check src/",
+    "lint:fix": "biome check --write src/",
+    "typecheck": "tsc --noEmit",
+    "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
+    "ci": "npm run lint && npm run typecheck && npm run build && npm run test:coverage"
+  },
+  "dependencies": {
+    "superjs-core": "workspace:*"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.5.1",
+    "@types/node": "^26.0.1",
+    "@vitest/coverage-v8": "^2.1.9",
+    "tsup": "^8.3.0",
+    "typescript": "^5.7.0",
+    "vite": "^8.1.0",
+    "vitest": "^2.1.0"
+  },
+  "keywords": [
+    "fullstack",
+    "framework",
+    "typescript",
+    "server",
+    "client",
+    "rpc",
+    "validation",
+    "indonesia"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/superdevids/superjs.git"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

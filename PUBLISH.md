@@ -1,12 +1,12 @@
-# Publishing Guide
+# Panduan Publishing
 
-## Prerequisites
+## Prasyarat
 
 ```bash
 npm login
 ```
 
-## Publish superjs-core
+## Cara Publish superjs-core
 
 ```bash
 cd packages/core
@@ -14,32 +14,32 @@ cd packages/core
 # 1. Build
 npx tsup
 
-# 2. Test (757 tests)
+# 2. Test (810 tests)
 npx vitest run
 
 # 3. Bump version
 npm version patch
-# or: npm version minor
-# or: npm version major
+# atau: npm version minor
+# atau: npm version major
 
-# 4. Build again after version bump
+# 4. Build ulang setelah version bump
 npx tsup
 
-# 5. Publish
+# 5. Publish ke npm
 npm publish
 
-# 6. Commit and push
+# 6. Commit dan push ke GitHub
 cd ../..
 git add -A
-git commit -m "chore: bump to v$(node -p \"require('./packages/core/package.json').version\")"
+git commit -m "chore: bump ke v$(node -p \"require('./packages/core/package.json').version\")"
 git push origin master
 ```
 
-## Checklist Pre-Publish
+## Checklist Sebelum Publish
 
 - [ ] `npx tsup` — build sukses
-- [ ] `npx vitest run` — 757 tests pass
-- [ ] `npm login` — sudah login
-- [ ] Changelog sudah diupdate
-- [ ] README sudah sesuai
+- [ ] `npx vitest run` — 810 tests pass
+- [ ] `npm login` — udah login
+- [ ] Changelog udah diupdate
+- [ ] README udah sesuai
 - [ ] Git commit — semua perubahan ter-commit

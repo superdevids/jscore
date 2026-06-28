@@ -1,7 +1,7 @@
 {
   "name": "superjs-core",
-  "version": "0.4.0",
-  "description": "All-in-one JS toolkit: standard library (deepClone, debounce, deepEqual, pipe, color utilities, typed errors, logger, crypto, path, dependency scanner, Indonesia validation). 100+ functions, zero runtime deps, tree-shakeable.",
+  "version": "0.4.1",
+  "description": "JavaScript toolkit all-in-one buat developer Indonesia: validasi NIK/NPWP/Phone, terbilang, formatRupiah, timeAgo (WIB/WITA/WIT), deepClone, logger, dep scanner. 100+ fungsi, zero dep runtime.",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",

@@ -1,35 +1,35 @@
-# Security Policy
+# Kebijakan Keamanan
 
-## Reporting a Vulnerability
+## Melaporkan Kerentanan
 
-If you discover a security vulnerability in superjs-core, please report it by emailing adityasuperdev@gmail.com.
+Kalau lo nemu celah keamanan di superjs-core, lapor lewat email: adityasuperdev@gmail.com
 
-Do NOT create a public GitHub issue for security vulnerabilities.
+**JANGAN bikin GitHub issue publik untuk kerentanan keamanan.**
 
-You should receive a response within 48 hours. If not, follow up via email.
+Lo bakal dapet respon dalam 48 jam. Kalo belum ada kabar, follow-up lewat email.
 
-## What to Include
+## Yang Perlu Disertakan
 
-- Description of the vulnerability
-- Steps to reproduce
-- Affected versions
-- Potential impact
-- Suggested fix (if any)
+- Deskripsi kerentanan
+- Langkah-langkah reproduksi
+- Versi yang terpengaruh
+- Dampak potensial
+- Saran perbaikan (kalo ada)
 
-## Scope
+## Ruang Lingkup
 
-- superjs-core npm package
-- dep-exray CLI tool
+- Package npm superjs-core
+- CLI tool dep-exray
 - GitHub Actions workflows
 
-## Out of Scope
+## Di Luar Ruang Lingkup
 
-- The `xorCipher` function in crypto module is explicitly **NOT** intended for security purposes. It is a simple XOR obfuscation utility for light data masking only. Do not use it for encryption of sensitive data.
+- Fungsi `xorCipher` di module crypto **SENG A JA BUKAN untuk keamanan**. Itu cuma XOR obfuscation sederhana buat masking data ringan. Jangan pake buat enkripsi data sensitif.
 
-## Disclosure Policy
+## Kebijakan Disclosure
 
-Once a vulnerability is confirmed:
-1. We will work on a fix
-2. A security advisory will be published on GitHub
-3. A patched version will be released to npm
-4. Credit will be given to the reporter (if desired)
+Begitu kerentanan dikonfirmasi:
+1. Kita bakal kerjain fix
+2. Security advisory bakal dipublish di GitHub
+3. Versi yang udh di-patch bakal dirilis ke npm
+4. Kredit bakal dikasih ke pelapor (kalo mau)
