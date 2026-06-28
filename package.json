@@ -2,12 +2,10 @@
   "name": "speexjs-monorepo",
   "version": "1.0.0",
   "private": true,
-  "description": "SpeexJS Monorepo — speexjs-core (utility library) + speexjs (fullstack framework) 🇮🇩",
+  "description": "SpeexJS Monorepo — Fullstack TypeScript framework (Server, Client, Schema, RPC, CLI, Database, Auth, Cache, Storage)",
   "scripts": {
-    "build:core": "cd packages/core && npm run build",
-    "build:speexjs": "cd packages/constx && npm run build",
-    "build:all": "npm run build:core && npm run build:speexjs",
-    "publish:core": "cd packages/core && npm publish",
-    "publish:speexjs": "cd packages/constx && npm publish"
+    "build:speexjs": "cd packages/speexjs && npm run build",
+    "build:all": "npm run build:speexjs",
+    "publish:speexjs": "cd packages/speexjs && npm publish"
   }
 }
