@@ -1,24 +1,35 @@
 ﻿# superjs-core
 
-> **Zero-dependency JavaScript toolkit — Standard Library + Dependency Scanner + 🇮🇩 Indonesia Validation**
+> **All-in-one JavaScript toolkit — Standard Library + Dependency Scanner + 🇮🇩 Indonesia Validation + Logger + Typed Errors**
 
 ```bash
 npm install superjs-core
 ```
 
-Satu package untuk semua kebutuhan JavaScript: utility functions, async helpers, crypto, path manipulation, typed errors, structured logging, **plus** dependency health scanner dan validasi data Indonesia (NIK, NPWP, Phone).
+One package for all your JavaScript needs: utility functions, async helpers, crypto, path manipulation, typed errors, structured logging, **plus** dependency health scanner and Indonesia-specific data validation (NIK, NPWP, Phone).
 
 ---
 
-## Modules Overview
+## Features
 
-| Module | Fungsi Unggulan |
-|--------|----------------|
+- ✅ **90+ functions** — 16 modules covering everything from `deepClone` to `terbilang`
+- ✅ **Tree-shakeable** — import only what you need via subpath exports
+- ✅ **TypeScript strict** — full type safety, zero `any`
+- ✅ **Zero runtime dependencies** — commander + picocolors are CLI-only
+- ✅ **ESM-first** — target ES2022, optimized for Node 18+ and modern browsers
+- ✅ **Biome linted** — consistent code style enforced
+
+---
+
+## Modules
+
+| Module | Key Functions |
+|--------|---------------|
 | **core** | deepClone, deepMerge, debounce, throttle, memoize, retry, once |
-| **math** | add/sub/mul/div (safe), median, stddev, percentile, correlation, formatCurrency |
+| **math** | add/sub/mul/div (safe float), median, stddev, percentile, correlation, formatCurrency |
 | **date** | formatDate, parseDate, timeAgo, Duration, timezone helpers (WIB/WITA/WIT) |
 | **collection** | sortBy, groupBy, shuffle, topoSort, slidingWindows, chunk |
-| **string** | camelCase, uuid, nanoid, slugify, levenshtein, terbilang, formatRupiah, maskString |
+| **string** | camelCase, uuid, nanoid, slugify, levenshtein, fuzzyMatch, maskString |
 | **async** | sleep, parallelMap, Queue, Semaphore, memoizeAsync, retryAsync |
 | **io** | parseCsv, stringifyCsv, safeJsonParse, env, envInt, envBool |
 | **type** | 20+ type guards (isString, isNil, assertDefined, getType) |
@@ -29,38 +40,49 @@ Satu package untuk semua kebutuhan JavaScript: utility functions, async helpers,
 | **logger** | Logger class, child loggers, console/JSON/file transports |
 | **dep-exray** | scanProject, generateReport, analyzeUsage, CLI: `npx dep-exray .` |
 
+### 🇮🇩 Indonesian Locale
+
+| Function | Description |
+|----------|-------------|
+| `terbilang(value)` | Convert numbers to Indonesian words ("satu juta lima ratus ribu") |
+| `formatRupiah(value)` | Format as Rupiah ("Rp1.500.000") |
+| `isNIK(value)` | Validate Indonesian NIK (16-digit ID number) |
+| `isNPWP(value)` | Validate Indonesian NPWP (tax ID with checksum) |
+| `isPhone(value)` | Validate Indonesian phone numbers |
+
 ---
 
-## Contoh Cepat
+## Quick Examples
 
 ```typescript
 import { deepClone, debounce } from "superjs-core"
 import { formatDate, timeAgo } from "superjs-core/date"
 import { groupBy, topoSort } from "superjs-core/collection"
-import { sleep, parallelMap, Queue } from "superjs-core/async"
+import { Queue } from "superjs-core/async"
 import { uuid, maskString, terbilang, formatRupiah } from "superjs-core/string"
 import { generateToken } from "superjs-core/crypto"
 import { isNIK, isNPWP, isPhone } from "superjs-core/validation"
-import { createError, MultiError } from "superjs-core/error"
+import { createError } from "superjs-core/error"
 import { Logger } from "superjs-core/logger"
 import { median, stddev, formatCurrency } from "superjs-core/math"
 import { scanProject } from "superjs-core/dep-exray"
 
-// Deep clone dengan circular reference
+// Deep clone with circular reference support
 const cloned = deepClone({ a: 1, b: { c: new Date() } })
 
-// Safe math (0.1 + 0.2 = 0.3)
+// Safe math (0.1 + 0.2 = 0.3 ✅)
+import { add } from "superjs-core/math"
 console.log(add(0.1, 0.2)) // 0.3
 
-// Date formatting
+// Date formatting without moment
 console.log(formatDate(new Date(), "DD/MM/YYYY")) // "28/06/2026"
-console.log(timeAgo(new Date(Date.now() - 5000))) // "5 detik yang lalu"
+console.log(timeAgo(new Date(Date.now() - 5000))) // "5 seconds ago"
 
-// Priority queue
+// Priority task queue
 const queue = new Queue({ concurrency: 2 })
 await queue.add(() => fetch("/api/data"))
 
-// Validation Indonesia
+// Indonesia validation
 isNIK("3201010203940001") // true
 isNPWP("12.345.678.9-012.344") // true
 isPhone("08123456789") // true
@@ -68,29 +90,29 @@ isPhone("08123456789") // true
 // Indonesian locale
 terbilang(1500000) // "satu juta lima ratus ribu"
 formatRupiah(1500000) // "Rp1.500.000"
-maskString("08123456789") // "081*****789"
 
 // Statistics
 median([1, 2, 3, 4, 5]) // 3
 percentile([1, 2, 3, 4, 5], 90) // 4.6
-formatCurrency(1500000, { locale: "id-ID", currency: "IDR" }) // "Rp 1.500.000"
+formatCurrency(1500000, { locale: "en-US", currency: "USD" }) // "$1,500,000"
 
 // Typed errors
 throw createError("VALIDATION_ERROR", "Email required", { details: { field: "email" } })
 
-// Logger
+// Structured logger
 const log = new Logger({ level: "info", name: "app" })
 log.info("Server started", { port: 3000 })
 
 // Dependency scanning
 const report = await scanProject({ path: "./my-project" })
-console.log(report.totalEstimatedSize)
+console.log(report.totalEstimatedSize) // "2.3 MB"
+```
 
 ---
 
 ## dep-exray — Dependency Health Scanner (built-in)
 
-**Scan project untuk nemuin dependency bloated, gak kepake, atau punya CVE.**
+**Scan your project to find bloated, unused, or vulnerable dependencies.**
 
 ```bash
 npx dep-exray .
@@ -98,32 +120,11 @@ npx dep-exray /path/to/project --json --verbose
 ```
 
 ### Features
-- Deteksi replacement: lodash → superjs-core, moment → superjs-core/date, uuid → native crypto.randomUUID()
-- Estimasi ukuran dependency dalam MB/KB
-- CVE detection dari known database
-- JSON output untuk CI/CD integration
-- Usage analyzer — deteksi apakah dependency beneran dipake
-
----
-
-## Quick Start
-
-```bash
-git clone <repo-url> superjs
-cd superjs/packages/core
-npm install
-npx tsup           # Build
-npx vitest run     # Test (757 tests)
-npx dep-exray .    # Scan project
-```
-
----
-
-## Test Stats
-
-| File | Tests |
-|------|-------|
-| 17 test files | **757** passing |
+- Detect replacements: lodash → superjs-core, moment → superjs-core/date, uuid → native crypto.randomUUID()
+- Estimate dependency size in MB/KB
+- CVE detection from known vulnerability database
+- JSON output for CI/CD integration
+- Usage analyzer — detects whether dependencies are actually imported
 
 ---
 
@@ -156,9 +157,17 @@ packages/core/
 
 ---
 
+## Test Stats
+
+| Test Files | Tests |
+|-----------|-------|
+| 17 | **757** passing |
+
+---
+
 ## Roadmap
 
-Lihat [ROADMAP.md](./ROADMAP.md) untuk detail lengkap.
+See [ROADMAP.md](./ROADMAP.md) for full details.
 
 ### Priority
 - **P0 ✅** validation, error, logger modules

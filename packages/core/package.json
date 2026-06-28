@@ -1,6 +1,6 @@
 {
   "name": "superjs-core",
-  "version": "0.3.8",
+  "version": "0.3.9",
   "description": "All-in-one JavaScript toolkit: standard library + Indonesia validation (NIK, NPWP, Phone) + dependency scanner + structured logger + typed errors. 90+ functions, zero runtime dependencies.",
   "type": "module",
   "main": "./dist/index.js",
