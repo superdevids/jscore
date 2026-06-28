@@ -3,7 +3,7 @@
 ## v0.4.0 — Indonesia Module & Error Foundation (Next)
 
 ### New Modules
-- **validation** — `isNIK()`, `isNPWP()`, `isPhone("id")`, `isEmail()`, `isURL()` — zero-dep, khusus Indonesia
+- **validation** — `isNIK()`, `isNPWP()`, `isPhone("id")`, `isEmail()`, `isURL()` — zero-dep, Indonesia-specific
 - **error** — `createError()` factory, `ErrorBoundary`, `MultiError`, typed error codes
 
 ### Existing Module Expansions
