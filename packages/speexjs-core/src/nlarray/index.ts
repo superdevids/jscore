@@ -23,7 +23,7 @@ function shapeSize(shape: number[]): number {
  * stride[i] = product of shape[i+1..n-1]
  * @internal
  */
-function computeStrides(shape: number[]): number[] {
+function computeStrides(shape: readonly number[]): number[] {
   const strides = new Array<number>(shape.length)
   if (shape.length === 0) return strides
   strides[shape.length - 1] = 1
@@ -119,10 +119,10 @@ function broadcastBinaryOp<T>(
   const resultSize = shapeSize(resultShape)
   const result = new Array<number>(resultSize)
 
-  const aStrides = computeStrides(aShape)
-  const bStrides = computeStrides(bShape)
   const aPad = padShape(aShape, resultShape.length)
   const bPad = padShape(bShape, resultShape.length)
+  const aStrides = computeStrides(aPad)
+  const bStrides = computeStrides(bPad)
 
   const counters = new Array<number>(resultShape.length).fill(0)
 
@@ -138,8 +138,9 @@ function broadcastBinaryOp<T>(
 
     // Increment multi-dimensional counters
     for (let d = resultShape.length - 1; d >= 0; d--) {
-      counters[d]++
-      if (counters[d]! < resultShape[d]!) break
+      const cd = counters[d]!
+      counters[d] = cd + 1
+      if (cd + 1 < resultShape[d]!) break
       counters[d] = 0
     }
   }
@@ -423,13 +424,16 @@ export class NDArray<T = number> {
     }
 
     const result: number[] = []
+    // Use integer-based count to avoid floating-point drift
     if (step > 0) {
-      for (let i = actualStart; i < actualStop; i += step) {
-        result.push(i)
+      const n = Math.max(0, Math.ceil((actualStop - actualStart) / step))
+      for (let i = 0; i < n; i++) {
+        result.push(actualStart + i * step)
       }
     } else {
-      for (let i = actualStart; i > actualStop; i += step) {
-        result.push(i)
+      const n = Math.max(0, Math.ceil((actualStart - actualStop) / (-step)))
+      for (let i = 0; i < n; i++) {
+        result.push(actualStart + i * step)
       }
     }
 
@@ -1016,7 +1020,6 @@ export class NDArray<T = number> {
 
     const resultSize = shapeSize(resultShape)
     const result = new Array<number>(resultSize)
-    const resultStrides = computeStrides(resultShape)
     const axisStride = this._strides[axis]!
     const axisSize = this._shape[axis]!
 
@@ -1024,7 +1027,7 @@ export class NDArray<T = number> {
     const dimMap: number[] = []
     for (let i = 0; i < this._shape.length; i++) {
       if (i < axis) dimMap.push(i)
-      else if (i > axis) dimMap.push(i - 1)
+      else if (i > axis) dimMap.push(i)
     }
 
     const counters = new Array<number>(resultShape.length).fill(0)
@@ -1046,8 +1049,9 @@ export class NDArray<T = number> {
 
       // Advance counters
       for (let d = resultShape.length - 1; d >= 0; d--) {
-        counters[d]++
-        if (counters[d]! < resultShape[d]!) break
+        const cd = counters[d]!
+        counters[d] = cd + 1
+        if (cd + 1 < resultShape[d]!) break
         counters[d] = 0
       }
     }
@@ -1174,53 +1178,55 @@ export class NDArray<T = number> {
         )
       }
 
-      // Batch dims
+      // Batch dims only (last two are matrix dims)
       const aBatchShape = aShape.slice(0, -2)
       const bBatchShape = bShape.slice(0, -2)
       const batchShape = broadcastShapes(aBatchShape, bBatchShape)
-      const batchSize = shapeSize(batchShape)
 
       const resultShape = [...batchShape, aRows, bCols]
+      const batchDims = batchShape.length
       const resultSize = shapeSize(resultShape)
       const result = new Array<number>(resultSize)
 
-      const aStrides = computeStrides(aShape)
-      const bStrides = computeStrides(bShape)
       const aPad = padShape(aShape, resultShape.length)
       const bPad = padShape(bShape, resultShape.length)
+      const aStrides = computeStrides(aPad)
+      const bStrides = computeStrides(bPad)
 
-      // For matrix multiply inside batch: result[i,j] = sum_k A[i,k] * B[k,j]
-      const matSize = aRows * bCols
-      const counters = new Array<number>(resultShape.length).fill(0)
+      // Only iterate over batch dimensions (not matrix dims)
+      const batchCounters = new Array<number>(batchDims).fill(0)
+      const batchSize = shapeSize(batchShape)
 
-      for (let ri = 0; ri < resultSize; ri++) {
-        const batchResultIdx = Math.floor(ri / matSize) * matSize
-        const matOffset = ri % matSize
-        const i = Math.floor(matOffset / bCols)
-        const j = matOffset % bCols
-
-        // Compute batch base indices
+      for (let bi = 0; bi < (batchSize || 1); bi++) {
+        // Compute batch base indices for a and b
         let aBase = 0
         let bBase = 0
-        for (let d = 0; d < resultShape.length; d++) {
-          const cd = counters[d]!
+        for (let d = 0; d < batchDims; d++) {
+          const cd = batchCounters[d]!
           if (aPad[d]! > 1) aBase += cd * aStrides[d]!
           if (bPad[d]! > 1) bBase += cd * bStrides[d]!
         }
 
-        let sum = 0
-        for (let k = 0; k < aCols; k++) {
-          const av = this._data[aBase + i * aCols + k] as unknown as number
-          const bv = other._data[bBase + k * bCols + j] as unknown as number
-          sum += av * bv
+        // Compute the matrix multiply for this batch element
+        for (let i = 0; i < aRows; i++) {
+          for (let j = 0; j < bCols; j++) {
+            let sum = 0
+            for (let k = 0; k < aCols; k++) {
+              const av = this._data[aBase + i * aCols + k] as unknown as number
+              const bv = other._data[bBase + k * bCols + j] as unknown as number
+              sum += av * bv
+            }
+            const flatIdx = (bi * aRows * bCols) + (i * bCols) + j
+            result[flatIdx] = sum
+          }
         }
-        result[ri] = sum
 
-        // Advance counters
-        for (let d = resultShape.length - 1; d >= 0; d--) {
-          counters[d]++
-          if (counters[d]! < resultShape[d]!) break
-          counters[d] = 0
+        // Advance batch counters
+        for (let d = batchDims - 1; d >= 0; d--) {
+          const cd = batchCounters[d]!
+          batchCounters[d] = cd + 1
+          if (cd + 1 < batchShape[d]!) break
+          batchCounters[d] = 0
         }
       }
 
@@ -1343,7 +1349,6 @@ export class NDArray<T = number> {
     axis = this._normalizeAxis(axis)
     const newShape = [...this._shape]
     newShape[axis] = newShape[axis]! * n
-    const newStrides = computeStrides(newShape)
     const newSize = shapeSize(newShape)
     const newData = new Array<T>(newSize)
 
@@ -1378,9 +1383,9 @@ export class NDArray<T = number> {
       const s = start && i < start.length ? start[i]! : 0
       const e = end && i < end.length ? end[i]! : this._shape[i]!
 
-      // Normalize negative indices
-      actualStart[i] = ((s % this._shape[i]!) + this._shape[i]!) % this._shape[i]!
-      actualEnd[i] = ((e % this._shape[i]!) + this._shape[i]!) % this._shape[i]!
+      // Normalize negative indices (only wrap negative values)
+      actualStart[i] = s >= 0 ? s : ((s % this._shape[i]!) + this._shape[i]!) % this._shape[i]!
+      actualEnd[i] = e >= 0 ? e : ((e % this._shape[i]!) + this._shape[i]!) % this._shape[i]!
 
       if (actualEnd[i]! <= actualStart[i]!) {
         throw new Error(
@@ -1392,7 +1397,6 @@ export class NDArray<T = number> {
     const newShape = this._shape.map((_, i) => actualEnd[i]! - actualStart[i]!)
     const newSize = shapeSize(newShape)
     const newData = new Array<T>(newSize)
-    const newStrides = computeStrides(newShape)
 
     for (let i = 0; i < newSize; i++) {
       const newIndices = unravelIndex(i, newShape)
@@ -1800,14 +1804,14 @@ export class NDArray<T = number> {
     // Normalize axis
     axis = ((axis % ndim) + ndim) % ndim
 
-    // Validate compatibility
+    // Validate compatibility: all dimensions except the concatenation axis must match
     for (let i = 1; i < arrays.length; i++) {
       const shape = arrays[i]!.shape
       if (shape.length !== ndim) {
         throw new Error('All arrays must have the same number of dimensions')
       }
       for (let d = 0; d < ndim; d++) {
-        if (d !== axis && shape[d] !== firstShape[d]) {
+        if (shape[d] !== firstShape[d]) {
           throw new Error(
             `Incompatible shapes for concatenation along axis ${axis}: ` +
               `[${firstShape}] and [${shape}]`,
@@ -1822,13 +1826,12 @@ export class NDArray<T = number> {
     let totalAlongAxis = 0
     for (const arr of arrays) {
       offsets.push(totalAlongAxis)
-      totalAlongAxis += arr.shape[axis]
+      totalAlongAxis += arr.shape[axis]!
     }
     resultShape[axis] = totalAlongAxis
 
     const resultSize = shapeSize(resultShape)
     const result = new Array<number>(resultSize)
-    const resultStrides = computeStrides(resultShape)
 
     for (let ri = 0; ri < resultSize; ri++) {
       const indices = unravelIndex(ri, resultShape)
@@ -1901,7 +1904,6 @@ export class NDArray<T = number> {
 
     const resultSize = shapeSize(newShape)
     const result = new Array<number>(resultSize)
-    const resultStrides = computeStrides(newShape)
 
     for (let ri = 0; ri < resultSize; ri++) {
       const indices = unravelIndex(ri, newShape)
@@ -1935,7 +1937,9 @@ export class NDArray<T = number> {
       return arr
     })
 
-    return NDArray.concatenate(processed, 1)
+    // For 1-D inputs, stack rows (axis 0); for 2-D, column-wise (axis 1)
+    const all1d = arrays.every((arr) => arr.ndim === 1)
+    return NDArray.concatenate(processed, all1d ? 0 : 1)
   }
 
   /**

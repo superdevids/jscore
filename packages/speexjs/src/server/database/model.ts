@@ -1,11 +1,30 @@
 import { QueryBuilder } from './query.js'
 import type { QueryRunner } from './types.js'
 
+export type RelationType = 'hasOne' | 'hasMany' | 'belongsTo' | 'belongsToMany' | 'morphMany' | 'morphTo'
+
+interface RelationDefinition {
+  type: RelationType
+  relatedModel: typeof Model
+  foreignKey: string
+  localKey: string
+  pivotTable?: string
+  morphName?: string
+}
+
 export class Model {
+  /** Primary key */
   id?: number | string
+  /** Dynamic properties from database */
+  [key: string]: unknown
+
   static table: string = ''
   static connection: QueryRunner | null = null
   protected static queryRunner: QueryRunner | null = null
+  private static relationDefs: Map<string, RelationDefinition> = new Map()
+  private static eagerLoads: Map<string, boolean> = new Map()
+  /** @internal cache for loaded relations on instances */
+  _relations: Record<string, unknown> = {}
 
   static setConnection(conn: QueryRunner): void {
     this.connection = conn
@@ -19,15 +38,104 @@ export class Model {
     return new QueryBuilder(this.queryRunner, this.table)
   }
 
+  // ─── Relations Definition ──────────────────────────────────
+
+  static hasOne(
+    relatedModel: typeof Model,
+    foreignKey?: string,
+    localKey?: string,
+  ): void {
+    const key = `hasOne:${relatedModel.table}`
+    this.relationDefs.set(key, {
+      type: 'hasOne',
+      relatedModel,
+      foreignKey: foreignKey ?? `${this.table}_id`,
+      localKey: localKey ?? 'id',
+    })
+  }
+
+  static hasMany(
+    relatedModel: typeof Model,
+    foreignKey?: string,
+    localKey?: string,
+  ): void {
+    const key = `hasMany:${relatedModel.table}`
+    this.relationDefs.set(key, {
+      type: 'hasMany',
+      relatedModel,
+      foreignKey: foreignKey ?? `${this.table}_id`,
+      localKey: localKey ?? 'id',
+    })
+  }
+
+  static belongsTo(
+    relatedModel: typeof Model,
+    foreignKey?: string,
+    ownerKey?: string,
+  ): void {
+    const key = `belongsTo:${relatedModel.table}`
+    this.relationDefs.set(key, {
+      type: 'belongsTo',
+      relatedModel,
+      foreignKey: foreignKey ?? `${relatedModel.table}_id`,
+      localKey: ownerKey ?? 'id',
+    })
+  }
+
+  static belongsToMany(
+    relatedModel: typeof Model,
+    pivotTable?: string,
+    foreignPivotKey?: string,
+    relatedPivotKey?: string,
+  ): void {
+    const tables = [this.table, relatedModel.table].sort()
+    const key = `belongsToMany:${relatedModel.table}`
+    this.relationDefs.set(key, {
+      type: 'belongsToMany',
+      relatedModel,
+      foreignKey: foreignPivotKey ?? `${this.table}_id`,
+      localKey: relatedPivotKey ?? `${relatedModel.table}_id`,
+      pivotTable: pivotTable ?? `${tables[0]}_${tables[1]}`,
+    })
+  }
+
+  static morphMany(
+    relatedModel: typeof Model,
+    morphName: string,
+  ): void {
+    const key = `morphMany:${morphName}`
+    this.relationDefs.set(key, {
+      type: 'morphMany',
+      relatedModel,
+      foreignKey: `${morphName}_id`,
+      localKey: 'id',
+      morphName,
+    })
+  }
+
+  // ─── Eager Loading ─────────────────────────────────────────
+
+  static with(...relations: string[]): void {
+    for (const rel of relations) {
+      this.eagerLoads.set(rel, true)
+    }
+  }
+
+  // ─── Query Shortcuts ───────────────────────────────────────
+
   static async all<T extends typeof Model>(this: T): Promise<InstanceType<T>[]> {
     const rows = await this.query().get()
-    return rows.map((row: Record<string, any>) => this.hydrate(row)) as any
+    const instances = rows.map((row: any) => this.hydrate(row))
+    await this.loadRelations(instances)
+    return instances as any
   }
 
   static async find<T extends typeof Model>(this: T, id: number | string): Promise<InstanceType<T> | null> {
     const row = await this.query().find(id)
     if (!row) return null
-    return this.hydrate(row) as any
+    const instance = this.hydrate(row)
+    await this.loadRelations([instance])
+    return instance as any
   }
 
   static async where<T extends typeof Model>(this: T, column: string, value: any): Promise<QueryBuilder> {
@@ -40,9 +148,7 @@ export class Model {
   }
 
   static async updateOrCreate<T extends typeof Model>(
-    this: T,
-    attributes: Record<string, any>,
-    values?: Record<string, any>,
+    this: T, attributes: Record<string, any>, values?: Record<string, any>,
   ): Promise<InstanceType<T>> {
     const qb = this.query()
     for (const [key, value] of Object.entries(attributes)) {
@@ -61,6 +167,8 @@ export class Model {
     }
     return this.create({ ...attributes, ...values }) as any
   }
+
+  // ─── Instance Methods ──────────────────────────────────────
 
   async save(): Promise<void> {
     const ModelClass = this.constructor as typeof Model
@@ -81,34 +189,77 @@ export class Model {
     }
   }
 
-  static belongsTo<T extends typeof Model>(
-    this: T,
-    relatedModel: typeof Model,
-    foreignKey?: string,
-    ownerKey?: string,
-  ): any {
-    const related = relatedModel.table
-    const fk = foreignKey ?? `${related}_id`
-    const ok = ownerKey ?? 'id'
-    return this.query().where(fk, ok)
+  // ─── Relation Loader ───────────────────────────────────────
+
+  private static async loadRelations(instances: any[]): Promise<void> {
+    if (instances.length === 0) return
+
+    for (const [key, def] of this.relationDefs) {
+      const shouldLoad = this.eagerLoads.size === 0 || this.eagerLoads.has(key.split(':')[1] ?? key)
+      if (!shouldLoad) continue
+
+      const localIds = instances.map((i: any) => i[def.localKey]).filter(Boolean)
+
+      if (def.type === 'belongsTo') {
+        if (!def.relatedModel.queryRunner) def.relatedModel.setConnection(this.queryRunner!)
+        const related = await def.relatedModel.query().whereIn(def.localKey, localIds).get()
+        for (const inst of instances) {
+          inst._relations[key] = related.find((r: any) => r[def.localKey] === inst[def.foreignKey]) ?? null
+        }
+      }
+
+      if (def.type === 'hasMany') {
+        if (!def.relatedModel.queryRunner) def.relatedModel.setConnection(this.queryRunner!)
+        const related = await def.relatedModel.query().whereIn(def.foreignKey, localIds).get()
+        for (const inst of instances) {
+          inst._relations[key] = related.filter((r: any) => r[def.foreignKey] === inst[def.localKey])
+        }
+      }
+
+      if (def.type === 'hasOne') {
+        if (!def.relatedModel.queryRunner) def.relatedModel.setConnection(this.queryRunner!)
+        const related = await def.relatedModel.query().whereIn(def.foreignKey, localIds).get()
+        for (const inst of instances) {
+          inst._relations[key] = related.find((r: any) => r[def.foreignKey] === inst[def.localKey]) ?? null
+        }
+      }
+
+      if (def.type === 'belongsToMany' && def.pivotTable) {
+        if (!def.relatedModel.queryRunner) def.relatedModel.setConnection(this.queryRunner!)
+        const pivotQb = new QueryBuilder(this.queryRunner!, def.pivotTable)
+        const pivotRows = await pivotQb.whereIn(def.foreignKey, localIds).get()
+        const relatedIds = pivotRows.map((r: any) => r[def.localKey])
+        if (relatedIds.length > 0) {
+          const related = await def.relatedModel.query().whereIn('id', relatedIds).get()
+          for (const inst of instances) {
+            const pivots = pivotRows.filter((p: any) => p[def.foreignKey] === inst[def.localKey])
+            inst._relations[key] = pivots
+              .map((p: any) => related.find((r: any) => r.id === p[def.localKey]))
+              .filter(Boolean)
+          }
+        } else {
+          for (const inst of instances) { inst._relations[key] = [] }
+        }
+      }
+
+      if (def.type === 'morphMany' && def.morphName) {
+        if (!def.relatedModel.queryRunner) def.relatedModel.setConnection(this.queryRunner!)
+        const related = await def.relatedModel.query()
+          .where(`${def.morphName}_type`, this.name)
+          .whereIn(`${def.morphName}_id`, localIds).get()
+        for (const inst of instances) {
+          inst._relations[key] = related.filter((r: any) => r[`${def.morphName}_id`] === inst[def.localKey])
+        }
+      }
+    }
   }
 
-  static hasMany<T extends typeof Model>(
-    this: T,
-    relatedModel: typeof Model,
-    foreignKey?: string,
-    localKey?: string,
-  ): any {
-    const related = relatedModel.table
-    const fk = foreignKey ?? `${this.table}_id`
-    const lk = localKey ?? 'id'
-    return this.query().join(related, fk, '=', lk)
-  }
+  // ─── Internal Helpers ──────────────────────────────────────
 
-  private static hydrate<T extends typeof Model>(this: T, data: Record<string, any>): InstanceType<T> {
-    const instance = new this() as InstanceType<T>
+  private static hydrate(data: Record<string, any>): any {
+    const instance = new this()
     for (const [key, value] of Object.entries(data)) {
-      ;(instance as any)[key] = value
+      instance[key] = value
     }
     return instance
   }
@@ -126,7 +277,7 @@ export class Model {
       'save', 'delete', 'getData',
     ])
     for (const key of ownKeys) {
-      if (typeof key === 'string' && !classKeys.has(key) && key !== 'constructor') {
+      if (typeof key === 'string' && !classKeys.has(key) && key !== 'constructor' && !key.startsWith('_')) {
         data[key] = instance[key]
       }
     }

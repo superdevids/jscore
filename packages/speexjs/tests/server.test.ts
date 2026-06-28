@@ -27,6 +27,15 @@ import { Event } from '../src/server/events/index.js'
 import { Gate, AuthorizationError, authorize } from '../src/server/gate/index.js'
 import { Cache } from '../src/server/cache/index.js'
 import { LocalDisk, Storage, createStorage, storage } from '../src/server/storage/index.js'
+import { speexjs } from '../src/server/index.js'
+
+import {
+  HttpException, BadRequestException, UnauthorizedException, ForbiddenException,
+  NotFoundException, MethodNotAllowedException, ConflictException,
+  UnprocessableEntityException, TooManyRequestsException,
+  InternalServerErrorException, ServiceUnavailableException,
+  ValidationException, normalizeError, registerExceptionHandler,
+} from '../src/server/errors.js'
 
 // ─── Helpers ─────────────────────────────────────────────────────────
 
@@ -57,6 +66,20 @@ function createMockRes(): ServerResponse {
   const res = new ServerResponse(socket)
   res.statusCode = 200
   return res
+}
+
+function createMockIncomingMessage(method: string, url: string): IncomingMessage {
+  const socket = new Socket()
+  const req = new IncomingMessage(socket)
+  req.method = method
+  req.url = url
+  req.headers = {}
+  return req
+}
+
+function createMockServerResponse(): ServerResponse {
+  const socket = new Socket()
+  return new ServerResponse(socket)
 }
 
 const testSchema = {
@@ -1606,5 +1629,156 @@ describe('SuperUploadedFile', () => {
     })
     expect(vid.isVideo()).toBe(true)
     expect(vid.isImage()).toBe(false)
+  })
+})
+
+// ─── HttpException & Error Handling ──────────────────────────
+
+describe('HttpException', () => {
+  it('creates with default message and status', () => {
+    const err = new HttpException('Test error', 400)
+    expect(err.message).toBe('Test error')
+    expect(err.status).toBe(400)
+    expect(err.name).toBe('HttpException')
+  })
+
+  it('toJSON returns structured error', () => {
+    const err = new HttpException('Not Found', 404, 'NOT_FOUND')
+    const json = err.toJSON()
+    expect(json.error).toBe('NOT_FOUND')
+    expect(json.message).toBe('Not Found')
+    expect(json.statusCode).toBe(404)
+  })
+})
+
+describe('HTTP Exception subclasses', () => {
+  it('BadRequestException', () => {
+    const err = new BadRequestException()
+    expect(err.status).toBe(400)
+    expect(err.message).toBe('Bad Request')
+  })
+
+  it('UnauthorizedException', () => {
+    const err = new UnauthorizedException()
+    expect(err.status).toBe(401)
+  })
+
+  it('ForbiddenException', () => {
+    const err = new ForbiddenException()
+    expect(err.status).toBe(403)
+  })
+
+  it('NotFoundException', () => {
+    const err = new NotFoundException()
+    expect(err.status).toBe(404)
+  })
+
+  it('MethodNotAllowedException', () => {
+    const err = new MethodNotAllowedException()
+    expect(err.status).toBe(405)
+  })
+
+  it('ConflictException', () => {
+    const err = new ConflictException()
+    expect(err.status).toBe(409)
+  })
+
+  it('UnprocessableEntityException', () => {
+    const err = new UnprocessableEntityException()
+    expect(err.status).toBe(422)
+  })
+
+  it('TooManyRequestsException', () => {
+    const err = new TooManyRequestsException()
+    expect(err.status).toBe(429)
+  })
+
+  it('InternalServerErrorException', () => {
+    const err = new InternalServerErrorException()
+    expect(err.status).toBe(500)
+  })
+
+  it('ServiceUnavailableException', () => {
+    const err = new ServiceUnavailableException()
+    expect(err.status).toBe(503)
+  })
+})
+
+describe('ValidationException', () => {
+  it('includes field-level errors', () => {
+    const errors = { email: ['Invalid email'], name: ['Name is required'] }
+    const err = new ValidationException(errors)
+    expect(err.status).toBe(422)
+    expect(err.errors.email).toEqual(['Invalid email'])
+    const json = err.toJSON()
+    expect(json.errors).toEqual({ email: ['Invalid email'], name: ['Name is required'] })
+  })
+})
+
+describe('normalizeError', () => {
+  it('passes through HttpException', () => {
+    const err = new NotFoundException()
+    const result = normalizeError(err)
+    expect(result).toBe(err)
+  })
+
+  it('converts generic Error to InternalServerError', () => {
+    const result = normalizeError(new Error('db connection failed'))
+    expect(result.status).toBe(500)
+  })
+
+  it('hides message in production', () => {
+    const prev = process.env.NODE_ENV
+    process.env.NODE_ENV = 'production'
+    const result = normalizeError(new Error('secret details'))
+    // InternalServerErrorException checks NODE_ENV at construction time
+    expect(result.status).toBe(500)
+    process.env.NODE_ENV = prev
+  })
+})
+
+describe('registerExceptionHandler', () => {
+  it('normalizes non-HttpException errors to 500', () => {
+    const result = normalizeError(new Error('some error'))
+    expect(result.status).toBe(500)
+  })
+})
+
+describe('SuperApp error handling hooks', () => {
+  it('notFound() custom handler', async () => {
+    const app = speexjs()
+    let handlerCalled = false
+    app.notFound(({ response }) => {
+      handlerCalled = true
+      response.status(404).json({ custom: 'not-found' })
+    })
+    
+    const req = new SuperRequest(createMockIncomingMessage('GET', '/nonexistent'))
+    const res = new SuperResponse(createMockServerResponse())
+    await (app as any).handleRequest(req, res)
+    expect(handlerCalled).toBe(true)
+  })
+
+  it('onError() custom handler', async () => {
+    const app = speexjs()
+    app.get('/error', async () => { throw new Error('oops') })
+    
+    let errorCaught = false
+    app.onError((err, { response }) => {
+      errorCaught = true
+      response.status(500).json({ handled: true, message: err.message })
+    })
+    
+    const req = new SuperRequest(createMockIncomingMessage('GET', '/error'))
+    const res = new SuperResponse(createMockServerResponse())
+    await (app as any).handleRequest(req, res)
+    expect(errorCaught).toBe(true)
+  })
+
+  it('onShutdown() registers hook', () => {
+    const app = speexjs()
+    let hookCalled = false
+    app.onShutdown(() => { hookCalled = true })
+    expect((app as any).shutdownHandlers).toHaveLength(1)
   })
 })

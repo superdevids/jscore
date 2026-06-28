@@ -616,6 +616,8 @@ describe("Model", () => {
 		(User as any).queryRunner = null;
 		(Post as any).connection = null;
 		(Post as any).queryRunner = null;
+		(Model as any).relationDefs = new Map();
+		(Model as any).eagerLoads = new Map();
 	});
 
 	class User extends Model {
@@ -813,8 +815,8 @@ describe("Model", () => {
 			user.email = "u@b.com";
 			await user.save();
 			expect(raw).toHaveBeenCalledWith(
-				"UPDATE `users` SET `id` = ?, `name` = ?, `email` = ? WHERE `id` = ?",
-				[1, "UpdatedName", "u@b.com", 1],
+				"UPDATE `users` SET `name` = ?, `email` = ?, `id` = ? WHERE `id` = ?",
+				["UpdatedName", "u@b.com", 1, 1],
 			);
 		});
 	});
@@ -853,33 +855,49 @@ describe("Model", () => {
 
 	describe("belongsTo", () => {
 		it("generates query with foreign key matching owner key", () => {
-			const { runner } = makeMockRunner();
-			Post.setConnection(runner);
-			const qb = Post.belongsTo(User);
-			expect(qb).toBeInstanceOf(QueryBuilder);
+			Post.belongsTo(User);
+			const defs = (Model as any).relationDefs as Map<string, any>;
+			const key = "belongsTo:users";
+			expect(defs.has(key)).toBe(true);
+			const def = defs.get(key);
+			expect(def.type).toBe("belongsTo");
+			expect(def.relatedModel).toBe(User);
+			expect(def.foreignKey).toBe("users_id");
+			expect(def.localKey).toBe("id");
 		});
 
 		it("uses custom foreignKey and ownerKey", () => {
-			const { runner } = makeMockRunner();
-			Post.setConnection(runner);
-			const qb = Post.belongsTo(User, "author_id", "uuid");
-			expect(qb).toBeInstanceOf(QueryBuilder);
+			Post.belongsTo(User, "author_id", "uuid");
+			const defs = (Model as any).relationDefs as Map<string, any>;
+			const key = "belongsTo:users";
+			expect(defs.has(key)).toBe(true);
+			const def = defs.get(key);
+			expect(def.foreignKey).toBe("author_id");
+			expect(def.localKey).toBe("uuid");
 		});
 	});
 
 	describe("hasMany", () => {
 		it("generates query with join", () => {
-			const { runner } = makeMockRunner();
-			User.setConnection(runner);
-			const qb = User.hasMany(Post);
-			expect(qb).toBeInstanceOf(QueryBuilder);
+			User.hasMany(Post);
+			const defs = (Model as any).relationDefs as Map<string, any>;
+			const key = "hasMany:posts";
+			expect(defs.has(key)).toBe(true);
+			const def = defs.get(key);
+			expect(def.type).toBe("hasMany");
+			expect(def.relatedModel).toBe(Post);
+			expect(def.foreignKey).toBe("users_id");
+			expect(def.localKey).toBe("id");
 		});
 
 		it("uses custom foreignKey and localKey", () => {
-			const { runner } = makeMockRunner();
-			User.setConnection(runner);
-			const qb = User.hasMany(Post, "author_id", "uuid");
-			expect(qb).toBeInstanceOf(QueryBuilder);
+			User.hasMany(Post, "author_id", "uuid");
+			const defs = (Model as any).relationDefs as Map<string, any>;
+			const key = "hasMany:posts";
+			expect(defs.has(key)).toBe(true);
+			const def = defs.get(key);
+			expect(def.foreignKey).toBe("author_id");
+			expect(def.localKey).toBe("uuid");
 		});
 	});
 

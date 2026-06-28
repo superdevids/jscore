@@ -26,6 +26,7 @@ export default defineConfig({
     'src/logger/transports.ts',
     'src/color/index.ts',
     'src/nlfunction/index.ts',
+    'src/nlarray/index.ts',
   ],
   format: ['esm'],
   dts: true,

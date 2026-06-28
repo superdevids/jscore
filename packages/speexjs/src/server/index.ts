@@ -24,6 +24,22 @@ export {
 	type StorageConfig,
 	storage,
 } from "./storage";
+export {
+	HttpException,
+	BadRequestException,
+	UnauthorizedException,
+	ForbiddenException,
+	NotFoundException,
+	MethodNotAllowedException,
+	ConflictException,
+	UnprocessableEntityException,
+	TooManyRequestsException,
+	InternalServerErrorException,
+	ServiceUnavailableException,
+	ValidationException,
+	registerExceptionHandler,
+	normalizeError,
+} from "./errors";
 
 export interface ViewEngine {
 	render(
@@ -45,6 +61,10 @@ export class SuperApp {
 	private globalPipeline: MiddlewarePipeline;
 	private started = false;
 	private serverPromise: Promise<void> | undefined;
+	private onErrorHandler: ((err: Error, ctx: RouteContext) => void | Promise<void>) | null = null;
+	private onNotFoundHandler: ((ctx: RouteContext) => void | Promise<void>) | null = null;
+	private shutdownHandlers: (() => void | Promise<void>)[] = [];
+	private shuttingDown = false;
 
 	constructor(options: AppOptions = {}) {
 		this.container = options.container ?? new Container();
@@ -168,6 +188,21 @@ export class SuperApp {
 		return this;
 	}
 
+	onError(handler: (err: Error, ctx: RouteContext) => void | Promise<void>): this {
+		this.onErrorHandler = handler;
+		return this;
+	}
+
+	notFound(handler: (ctx: RouteContext) => void | Promise<void>): this {
+		this.onNotFoundHandler = handler;
+		return this;
+	}
+
+	onShutdown(handler: () => void | Promise<void>): this {
+		this.shutdownHandlers.push(handler);
+		return this;
+	}
+
 	getServer(): ServerInstance | undefined {
 		return this.serverInstance;
 	}
@@ -195,10 +230,33 @@ export class SuperApp {
 		});
 	}
 
-	listen(port?: number, callback?: () => void): void {
+	listen(port?: number, callback?: () => void): this {
 		this.serverPromise = this.start(port).then(() => {
+			const shutdown = async (signal: string) => {
+				if (this.shuttingDown) return;
+				this.shuttingDown = true;
+
+				console.log(`\n⚠️  Received ${signal}. Starting graceful shutdown...`);
+
+				for (const handler of this.shutdownHandlers) {
+					try { await handler(); } catch { /* ignore shutdown errors */ }
+				}
+
+				await this.close();
+				console.log('✓ Server shut down gracefully');
+				process.exit(0);
+			};
+
+			process.on('SIGINT', () => shutdown('SIGINT'));
+			process.on('SIGTERM', () => shutdown('SIGTERM'));
+
+			if (process.stdin && process.stdin.isTTY) {
+				process.stdin.on('end', () => shutdown('stdin end'));
+			}
+
 			callback?.();
 		});
+		return this;
 	}
 
 	async close(): Promise<void> {
@@ -222,8 +280,20 @@ export class SuperApp {
 		const resolvedRoute = this.router.resolve(req.method, req.path);
 
 		if (resolvedRoute === null) {
+			if (this.onNotFoundHandler !== null) {
+				const ctx: RouteContext = {
+					request: req,
+					response: res,
+					params: {},
+					query: req.query,
+					container: this.container,
+				};
+				await this.onNotFoundHandler(ctx);
+				if (!res.headersSent) await res.flush();
+				return;
+			}
 			res.status(HttpStatus.NOT_FOUND).json({
-				error: "Not Found",
+				error: 'NOT_FOUND',
 				message: `Route ${req.method} ${req.path} not found`,
 			});
 			await res.flush();
@@ -240,16 +310,26 @@ export class SuperApp {
 			container: this.container,
 		};
 
-		await this.globalPipeline.run(ctx, async () => {
-			const routePipeline = new MiddlewarePipeline();
-			for (const mw of resolvedRoute.middleware) {
-				routePipeline.use(mw);
-			}
-
-			await routePipeline.run(ctx, async () => {
-				await resolvedRoute.handler(ctx);
+		try {
+			await this.globalPipeline.run(ctx, async () => {
+				const routePipeline = new MiddlewarePipeline();
+				for (const mw of resolvedRoute.middleware) {
+					routePipeline.use(mw);
+				}
+				await routePipeline.run(ctx, async () => {
+					await resolvedRoute.handler(ctx);
+				});
 			});
-		});
+		} catch (err: unknown) {
+			if (this.onErrorHandler !== null) {
+				await this.onErrorHandler(
+					err instanceof Error ? err : new Error(String(err)),
+					ctx,
+				);
+			} else {
+				throw err;
+			}
+		}
 
 		if (!res.headersSent) {
 			await res.flush();

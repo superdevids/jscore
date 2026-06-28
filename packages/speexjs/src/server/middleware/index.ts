@@ -4,7 +4,7 @@ import { extname, join, resolve } from "node:path";
 import { gzipSync } from "node:zlib";
 import { HttpStatus } from "../http/status";
 import type { RouteContext } from "../router";
-
+import type { Schema } from "../../schema/types.js";
 export type Middleware = (
 	ctx: RouteContext,
 	next: () => Promise<void>,
@@ -475,6 +475,39 @@ export function helmet(): Middleware {
 
 		return next();
 	};
+}
+
+// ─── Request Validation Middleware ───────────────────────────
+
+export function validate(schema: Schema<unknown>): Middleware {
+  return async (ctx: RouteContext, next: () => Promise<void>) => {
+    const data = await ctx.request.body()
+    const result = schema.safeParse(data)
+    if (!result.success) {
+      ctx.response.status(422).json({
+        error: 'VALIDATION_ERROR',
+        message: result.error,
+      })
+      return
+    }
+    (ctx as any).validated = result.data
+    return next()
+  }
+}
+
+export function validateQuery(schema: Schema<unknown>): Middleware {
+  return async (ctx: RouteContext, next: () => Promise<void>) => {
+    const result = schema.safeParse(ctx.request.query)
+    if (!result.success) {
+      ctx.response.status(422).json({
+        error: 'VALIDATION_ERROR',
+        message: result.error,
+      })
+      return
+    }
+    (ctx as any).validatedQuery = result.data
+    return next()
+  }
 }
 
 export class MiddlewarePipeline {

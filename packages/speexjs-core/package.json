@@ -1,7 +1,7 @@
-﻿{
+{
     "name":  "speexjs-core",
     "version":  "0.7.0",
-    "description":  "JavaScript toolkit all-in-one buat developer Indonesia: validasi NIK/NPWP/Phone, terbilang, formatRupiah, timeAgo (WIB/WITA/WIT), deepClone, logger, dep scanner. 200+ fungsi, zero dependency.",
+    "description":  "JavaScript toolkit: NDArray (NumPy-like), 250+ functions (core, math, date, string, async, validation, collection, color, error, logger, crypto, path, IO, type, dep-exray, functional tools). Zero dependencies.",
     "type":  "module",
     "main":  "./dist/index.js",
     "module":  "./dist/index.js",
@@ -103,10 +103,14 @@
                                     "types":  "./dist/color/index.d.ts"
                                 },
                     "./nlfunction":  {
-                                         "import":  "./dist/nlfunction/index.js",
-                                         "types":  "./dist/nlfunction/index.d.ts"
-                                     }
-                },
+                                          "import":  "./dist/nlfunction/index.js",
+                                          "types":  "./dist/nlfunction/index.d.ts"
+                                      },
+                    "./nlarray":  {
+                                      "import":  "./dist/nlarray/index.js",
+                                      "types":  "./dist/nlarray/index.d.ts"
+                                  }
+                 },
     "sideEffects":  false,
     "files":  [
                   "dist",
@@ -151,12 +155,13 @@
                      "npm-audit",
                      "bloat-detection",
                      "security",
-                     "indonesia",
-                     "nik",
-                     "npwp",
                      "validation",
-                     "rupiah",
-                     "terbilang"
+                      "ndarray",
+                      "numpy",
+                      "functional",
+                      "data-science",
+                      "utilities",
+                      "lodash-alternative"
                  ],
     "publishConfig":  {
                           "access":  "public"

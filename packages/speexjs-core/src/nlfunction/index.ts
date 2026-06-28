@@ -206,7 +206,7 @@ export function memoizeSync<T extends (...args: any[]) => any>(
 ): T & { cache: Map<string, ReturnType<T>> } {
   const cache = new Map<string, ReturnType<T>>()
 
-  const memoized = function (this: unknown, ...args: any[]): ReturnType<T> {
+  const memoized = function (this: unknown, ...args: Parameters<T>): ReturnType<T> {
     const key = resolver ? resolver(...args) : String(args[0])
     if (cache.has(key)) {
       return cache.get(key) as ReturnType<T>

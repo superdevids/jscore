@@ -84,9 +84,6 @@ export {
   timeAgo,
   timeRemaining,
   formatDuration,
-  TIMEZONE_WIB,
-  TIMEZONE_WITA,
-  TIMEZONE_WIT,
   toTimezone,
   formatInTimezone,
   isToday,
@@ -116,8 +113,6 @@ export {
   lastSaturday,
   lastSunday,
   parseDuration,
-  isHolidayIndonesia,
-  getIndonesianHolidayNames,
   InvalidDateError,
 } from './date/index.js'
 
@@ -240,8 +235,6 @@ export {
   levenshtein,
   fuzzyMatch,
   maskString,
-  terbilang,
-  formatRupiah,
   formatBytes,
   randomString,
   randomBoolean,
@@ -328,24 +321,12 @@ export type {
   ScannerConfig,
 } from './dep-exray/index.js'
 
-// ─── validation (Indonesia-specific) ────────────────────
+// ─── validation ────────────────────────────────────────
 export {
-  isNIK,
-  isNPWP,
   isPhone,
   isEmail,
   isURL,
-  parseNIK,
-  isPlatNomor,
-  isKodepos,
-  isNoRekening,
-  isNoSIM,
-  isPassport,
-  isNoBPJS,
-  isNoKK,
 } from './validation/index.js'
-
-export type { NIKInfo } from './validation/index.js'
 
 // ─── error (typed errors) ───────────────────────────────
 export {
@@ -379,9 +360,6 @@ export {
 
 // ─── nlfunction (functional programming) ────────────────
 export {
-  debounce,
-  throttle,
-  once,
   id,
   curry,
   partial,
@@ -398,6 +376,10 @@ export {
   comparing,
   memoizeLast,
 } from './nlfunction/index.js'
+
+// ─── nlarray (NumPy-like NDArray) ──────────────────────
+export { NDArray, sin, cos, exp, log, sqrt } from './nlarray/index.js'
+export type { NDArray as NDArrayType } from './nlarray/index.js'
 
 // ─── color (utilities) ──────────────────────────────────
 export {

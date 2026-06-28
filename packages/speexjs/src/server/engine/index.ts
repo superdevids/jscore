@@ -1,8 +1,10 @@
 import { createServer as createHttpServer } from 'node:http'
+import { createServer as createHttpsServer } from 'node:https'
 import type { Server } from 'node:http'
-
-import { SuperRequest } from '../http/request'
-import { SuperResponse } from '../http/response'
+import { readFileSync } from 'node:fs'
+import { SuperRequest } from '../http/request.js'
+import { SuperResponse } from '../http/response.js'
+import { normalizeError } from '../errors.js'
 
 export interface ServerInstance {
   close: () => Promise<void>
@@ -30,9 +32,9 @@ export class NodeEngine implements ServerEngine {
         await handler(req, res)
       } catch (_err: unknown) {
         if (!res.headersSent) {
-          const message =
-            _err instanceof Error ? _err.message : 'Internal Server Error'
-          res.status(500).json({ error: message })
+          const error = _err instanceof Error ? _err : new Error(String(_err))
+          const httpError = normalizeError(error)
+          res.status(httpError.status).json(httpError.toJSON())
           await res.flush()
         }
       }
@@ -68,5 +70,39 @@ export class NodeEngine implements ServerEngine {
 
   async close(server: ServerInstance): Promise<void> {
     await server.close()
+  }
+}
+
+export class HttpsEngine extends NodeEngine {
+  private options: { key: string; cert: string }
+
+  constructor(keyPath: string, certPath: string) {
+    super()
+    this.options = {
+      key: readFileSync(keyPath, 'utf-8'),
+      cert: readFileSync(certPath, 'utf-8'),
+    }
+  }
+
+  async createServer(handler: RequestHandler): Promise<ServerInstance> {
+    const server = createHttpsServer(this.options, async (nodeReq, nodeRes) => {
+      const req = new (require('../http/request.js').SuperRequest)(nodeReq)
+      const res = new (require('../http/response.js').SuperResponse)(nodeRes)
+      try { await handler(req, res) }
+      catch (_err: unknown) {
+        if (!res.headersSent) {
+          const { normalizeError } = require('../errors.js')
+          const error = _err instanceof Error ? _err : new Error(String(_err))
+          const httpError = normalizeError(error)
+          res.status(httpError.status).json(httpError.toJSON())
+          await res.flush()
+        }
+      }
+      if (!res.headersSent) await res.flush()
+    })
+    return {
+      raw: server,
+      close: () => new Promise((resolve, reject) => server.close((err) => err ? reject(err) : resolve())),
+    }
   }
 }

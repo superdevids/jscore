@@ -13,7 +13,7 @@ import {
   isToday, isYesterday, isTomorrow, isPast, isFuture, isSameDay,
   daysInMonth, dayOfYear, weekOfYear, quarter, maxDate, minDate,
   nextMonday, nextTuesday, nextFriday, lastMonday, lastFriday,
-  parseDuration, isHolidayIndonesia,
+  parseDuration,
 } from '../src/date/index.js'
 import {
   stripHtml, truncateWords, isPalindrome, isAnagram, similarity,
@@ -23,9 +23,7 @@ import {
   isValidHex, hexToHsl, hslToHex, mix, randomColor, isLight, isDark,
   complementary,
 } from '../src/color/index.js'
-import {
-  isNoSIM, isPassport, isNoBPJS, isNoKK,
-} from '../src/validation/index.js'
+// Validation functions removed: isNoSIM, isPassport, isNoBPJS, isNoKK were Indonesia-specific
 import {
   RateLimiter, Mutex, batch, waterfall,
 } from '../src/async/index.js'
@@ -152,12 +150,7 @@ describe('DATE: parseDuration', () => {
   it('parseDuration', () => { expect(parseDuration('1h30m')).toBe(5400000); expect(parseDuration('1d')).toBe(86400000) })
 })
 
-describe('DATE: isHolidayIndonesia', () => {
-  it('Independence Day', () => { expect(isHolidayIndonesia(new Date('2024-08-17'))).toBe(true) })
-  it('Christmas', () => { expect(isHolidayIndonesia(new Date('2024-12-25'))).toBe(true) })
-  it('New Year', () => { expect(isHolidayIndonesia(new Date('2024-01-01'))).toBe(true) })
-  it('regular day', () => { expect(isHolidayIndonesia(new Date('2024-06-15'))).toBe(false) })
-})
+
 
 // ════════════════════════════════════════════════
 // STRING EXPANSION
@@ -275,22 +268,5 @@ describe('ASYNC: waterfall', () => {
 // ════════════════════════════════════════════════
 // VALIDATION EXPANSION
 // ════════════════════════════════════════════════
-describe('VALIDATION: isNoSIM', () => {
-  it('valid', () => { expect(isNoSIM('123456789012')).toBe(true) })
-  it('invalid', () => { expect(isNoSIM('12345')).toBe(false) })
-})
-
-describe('VALIDATION: isPassport', () => {
-  it('valid', () => { expect(isPassport('AB1234567')).toBe(true) })
-  it('invalid', () => { expect(isPassport('123456789')).toBe(false) })
-})
-
-describe('VALIDATION: isNoBPJS', () => {
-  it('valid', () => { expect(isNoBPJS('1234567890123')).toBe(true) })
-  it('invalid', () => { expect(isNoBPJS('12345')).toBe(false) })
-})
-
-describe('VALIDATION: isNoKK', () => {
-  it('valid', () => { expect(isNoKK('1234567890123456')).toBe(true) })
-  it('invalid', () => { expect(isNoKK('12345')).toBe(false) })
-})
+// VALIDATION tests for Indonesia-specific functions (isNoSIM, isPassport, isNoBPJS, isNoKK) have been removed
+// as those functions were removed from the codebase

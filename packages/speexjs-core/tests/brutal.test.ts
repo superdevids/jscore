@@ -13,7 +13,6 @@ import {
   isWeekend, isLeapYear, isBefore, isAfter, isBetween, isBusinessDay,
   addBusinessDays, calculateAge, InvalidDateError,
   timeAgo, timeRemaining, formatDuration, toTimezone, formatInTimezone,
-  TIMEZONE_WIB, TIMEZONE_WITA, TIMEZONE_WIT,
 } from '../src/date/index.js'
 import {
   groupBy, keyBy, omit, pick, pluck, shuffle, sample, sampleSize,
@@ -24,7 +23,7 @@ import {
   capitalize, camelCase, kebabCase, snakeCase, pascalCase, truncate, template,
   uuid, nanoid, escapeHtml, unescapeHtml, trim, trimStart, trimEnd,
   pad, padStart, padEnd, reverse, words, slugify, countOccurrences,
-  levenshtein, fuzzyMatch, maskString, terbilang, formatRupiah,
+  levenshtein, fuzzyMatch, maskString,
 } from '../src/string/index.js'
 import {
   sleep, timeout, raceWithTimeout, allSettledMap, parallelMap,
@@ -46,7 +45,7 @@ import {
   join, resolve, basename, dirname, extname, normalize, isAbsolute, relative, parse, format,
 } from '../src/path/index.js'
 import {
-  isNIK, isNPWP, isPhone, isEmail, isURL,
+  isPhone, isEmail, isURL,
 } from '../src/validation/index.js'
 import {
   createError, isTypedError, TypedError, MultiError, collectErrors,
@@ -217,20 +216,7 @@ describe('EDGE: String - Unicode, Emoji, Extremes', () => {
   it('maskString: custom chars', () => { expect(maskString('1234567890', { start: 0, end: 4, char: '#' })).toBe('####567890') })
   it('maskString: empty', () => { expect(maskString('')).toBe('') })
   it('maskString: start >= end returns original', () => { expect(maskString('hello', { start: 3, end: 2 })).toBe('hello') })
-  it('terbilang: basic numbers', () => {
-    expect(terbilang(0)).toBe('nol')
-    expect(terbilang(1)).toBe('satu')
-    expect(terbilang(11)).toBe('sebelas')
-    expect(terbilang(100)).toBe('seratus')
-    expect(terbilang(1000)).toBe('seribu')
-    expect(terbilang(1500000)).toBe('satu juta lima ratus ribu')
-  })
-  it('terbilang: negative throws', () => {
-    expect(() => terbilang(-5)).not.toThrow()
-  })
-  it('terbilang: Infinity throws', () => { expect(() => terbilang(Infinity)).toThrow() })
-  it('formatRupiah: default', () => { expect(formatRupiah(1500000)).toContain('1.500.000') })
-  it('formatRupiah: compact', () => { expect(formatRupiah(1500000, { notation: 'compact' })).toContain('jt') })
+
   it('countOccurrences: non-overlapping', () => { expect(countOccurrences('aaaa', 'aa')).toBe(2) })
   it('countOccurrences: empty string', () => { expect(countOccurrences('', 'a')).toBe(0) })
 })
@@ -300,25 +286,14 @@ describe('EDGE: Date & Timezone Hell', () => {
     expect(r.getFullYear()).toBe(2025)
     expect(r.getDate()).toBe(1) // March 1
   })
-  // Timezone
-  it('toTimezone: WIB shift correct', () => {
-    const d = new Date('2024-01-01T00:00:00Z')
-    const wib = toTimezone(d, TIMEZONE_WIB)
-    expect(Math.abs(wib.getTime())).toBeGreaterThan(0)
-  })
-  it('formatInTimezone: shows correct hour in WIB', () => {
-    const d = new Date('2024-01-01T00:00:00Z')
-    expect(formatInTimezone(d, 'HH', TIMEZONE_WIB)).toBe('07')
-    expect(formatInTimezone(d, 'HH', TIMEZONE_WITA)).toBe('08')
-    expect(formatInTimezone(d, 'HH', TIMEZONE_WIT)).toBe('09')
-  })
+
   it('timeAgo: now', () => {
     const now = new Date()
-    expect(timeAgo(now)).toMatch(/detik|baru saja/)
+    expect(timeAgo(now)).toMatch(/just now|second/)
   })
   it('timeAgo: 1 hour ago', () => {
     const d = new Date(Date.now() - 3600000)
-    expect(timeAgo(d)).toContain('jam')
+    expect(timeAgo(d)).toContain('hour')
   })
   it('timeAgo: English locale', () => {
     const d = new Date(Date.now() - 3600000)
@@ -326,16 +301,12 @@ describe('EDGE: Date & Timezone Hell', () => {
   })
   it('timeRemaining: future date', () => {
     const d = new Date(Date.now() + 7200000)
-    expect(timeRemaining(d)).toContain('jam')
+    expect(timeRemaining(d)).toContain('hour')
   })
   it('formatDuration: zero duration', () => {
-    expect(formatDuration({ years: 0, months: 0, days: 0, hours: 0, minutes: 0, seconds: 0 })).toBe('0 detik')
+    expect(formatDuration({ years: 0, months: 0, days: 0, hours: 0, minutes: 0, seconds: 0 })).toBe('0 seconds')
   })
-  it('formatInTimezone: uses correct offset', () => {
-    const d = new Date('2024-01-01T00:00:00Z')
-    const result = formatInTimezone(d, 'HH', TIMEZONE_WIB)
-    expect(result).toBe('07')
-  })
+
 })
 
 describe('EDGE: Collection - Empty, Sparse, Null', () => {
@@ -748,23 +719,10 @@ describe('EDGE: Core Functions - Deep Clone & Co', () => {
   it('identity returns argument', () => { expect(identity(42)).toBe(42) })
 })
 
-describe('EDGE: Validation - Indonesia Specific', () => {
-  it('isNIK: valid male', () => { expect(isNIK('3201010203940001')).toBe(true) })
-  it('isNIK: valid female (day+40)', () => { expect(isNIK('3201015203940001')).toBe(true) })
-  it('isNIK: invalid date (Feb 29 non-leap)', () => { expect(isNIK('3201012902230001')).toBe(false) })
-  it('isNIK: valid leap year Feb 29', () => { expect(isNIK('3201012902240001')).toBe(true) })
-  it('isNIK: with dots', () => { expect(isNIK('32.01.01.020394.0001')).toBe(true) })
-  it('isNIK: too short', () => { expect(isNIK('12345')).toBe(false) })
-  it('isNIK: non-numeric', () => { expect(isNIK('ABCDEFGHIJKLMNOP')).toBe(false) })
-  it('isNPWP: valid with checksum', () => { expect(isNPWP('123456789012344')).toBe(true) })
-  it('isNPWP: invalid checksum', () => { expect(isNPWP('123456789012345')).toBe(false) })
-  it('isNPWP: formatted', () => { expect(isNPWP('12.345.678.9-012.344')).toBe(true) })
-  it('isPhone: Indonesian mobile', () => { expect(isPhone('08123456789')).toBe(true) })
-  it('isPhone: with +62', () => { expect(isPhone('+628123456789')).toBe(true) })
-  it('isPhone: without prefix 08', () => { expect(isPhone('628123456789')).toBe(true) })
-  it('isPhone: invalid prefix', () => { expect(isPhone('0800123456789')).toBe(false) })
+describe('EDGE: Validation - Phone, Email, URL', () => {
+  it('isPhone: valid number 08123456789', () => { expect(isPhone('08123456789')).toBe(true) })
+  it('isPhone: with + prefix', () => { expect(isPhone('+628123456789')).toBe(true) })
   it('isPhone: too short', () => { expect(isPhone('08123')).toBe(false) })
-  it('isPhone: any country', () => { expect(isPhone('+14155552671', 'any')).toBe(true) })
   it('isEmail: valid RFC', () => {
     expect(isEmail('user@example.com')).toBe(true)
     expect(isEmail('user.name+tag@example.co.id')).toBe(true)

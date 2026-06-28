@@ -629,12 +629,12 @@ export function omitBy<T extends Record<string, unknown>>(
 export function mapKeys<T extends Record<string, unknown>>(
   obj: T,
   mapper: (key: string, value: T[keyof T]) => string
-): Record<string, T[keyof T]> {
+  ): Record<string, T[keyof T]> {
   const result: Record<string, T[keyof T]> = {}
   for (const key of Object.keys(obj)) {
     const newKey = mapper(key, obj[key] as T[keyof T])
     if (PROTO_KEYS.has(newKey)) continue
-    result[newKey] = obj[key]
+    result[newKey] = obj[key] as T[keyof T]
   }
   return result
 }
@@ -970,6 +970,7 @@ export function renameKeys<T extends Record<string, unknown>>(
 /**
  * Deep diff between two objects. Returns keys present in both with differing values,
  * plus keys only in the first object (with value set to `undefined`).
+ * Arrays are treated as atomic values and compared by their content (not recursively merged).
  *
  * @param a - The first object (original).
  * @param b - The second object (changed).
@@ -989,11 +990,20 @@ export function diff<T>(a: T, b: T): Partial<T> {
     const aVal = (a as Record<string, unknown>)[key]
     const bVal = (b as Record<string, unknown>)[key]
 
+    // Key only in second object: mark as added
     if (!(key in (a as Record<string, unknown>))) {
       result[key] = bVal
-    } else if (!(key in (b as Record<string, unknown>))) {
+      continue
+    }
+
+    // Key only in first object: mark as removed
+    if (!(key in (b as Record<string, unknown>))) {
       result[key] = undefined
-    } else if (
+      continue
+    }
+
+    // Both values are plain objects (not arrays): deep diff
+    if (
       typeof aVal === 'object' &&
       aVal !== null &&
       typeof bVal === 'object' &&
@@ -1005,12 +1015,35 @@ export function diff<T>(a: T, b: T): Partial<T> {
       if (Object.keys(nested).length > 0) {
         result[key] = nested
       }
-    } else if (aVal !== bVal) {
+      continue
+    }
+
+    // For arrays: compare by value (atomic - don't recurse into elements)
+    if (Array.isArray(aVal) && Array.isArray(bVal)) {
+      if (!arraysEqual(aVal, bVal)) {
+        result[key] = bVal
+      }
+      continue
+    }
+
+    // For primitives: compare with Object.is
+    if (!Object.is(aVal, bVal)) {
       result[key] = bVal
     }
   }
 
   return result as Partial<T>
+}
+
+/**
+ * Shallow value comparison for arrays.
+ */
+function arraysEqual(a: unknown[], b: unknown[]): boolean {
+  if (a.length !== b.length) return false
+  for (let i = 0; i < a.length; i++) {
+    if (!Object.is(a[i], b[i])) return false
+  }
+  return true
 }
 
 /**
