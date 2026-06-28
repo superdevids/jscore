@@ -40,16 +40,8 @@ interface HavingClause {
 }
 
 export interface PaginatedResult<T = any> {
-	data: T[];
-	currentPage: number;
-	perPage: number;
-	total: number;
-	lastPage: number;
-	from: number;
-	to: number;
-	hasMore: boolean;
-	hasPrev: boolean;
-	isEmpty: boolean;
+	data: T[]; currentPage: number; perPage: number; total: number; lastPage: number;
+	from: number; to: number; hasMore: boolean; hasPrev: boolean; isEmpty: boolean;
 }
 
 export class QueryBuilder {
@@ -77,51 +69,24 @@ export class QueryBuilder {
 	}
 
 	addSelect(...columns: string[]): this {
-		if (this.columns[0] === "*") {
-			this.columns = columns;
-		} else {
-			this.columns.push(...columns);
-		}
+		if (this.columns[0] === "*") this.columns = columns;
+		else this.columns.push(...columns);
 		return this;
 	}
 
-	distinct(): this {
-		this.distinctEnabled = true;
-		return this;
-	}
+	distinct(): this { this.distinctEnabled = true; return this; }
 
-	from(table: string): this {
-		this.fromSubquery = table;
-		return this;
-	}
+	from(table: string): this { this.fromSubquery = table; return this; }
 
 	where(column: string, operator: any, value?: any): this {
-		if (value === undefined) {
-			value = operator;
-			operator = "=";
-		}
-		this.wheres.push({
-			type: "basic",
-			column,
-			operator: String(operator),
-			value,
-			boolean: "and",
-		});
+		if (value === undefined) { value = operator; operator = "="; }
+		this.wheres.push({ type: "basic", column, operator: String(operator), value, boolean: "and" });
 		return this;
 	}
 
 	orWhere(column: string, operator: any, value?: any): this {
-		if (value === undefined) {
-			value = operator;
-			operator = "=";
-		}
-		this.wheres.push({
-			type: "basic",
-			column,
-			operator: String(operator),
-			value,
-			boolean: "or",
-		});
+		if (value === undefined) { value = operator; operator = "="; }
+		this.wheres.push({ type: "basic", column, operator: String(operator), value, boolean: "or" });
 		return this;
 	}
 
@@ -146,22 +111,12 @@ export class QueryBuilder {
 	}
 
 	whereBetween(column: string, range: [any, any]): this {
-		this.wheres.push({
-			type: "between",
-			column,
-			values: range,
-			boolean: "and",
-		});
+		this.wheres.push({ type: "between", column, values: range, boolean: "and" });
 		return this;
 	}
 
 	whereNotBetween(column: string, range: [any, any]): this {
-		this.wheres.push({
-			type: "notBetween",
-			column,
-			values: range,
-			boolean: "and",
-		});
+		this.wheres.push({ type: "notBetween", column, values: range, boolean: "and" });
 		return this;
 	}
 
@@ -176,13 +131,9 @@ export class QueryBuilder {
 	}
 
 	whereGroup(callback: (query: QueryBuilder) => void): this {
-		const subQuery = new QueryBuilder(this.connection, this.tableName);
-		callback(subQuery);
-		this.wheres.push({
-			type: "nested",
-			nested: subQuery.wheres,
-			boolean: "and",
-		});
+		const sub = new QueryBuilder(this.connection, this.tableName);
+		callback(sub);
+		this.wheres.push({ type: "nested", nested: sub.wheres, boolean: "and" });
 		return this;
 	}
 
@@ -229,50 +180,25 @@ export class QueryBuilder {
 		return this;
 	}
 
-	orderByDesc(column: string): this {
-		return this.orderBy(column, "desc");
-	}
+	orderByDesc(column: string): this { return this.orderBy(column, "desc"); }
 
-	latest(column = "created_at"): this {
-		return this.orderBy(column, "desc");
-	}
+	latest(column = "created_at"): this { return this.orderBy(column, "desc"); }
 
-	oldest(column = "created_at"): this {
-		return this.orderBy(column, "asc");
-	}
+	oldest(column = "created_at"): this { return this.orderBy(column, "asc"); }
 
-	inRandomOrder(): this {
-		this.orderBys.push({ column: "RANDOM()", direction: "asc" });
-		return this;
-	}
+	inRandomOrder(): this { this.orderBys.push({ column: "RANDOM()", direction: "asc" }); return this; }
 
-	limit(limit: number): this {
-		this.limitValue = limit;
-		return this;
-	}
+	limit(limit: number): this { this.limitValue = limit; return this; }
 
-	offset(offset: number): this {
-		this.offsetValue = offset;
-		return this;
-	}
+	offset(offset: number): this { this.offsetValue = offset; return this; }
 
-	skip(skip: number): this {
-		return this.offset(skip);
-	}
+	skip(skip: number): this { return this.offset(skip); }
 
-	take(take: number): this {
-		return this.limit(take);
-	}
+	take(take: number): this { return this.limit(take); }
 
-	groupBy(...columns: string[]): this {
-		this.groupBys.push(...columns);
-		return this;
-	}
+	groupBy(...columns: string[]): this { this.groupBys.push(...columns); return this; }
 
-	having(column: string, operator: string, value: any): this {
-		this.havings.push({ column, operator, value });
-		return this;
-	}
+	having(column: string, operator: string, value: any): this { this.havings.push({ column, operator, value }); return this; }
 
 	async get<T = any>(): Promise<T[]> {
 		const { sql, bindings } = this.toSQL();
@@ -302,12 +228,8 @@ export class QueryBuilder {
 
 	async count(column = "*"): Promise<number> {
 		const qb = this.clone();
-		qb.columns = [
-			`COUNT(${column === "*" ? "*" : this.wrap(column)}) as aggregate`,
-		];
-		qb.orderBys = [];
-		qb.limitValue = null;
-		qb.offsetValue = null;
+		qb.columns = [`COUNT(${column === "*" ? "*" : this.wrap(column)}) as aggregate`];
+		qb.orderBys = []; qb.limitValue = null; qb.offsetValue = null;
 		const { sql, bindings } = qb.toSQL();
 		const result = await this.connection.raw(sql, bindings);
 		const row = result.rows[0];
@@ -315,168 +237,91 @@ export class QueryBuilder {
 		return Number(row.aggregate ?? row.count ?? row["COUNT(*)"] ?? 0);
 	}
 
-	async exists(): Promise<boolean> {
-		const count = await this.count();
-		return count > 0;
-	}
+	async exists(): Promise<boolean> { return (await this.count()) > 0; }
 
-	async doesntExist(): Promise<boolean> {
-		return !(await this.exists());
-	}
+	async doesntExist(): Promise<boolean> { return !(await this.exists()); }
 
-	async max(column: string): Promise<number | null> {
-		return this.aggregate("MAX", column);
-	}
+	async max(column: string): Promise<number | null> { return this.aggregate("MAX", column); }
 
-	async min(column: string): Promise<number | null> {
-		return this.aggregate("MIN", column);
-	}
+	async min(column: string): Promise<number | null> { return this.aggregate("MIN", column); }
 
-	async sum(column: string): Promise<number> {
-		const result = await this.aggregate("SUM", column);
-		return result ?? 0;
-	}
+	async sum(column: string): Promise<number> { return (await this.aggregate("SUM", column)) ?? 0; }
 
-	async avg(column: string): Promise<number> {
-		const result = await this.aggregate("AVG", column);
-		return result ?? 0;
-	}
+	async avg(column: string): Promise<number> { return (await this.aggregate("AVG", column)) ?? 0; }
 
 	async paginate(perPage = 15, page = 1): Promise<PaginatedResult> {
-		const countQb = this.clone();
-		const total = await countQb.count();
-
+		const total = await this.count();
 		const lastPage = Math.max(1, Math.ceil(total / perPage));
 		const currentPage = Math.max(1, Math.min(page, lastPage));
-		const fromVal = (currentPage - 1) * perPage + 1;
-		const toVal = Math.min(currentPage * perPage, total);
-
 		const qb = this.clone();
 		qb.limitValue = perPage;
 		qb.offsetValue = (currentPage - 1) * perPage;
 		const { sql, bindings } = qb.toSQL();
 		const result = await this.connection.raw(sql, bindings);
-
-		return {
-			data: result.rows,
-			currentPage,
-			perPage,
-			total,
-			lastPage,
-			from: total > 0 ? fromVal : 0,
-			to: total > 0 ? toVal : 0,
-			hasMore: currentPage < lastPage,
-			hasPrev: currentPage > 1,
-			isEmpty: total === 0,
-		};
+		const f = total > 0 ? (currentPage - 1) * perPage + 1 : 0;
+		const t = total > 0 ? Math.min(currentPage * perPage, total) : 0;
+		return { data: result.rows, currentPage, perPage, total, lastPage, from: f, to: t, hasMore: currentPage < lastPage, hasPrev: currentPage > 1, isEmpty: total === 0 };
 	}
 
 	async insert(data: Record<string, any>): Promise<number | string> {
 		const { sql, bindings } = this.compileInsert(data);
 		const driverType = this.connection.getDriver();
 		const dialect = this.connection.getDialect();
-
-		// PostgreSQL: use RETURNING clause
 		if (driverType === "postgresql") {
-			const returningSQL = dialect.compileInsertReturning(sql, bindings);
-			const result = await this.connection.raw(returningSQL, bindings);
-			return result.rows.length > 0 ? (Number(result.rows[0].id) ?? 0) : 0;
+			const result = await this.connection.raw(dialect.compileInsertReturning(sql, bindings), bindings);
+			return result.rows.length > 0 ? Number(result.rows[0].id) ?? 0 : 0;
 		}
-
 		const result = await this.connection.raw(sql, bindings);
-
-		// MySQL: mysql2 returns [ResultSetHeader] with insertId
 		if (driverType === "mysql") {
-			const header = result.rows;
-			// mysql2 ResultSetHeader has insertId directly
-			if (header && typeof header === 'object' && 'insertId' in header) {
-				return Number((header as any).insertId) ?? 0;
-			}
-			// Fallback: check rows[0]
-			if (Array.isArray(result.rows) && result.rows.length > 0) {
-				const row = result.rows[0];
-				return Number(row?.insertId ?? row?.id ?? 0);
-			}
+			const h = result.rows;
+			if (h && typeof h === 'object' && 'insertId' in h) return Number(h.insertId) ?? 0;
+			if (Array.isArray(result.rows) && result.rows.length > 0) return Number(result.rows[0]?.insertId ?? result.rows[0]?.id ?? 0);
 			return 0;
 		}
-
-		// SQLite: last_insert_rowid()
 		if (driverType === "sqlite") {
-			const lastIdResult = await this.connection.raw("SELECT last_insert_rowid() as id");
-			if (lastIdResult.rows.length > 0) {
-				return Number(lastIdResult.rows[0].id) ?? 0;
-			}
-			return 0;
+			const r = await this.connection.raw("SELECT last_insert_rowid() as id");
+			return r.rows.length > 0 ? Number(r.rows[0].id) ?? 0 : 0;
 		}
-
-		// Fallback: return 0
 		return 0;
 	}
 
-	async insertGetId(data: Record<string, any>): Promise<number | string> {
-		return this.insert(data);
-	}
+	async insertGetId(data: Record<string, any>): Promise<number | string> { return this.insert(data); }
 
 	async insertReturning(data: Record<string, any>): Promise<any> {
 		const { sql, bindings } = this.compileInsert(data);
-		const dialect = this.connection.getDialect();
-		const returningSQL = dialect.compileInsertReturning(sql, bindings);
-		const result = await this.connection.raw(returningSQL, bindings);
+		const result = await this.connection.raw(this.connection.getDialect().compileInsertReturning(sql, bindings), bindings);
 		return result.rows.length > 0 ? result.rows[0] : null;
 	}
 
 	async update(data: Record<string, any>): Promise<number> {
 		const { sql, bindings } = this.compileUpdate(data);
 		const result = await this.connection.raw(sql, bindings);
-		const rows = result.rows;
-		if (rows.length > 0) {
-			const info = rows[0];
-			return info.affectedRows ?? info.changes ?? rows.length;
-		}
-		return 0;
+		const row = result.rows[0];
+		return row ? (row.affectedRows ?? row.changes ?? result.rows.length) : 0;
 	}
 
 	async delete(): Promise<number> {
 		const { sql, bindings } = this.compileDelete();
 		const result = await this.connection.raw(sql, bindings);
-		const rows = result.rows;
-		if (rows.length > 0) {
-			const info = rows[0];
-			return info.affectedRows ?? info.changes ?? rows.length;
-		}
-		return 0;
+		const row = result.rows[0];
+		return row ? (row.affectedRows ?? row.changes ?? result.rows.length) : 0;
 	}
 
 	async truncate(): Promise<void> {
-		const dialect = this.connection.getDialect();
-		const sql = dialect.compileTruncate(this.tableName);
-		await this.connection.raw(sql);
+		await this.connection.raw(this.connection.getDialect().compileTruncate(this.tableName));
 	}
 
-	async chunk(
-		size: number,
-		callback: (rows: any[]) => Promise<void>,
-	): Promise<void> {
+	async chunk(size: number, callback: (rows: any[]) => Promise<void>): Promise<void> {
 		let page = 1;
 		let hasMore = true;
-
 		while (hasMore) {
 			const qb = this.clone();
 			qb.limitValue = size;
 			qb.offsetValue = (page - 1) * size;
 			const rows = await qb.get();
-
-			if (rows.length === 0) {
-				hasMore = false;
-				break;
-			}
-
+			if (rows.length === 0) { hasMore = false; break; }
 			await callback(rows);
-
-			if (rows.length < size) {
-				hasMore = false;
-			}
-
+			if (rows.length < size) hasMore = false;
 			page++;
 		}
 	}
@@ -499,147 +344,67 @@ export class QueryBuilder {
 	toSQL(): { sql: string; bindings: any[] } {
 		const bindings: any[] = [];
 		const dialect = this.connection.getDialect();
-
-		const wrappedColumns = this.columns
-			.map((c) =>
-				c.includes("(") || c === "*" || c.includes(" as ") || c.includes(" AS ")
-					? c
-					: dialect.wrapIdentifier(c),
-			)
-			.join(", ");
-
-		const from = this.fromSubquery ?? this.tableName;
-		const wrappedFrom = this.fromSubquery ?? dialect.wrapIdentifier(from);
-
-		let sql = this.distinctEnabled
-			? `SELECT DISTINCT ${wrappedColumns} FROM ${wrappedFrom}`
-			: `SELECT ${wrappedColumns} FROM ${wrappedFrom}`;
-
+		const wrapId = (c: string) => c.includes("(") || c === "*" || c.includes(" as ") || c.includes(" AS ") ? c : dialect.wrapIdentifier(c);
+		const wrappedFrom = this.fromSubquery ?? dialect.wrapIdentifier(this.fromSubquery ?? this.tableName);
+		let sql = `${this.distinctEnabled ? "SELECT DISTINCT " : "SELECT "}${this.columns.map(wrapId).join(", ")} FROM ${wrappedFrom}`;
 		const joinSQL = this.compileJoins(dialect);
 		if (joinSQL) sql += joinSQL;
-
 		const whereSQL = this.compileWheres(dialect, bindings);
 		if (whereSQL) sql += whereSQL;
-
-		if (this.groupBys.length > 0) {
-			sql += ` GROUP BY ${this.groupBys.map((c) => dialect.wrapIdentifier(c)).join(", ")}`;
-		}
-
+		if (this.groupBys.length > 0) sql += ` GROUP BY ${this.groupBys.map(c => dialect.wrapIdentifier(c)).join(", ")}`;
 		const havingSQL = this.compileHavings(dialect, bindings);
 		if (havingSQL) sql += havingSQL;
-
-		if (this.orderBys.length > 0) {
-			sql += ` ORDER BY ${this.orderBys
-				.map((o) => {
-					const col =
-						o.column === "RANDOM()"
-							? o.column
-							: dialect.wrapIdentifier(o.column);
-					return `${col} ${o.direction.toUpperCase()}`;
-				})
-				.join(", ")}`;
-		}
-
-		const limitOffsetSQL = dialect.compileLimitOffset(
-			bindings,
-			this.limitValue,
-			this.offsetValue,
-		);
-		if (limitOffsetSQL) sql += limitOffsetSQL;
-
+		sql += this.compileOrderByLimit(dialect, bindings);
 		return { sql, bindings };
 	}
 
 	dd(): string {
 		const { sql, bindings } = this.toSQL();
-		const output = `SQL: ${sql}\nBindings: ${JSON.stringify(bindings)}`;
-		console.error(output);
-		return output;
+		const r = `SQL: ${sql}\nBindings: ${JSON.stringify(bindings)}`;
+		console.error(r); return r;
 	}
 
 	private compileJoins(dialect: Dialect): string {
 		if (this.joins.length === 0) return "";
-
-		return (
-			" " +
-			this.joins
-				.map((j) => {
-					const type = j.type.toUpperCase();
-					return `${type} JOIN ${dialect.wrapIdentifier(j.table)} ON ${dialect.wrapIdentifier(j.first)} ${j.operator} ${this.wrap(j.second)}`;
-				})
-				.join(" ")
-		);
+		return " " + this.joins.map(j => `${j.type.toUpperCase()} JOIN ${dialect.wrapIdentifier(j.table)} ON ${dialect.wrapIdentifier(j.first)} ${j.operator} ${this.wrap(j.second)}`).join(" ");
 	}
 
 	private compileWheres(dialect: Dialect, bindings: any[]): string {
 		if (this.wheres.length === 0) return "";
-
 		const sql = this.compileWhereArray(this.wheres, dialect, bindings);
 		return sql ? ` WHERE ${sql}` : "";
 	}
 
-	private compileWhereArray(
-		wheres: WhereClause[],
-		dialect: Dialect,
-		bindings: any[],
-	): string {
+	private compileWhereArray(wheres: WhereClause[], dialect: Dialect, bindings: any[]): string {
 		if (wheres.length === 0) return "";
-		const parts: string[] = [];
-		for (const w of wheres) {
-			const sql = this.compileSingleWhere(w, dialect, bindings);
-			if (sql !== null) parts.push(sql);
-		}
+		const parts = wheres.map(w => this.compileSingleWhere(w, dialect, bindings)).filter((s): s is string => s !== null);
 		if (parts.length === 0) return "";
-		// Join with the boolean from each WHERE clause (respecting "and"/"or")
 		return parts.reduce((acc, part, i) => {
 			if (i === 0) return part;
-			const bool = wheres[i]?.boolean ?? "and";
-			return `${acc} ${bool.toUpperCase()} ${part}`;
+			return `${acc} ${(wheres[i]?.boolean ?? "and").toUpperCase()} ${part}`;
 		}, "");
 	}
 
-	private compileSingleWhere(
-		w: WhereClause,
-		dialect: Dialect,
-		bindings: any[],
-	): string | null {
+	private compileSingleWhere(w: WhereClause, dialect: Dialect, bindings: any[]): string | null {
 		const col = w.column ? dialect.wrapIdentifier(w.column) : "";
 
 		switch (w.type) {
 			case "basic": {
 				bindings.push(w.value);
-				const operator = w.operator === "=" ? "=" : w.operator;
-				return `${col} ${operator} ${dialect.makeParameter(bindings.length - 1)}`;
+				return `${col} ${w.operator} ${dialect.makeParameter(bindings.length - 1)}`;
 			}
-			case "in": {
-				const placeholders = w
-					.values!.map((v: any) => {
-						bindings.push(v);
-						return dialect.makeParameter(bindings.length - 1);
-					})
-					.join(", ");
-				return `${col} IN (${placeholders})`;
-			}
+			case "in":
 			case "notIn": {
-				const placeholders = w
-					.values!.map((v: any) => {
-						bindings.push(v);
-						return dialect.makeParameter(bindings.length - 1);
-					})
-					.join(", ");
-				return `${col} NOT IN (${placeholders})`;
+				const ph = w.values!.map(v => { bindings.push(v); return dialect.makeParameter(bindings.length - 1); }).join(", ");
+				return `${col} ${w.type === "in" ? "IN" : "NOT IN"} (${ph})`;
 			}
-			case "null":
-				return `${col} IS NULL`;
-			case "notNull":
-				return `${col} IS NOT NULL`;
-			case "between": {
-				bindings.push(w.values![0], w.values![1]);
-				return `${col} BETWEEN ${dialect.makeParameter(bindings.length - 2)} AND ${dialect.makeParameter(bindings.length - 1)}`;
-			}
+			case "null": return `${col} IS NULL`;
+			case "notNull": return `${col} IS NOT NULL`;
+			case "between":
 			case "notBetween": {
 				bindings.push(w.values![0], w.values![1]);
-				return `${col} NOT BETWEEN ${dialect.makeParameter(bindings.length - 2)} AND ${dialect.makeParameter(bindings.length - 1)}`;
+				const kw = w.type === "between" ? "BETWEEN" : "NOT BETWEEN";
+				return `${col} ${kw} ${dialect.makeParameter(bindings.length - 2)} AND ${dialect.makeParameter(bindings.length - 1)}`;
 			}
 			case "like": {
 				bindings.push(w.value);
@@ -649,59 +414,39 @@ export class QueryBuilder {
 				const nestedSQL = this.compileNestedWhere(w.nested!, dialect, bindings);
 				return nestedSQL ? `(${nestedSQL})` : null;
 			}
-			default:
-				return null;
+			default: return null;
 		}
 	}
 
-	private compileNestedWhere(
-		wheres: WhereClause[],
-		dialect: Dialect,
-		bindings: any[],
-	): string {
-		if (wheres.length === 0) return "";
-		const parts: string[] = [];
-		for (const w of wheres) {
-			const sql = this.compileSingleWhere(w, dialect, bindings);
-			if (sql !== null) parts.push(sql);
-		}
-		if (parts.length === 0) return "";
-		return parts.reduce((acc, part, i) => {
-			if (i === 0) return part;
-			const bool = wheres[i]?.boolean ?? "and";
-			return `${acc} ${bool.toUpperCase()} ${part}`;
-		}, "");
+	private compileNestedWhere(wheres: WhereClause[], dialect: Dialect, bindings: any[]): string {
+		return this.compileWhereArray(wheres, dialect, bindings);
 	}
 
 	private compileHavings(dialect: Dialect, bindings: any[]): string {
 		if (this.havings.length === 0) return "";
-
-		const parts = this.havings.map((h) => {
-			bindings.push(h.value);
-			return `${dialect.wrapIdentifier(h.column)} ${h.operator} ${dialect.makeParameter(bindings.length - 1)}`;
-		});
-
-		return ` HAVING ${parts.join(" AND ")}`;
+		return ` HAVING ${this.havings.map(h => { bindings.push(h.value); return `${dialect.wrapIdentifier(h.column)} ${h.operator} ${dialect.makeParameter(bindings.length - 1)}`; }).join(" AND ")}`;
 	}
 
-	private compileInsert(data: Record<string, any>): {
-		sql: string;
-		bindings: any[];
-	} {
+	private compileInsert(data: Record<string, any>): { sql: string; bindings: any[] } {
 		const dialect = this.connection.getDialect();
-		const columns = Object.keys(data);
-		const values = Object.values(data);
 		const bindings: any[] = [];
-
-		const placeholders = values
-			.map((v: any) => {
-				bindings.push(v);
-				return dialect.makeParameter(bindings.length - 1);
-			})
-			.join(", ");
-
-		const sql = `INSERT INTO ${dialect.wrapIdentifier(this.tableName)} (${columns.map((c) => dialect.wrapIdentifier(c)).join(", ")}) VALUES (${placeholders})`;
+		const cols = Object.keys(data);
+		const placeholders = Object.values(data).map(v => { bindings.push(v); return dialect.makeParameter(bindings.length - 1); }).join(", ");
+		const sql = `INSERT INTO ${dialect.wrapIdentifier(this.tableName)} (${cols.map(c => dialect.wrapIdentifier(c)).join(", ")}) VALUES (${placeholders})`;
 		return { sql, bindings };
+	}
+
+	private compileOrderByLimit(dialect: Dialect, bindings: any[]): string {
+		let sql = "";
+		if (this.orderBys.length > 0) {
+			sql += ` ORDER BY ${this.orderBys.map(o => {
+				const col = o.column === "RANDOM()" ? o.column : dialect.wrapIdentifier(o.column);
+				return `${col} ${o.direction.toUpperCase()}`;
+			}).join(", ")}`;
+		}
+		const limitOffsetSQL = dialect.compileLimitOffset(bindings, this.limitValue, this.offsetValue);
+		if (limitOffsetSQL) sql += limitOffsetSQL;
+		return sql;
 	}
 
 	private compileUpdate(data: Record<string, any>): {
@@ -721,71 +466,30 @@ export class QueryBuilder {
 		const whereSQL = this.compileWheres(dialect, bindings);
 		if (whereSQL) sql += whereSQL;
 
-		if (this.orderBys.length > 0) {
-			sql += ` ORDER BY ${this.orderBys
-				.map((o) => {
-					const col =
-						o.column === "RANDOM()"
-							? o.column
-							: dialect.wrapIdentifier(o.column);
-					return `${col} ${o.direction.toUpperCase()}`;
-				})
-				.join(", ")}`;
-		}
-
-		const limitOffsetSQL = dialect.compileLimitOffset(
-			bindings,
-			this.limitValue,
-			this.offsetValue,
-		);
-		if (limitOffsetSQL) sql += limitOffsetSQL;
-
+		sql += this.compileOrderByLimit(dialect, bindings);
 		return { sql, bindings };
 	}
 
 	private compileDelete(): { sql: string; bindings: any[] } {
 		const dialect = this.connection.getDialect();
 		const bindings: any[] = [];
-
 		let sql = `DELETE FROM ${dialect.wrapIdentifier(this.tableName)}`;
-
 		const whereSQL = this.compileWheres(dialect, bindings);
 		if (whereSQL) sql += whereSQL;
-
-		if (this.orderBys.length > 0) {
-			sql += ` ORDER BY ${this.orderBys
-				.map((o) => {
-					const col =
-						o.column === "RANDOM()"
-							? o.column
-							: dialect.wrapIdentifier(o.column);
-					return `${col} ${o.direction.toUpperCase()}`;
-				})
-				.join(", ")}`;
-		}
-
-		const limitOffsetSQL = dialect.compileLimitOffset(
-			bindings,
-			this.limitValue,
-			this.offsetValue,
-		);
-		if (limitOffsetSQL) sql += limitOffsetSQL;
-
+		sql += this.compileOrderByLimit(dialect, bindings);
 		return { sql, bindings };
 	}
 
 	private async aggregate(fn: string, column: string): Promise<number | null> {
 		const qb = this.clone();
 		qb.columns = [`${fn}(${this.wrap(column)}) as aggregate`];
-		qb.orderBys = [];
-		qb.limitValue = null;
-		qb.offsetValue = null;
+		qb.orderBys = []; qb.limitValue = null; qb.offsetValue = null;
 		const { sql, bindings } = qb.toSQL();
 		const result = await this.connection.raw(sql, bindings);
 		const row = result.rows[0];
 		if (!row) return null;
 		const val = row.aggregate ?? row[`${fn}(${column})`];
-		return val !== null && val !== undefined ? Number(val) : null;
+		return val != null ? Number(val) : null;
 	}
 
 	private cloneWheres(wheres: WhereClause[]): WhereClause[] {
@@ -798,7 +502,6 @@ export class QueryBuilder {
 
 	private wrap(identifier: string): string {
 		if (identifier === "*" || identifier.includes("(")) return identifier;
-		const dialect = this.connection.getDialect();
-		return dialect.wrapIdentifier(identifier);
+		return this.connection.getDialect().wrapIdentifier(identifier);
 	}
 }

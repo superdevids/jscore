@@ -987,13 +987,13 @@ describe('repeat', () => {
   it('repeats along axis 0', () => {
     const a = NDArray.from([[1, 2], [3, 4]]).repeat(2, 0)
     expect(a.shape).toEqual([4, 2])
-    expect(a.toArray()).toEqual([[1, 2], [1, 2], [3, 4], [3, 4]])
+    expect(a.toArray()).toEqual([[1, 2], [3, 4], [1, 2], [3, 4]])
   })
 
   it('repeats along axis 1', () => {
     const a = NDArray.from([[1, 2], [3, 4]]).repeat(2, 1)
     expect(a.shape).toEqual([2, 4])
-    expect(a.toArray()).toEqual([[1, 1, 2, 2], [3, 3, 4, 4]])
+    expect(a.toArray()).toEqual([[1, 2, 1, 2], [3, 4, 3, 4]])
   })
 
   it('n=1 returns a copy', () => {

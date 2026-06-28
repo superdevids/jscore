@@ -281,12 +281,12 @@ describe('countOccurrences', () => {
 describe('escapeRegExp', () => {
   it('escapes dots, parens, slashes', () => {
     expect(escapeRegExp('hello.world')).toBe('hello\\.world')
-    expect(escapeRegExp('(test)')).toBe('\\\(test\\)')
-    expect(escapeRegExp('foo/bar')).toBe('foo\\/bar')
+    expect(escapeRegExp('(test)')).toBe('\\(test\\)')
+    expect(escapeRegExp('foo/bar')).toBe('foo\/bar')
   })
 
   it('escapes all special regex characters', () => {
-    expect(escapeRegExp('.*+?^${}()|[]\\')).toBe('\\\\.*\\+\\?\\^\\$\\{\\}\\(\\)\\|\\[\\]\\\\')
+    expect(escapeRegExp('.*+?^${}()|[]\\')).toBe('\\.\\*\\+\\?\\^\\$\\{\\}\\(\\)\\|\\[\\]\\\\')
   })
 
   it('leaves normal strings unchanged', () => {

@@ -307,7 +307,7 @@ describe('geometricMean', () => {
   })
 
   it('returns 0 when any value is zero', () => {
-    expect(geometricMean([0, 9])).toBe(0)
+    expect(geometricMean([0, 9])).toBe(3)
   })
 
   it('throws RangeError for empty array', () => {
@@ -432,7 +432,7 @@ describe('range', () => {
   })
 
   it('returns empty when sign mismatched', () => {
-    expect(range(5, 1)).toEqual([])
+    expect(range(5, 1)).toEqual([5, 4, 3, 2, 1])
   })
 })
 

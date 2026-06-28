@@ -21,10 +21,6 @@ export class SchemaError extends Error {
 // ─── Schema base class ──────────────────────────────────────
 
 export abstract class Schema<T> {
-  /**
-   * Parse a value. Internal method — subclasses override this.
-   * @internal
-   */
   abstract _parse(value: unknown): T
 
   parse(value: unknown): T {
@@ -33,41 +29,19 @@ export abstract class Schema<T> {
 
   safeParse(value: unknown): { success: boolean; data?: T; error?: string } {
     try {
-      const data = this._parse(value)
-      return { success: true, data }
+      return { success: true, data: this._parse(value) }
     } catch (e) {
-      if (e instanceof SchemaError) {
-        return { success: false, error: e.message }
-      }
-      return { success: false, error: String(e) }
+      return { success: false, error: e instanceof SchemaError ? e.message : String(e) }
     }
   }
 
-  optional(): Schema<T | undefined> {
-    return new OptionalSchema(this)
-  }
+  optional(): Schema<T | undefined> { return new OptionalSchema(this) }
+  nullable(): Schema<T | null> { return new NullableSchema(this) }
+  default(defaultValue: T): Schema<T> { return new DefaultSchema(this, defaultValue) }
+  describe(_description: string): this { return this }
+  refine(fn: (val: T) => boolean, message: string): Schema<T> { return new RefineSchema(this, fn, message) }
+  transform<U>(fn: (val: T) => U): Schema<U> { return new TransformSchema(this, fn) }
 
-  nullable(): Schema<T | null> {
-    return new NullableSchema(this)
-  }
-
-  default(defaultValue: T): Schema<T> {
-    return new DefaultSchema(this, defaultValue)
-  }
-
-  describe(_description: string): this {
-    return this
-  }
-
-  refine(fn: (val: T) => boolean, message: string): Schema<T> {
-    return new RefineSchema(this, fn, message)
-  }
-
-  transform<U>(fn: (val: T) => U): Schema<U> {
-    return new TransformSchema(this, fn)
-  }
-
-  /** @internal used by schema.enum() etc */
   get _internal(): this {
     return this
   }

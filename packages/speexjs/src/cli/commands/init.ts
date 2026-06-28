@@ -7,65 +7,51 @@ interface TemplateContent {
   files: Record<string, string | ((name: string) => string)>
 }
 
+const PKG_DEPS = { speexjs: 'latest' }
+const PKG_DEVDEPS = { '@types/node': '^26.0.1', tsx: '^4.19.0', typescript: '^5.7.0' }
+
+function pkg(name: string, scripts: Record<string, string>, extra: Record<string, any> = {}): string {
+  return JSON.stringify({ name, version: '0.1.0', type: 'module', private: true, scripts, dependencies: PKG_DEPS, devDependencies: { ...PKG_DEVDEPS, ...extra.devDependencies }, ...extra }, null, 2)
+}
+
+function tsconfig(compilerExtra: Record<string, any> = {}, topExtra: Record<string, any> = {}): string {
+  return JSON.stringify({
+    compilerOptions: { target: 'ES2022', module: 'ESNext', moduleResolution: 'bundler', strict: true, declaration: true, sourceMap: true, esModuleInterop: true, isolatedModules: true, resolveJsonModule: true, outDir: './dist', rootDir: './src', skipLibCheck: true, ...compilerExtra },
+    include: ['src/**/*.ts'],
+    exclude: ['node_modules', 'dist'],
+    ...topExtra,
+  }, null, 2)
+}
+
+const ENV_EXAMPLE = `# Server
+PORT=3000
+NODE_ENV=development
+HOST=localhost
+
+# Auth (change in production!)
+APP_KEY=your-base64-32-byte-key-here
+SESSION_SECRET=change-this-in-production
+`
+
+const ENV_EXAMPLE_DB = `${ENV_EXAMPLE}
+# Database (example)
+DATABASE_URL=postgresql://localhost:5432/myapp
+`
+
+const GITIGNORE = 'node_modules/\ndist/\n.env\n*.log\n'
+
 const TEMPLATES: Record<string, TemplateContent> = {
   blank: {
     dirs: ['src', 'src/config'],
     files: {
-      'package.json': (name: string) =>
-        JSON.stringify(
-          {
-            name,
-            version: '0.1.0',
-            type: 'module',
-            private: true,
-            scripts: {
-              dev: 'speexjs serve',
-              build: 'speexjs build',
-              start: 'node dist/index.js',
-              lint: 'tsc --noEmit',
-            },
-            dependencies: {
-              speexjs: 'latest',
-            },
-            devDependencies: {
-              '@types/node': '^26.0.1',
-              tsx: '^4.19.0',
-              typescript: '^5.7.0',
-            },
-          },
-          null,
-          2,
-        ),
-      'tsconfig.json': JSON.stringify(
-        {
-          compilerOptions: {
-            target: 'ES2022',
-            module: 'ESNext',
-            moduleResolution: 'bundler',
-            strict: true,
-            declaration: true,
-            sourceMap: true,
-            esModuleInterop: true,
-            isolatedModules: true,
-            resolveJsonModule: true,
-            outDir: './dist',
-            rootDir: './src',
-            skipLibCheck: true,
-          },
-          include: ['src/**/*.ts'],
-          exclude: ['node_modules', 'dist'],
-        },
-        null,
-        2,
-      ),
+      'package.json': (name: string) => pkg(name, { dev: 'speexjs serve', build: 'speexjs build', start: 'node dist/index.js', lint: 'tsc --noEmit' }),
+      'tsconfig.json': tsconfig(),
       'src/index.ts': `import { speexjs } from 'speexjs/server'
 import { schema } from 'speexjs/schema'
 import { Config } from './config/index.js'
 
-// ─── Application ───────────────────────────────────────────
 const app = speexjs()
 
-// ─── Routes ────────────────────────────────────────────────
 app.get('/', async ({ response }) => {
   return response.html(\`
     <!DOCTYPE html>
@@ -83,7 +69,6 @@ app.get('/', async ({ response }) => {
   \`)
 })
 
-// ─── Health Check ──────────────────────────────────────────
 app.get('/api/health', async ({ response }) => {
   return response.json({
     status: 'ok',
@@ -92,7 +77,6 @@ app.get('/api/health', async ({ response }) => {
   })
 })
 
-// ─── Start Server ─────────────────────────────────────────
 app.listen(Config.port, () => {
   console.log(\`✓ SpeexJS running at http://localhost:\${Config.port}\`)
 })
@@ -106,82 +90,16 @@ app.listen(Config.port, () => {
   isProd: process.env.NODE_ENV === 'production',
 } as const
 `,
-      '.env.example': `# Server
-PORT=3000
-NODE_ENV=development
-HOST=localhost
-
-# Auth (change in production!)
-APP_KEY=your-base64-32-byte-key-here
-SESSION_SECRET=change-this-in-production
-`,
-      '.gitignore': `node_modules/
-dist/
-.env
-*.log
-`,
+      '.env.example': ENV_EXAMPLE,
+      '.gitignore': GITIGNORE,
     },
   },
 
   fullstack: {
-    dirs: [
-      'src/server',
-      'src/server/controllers',
-      'src/server/middleware',
-      'src/client',
-      'src/client/components',
-      'src/client/pages',
-      'src/shared',
-      'public',
-    ],
+    dirs: ['src/server', 'src/server/controllers', 'src/server/middleware', 'src/client', 'src/client/components', 'src/client/pages', 'src/shared', 'public'],
     files: {
-      'package.json': (name: string) =>
-        JSON.stringify(
-          {
-            name,
-            version: '0.1.0',
-            type: 'module',
-            private: true,
-            scripts: {
-              dev: 'speexjs serve',
-              build: 'tsc',
-              start: 'node dist/server/index.js',
-            },
-            dependencies: {
-              speexjs: 'latest',
-            },
-            devDependencies: {
-              '@types/node': '^26.0.1',
-              tsx: '^4.19.0',
-              typescript: '^5.7.0',
-            },
-          },
-          null,
-          2,
-        ),
-      'tsconfig.json': JSON.stringify(
-        {
-          compilerOptions: {
-            target: 'ES2022',
-            module: 'ESNext',
-            moduleResolution: 'bundler',
-            strict: true,
-            declaration: true,
-            sourceMap: true,
-            esModuleInterop: true,
-            isolatedModules: true,
-            resolveJsonModule: true,
-            jsx: 'react-jsx',
-            jsxImportSource: '@speexjs/vdom',
-            outDir: './dist',
-            rootDir: './src',
-          },
-          include: ['src/**/*.ts', 'src/**/*.tsx'],
-          exclude: ['node_modules', 'dist'],
-        },
-        null,
-        2,
-      ),
+      'package.json': (name: string) => pkg(name, { dev: 'speexjs serve', build: 'tsc', start: 'node dist/server/index.js' }),
+      'tsconfig.json': tsconfig({ jsx: 'react-jsx', jsxImportSource: '@speexjs/vdom' }, { include: ['src/**/*.ts', 'src/**/*.tsx'] }),
       'src/server/index.ts': `import { speexjs } from 'speexjs/server'
 import { schema } from 'speexjs/schema'
 import { UserController } from './controllers/user.controller.js'
@@ -190,10 +108,8 @@ const PORT = Number(process.env.PORT) || 3000
 
 const app = speexjs()
 
-// ─── Controllers ───────────────────────────────────────────
 app.controller(UserController)
 
-// ─── Routes ────────────────────────────────────────────────
 app.get('/', async ({ response }) => {
   return response.html(\`
     <!DOCTYPE html>
@@ -211,7 +127,6 @@ app.get('/', async ({ response }) => {
   \`)
 })
 
-// ─── Start Server ─────────────────────────────────────────
 app.listen(PORT, () => {
   console.log(\`✓ SpeexJS running on http://localhost:\${PORT}\`)
 })
@@ -240,10 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
       'src/client/app.ts': `export function createApp() {
   function mount(selector: string) {
     const root = document.querySelector(selector)
-    if (!root) {
-      console.error('Root element not found:', selector)
-      return
-    }
+    if (!root) { console.error('Root element not found:', selector); return }
     root.innerHTML = \`
       <div style="text-align:center;padding:2rem">
         <h1>SpeexJS Fullstack</h1>
@@ -251,7 +163,6 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
     \`
   }
-
   return { mount }
 }
 `,
@@ -281,86 +192,25 @@ body {
   message?: string
 }
 `,
-      '.env.example': `# Server
-PORT=3000
-NODE_ENV=development
-HOST=localhost
-
-# Auth (change in production!)
-APP_KEY=your-base64-32-byte-key-here
-SESSION_SECRET=change-this-in-production
-
-# Database (example)
-DATABASE_URL=postgresql://localhost:5432/myapp
-`,
-      '.gitignore': `node_modules/
-dist/
-.env
-*.log
-`,
+      '.env.example': ENV_EXAMPLE_DB,
+      '.gitignore': GITIGNORE,
     },
   },
 
   'api-only': {
     dirs: ['src', 'src/config', 'src/controllers', 'src/middleware'],
     files: {
-      'package.json': (name: string) =>
-        JSON.stringify(
-          {
-            name,
-            version: '0.1.0',
-            type: 'module',
-            private: true,
-            scripts: {
-              dev: 'speexjs serve',
-              build: 'tsc',
-              start: 'node dist/index.js',
-            },
-            dependencies: {
-              speexjs: 'latest',
-            },
-            devDependencies: {
-              '@types/node': '^26.0.1',
-              tsx: '^4.19.0',
-              typescript: '^5.7.0',
-            },
-          },
-          null,
-          2,
-        ),
-      'tsconfig.json': JSON.stringify(
-        {
-          compilerOptions: {
-            target: 'ES2022',
-            module: 'ESNext',
-            moduleResolution: 'bundler',
-            strict: true,
-            declaration: true,
-            sourceMap: true,
-            esModuleInterop: true,
-            isolatedModules: true,
-            resolveJsonModule: true,
-            outDir: './dist',
-            rootDir: './src',
-          },
-          include: ['src/**/*.ts'],
-          exclude: ['node_modules', 'dist'],
-        },
-        null,
-        2,
-      ),
+      'package.json': (name: string) => pkg(name, { dev: 'speexjs serve', build: 'tsc', start: 'node dist/index.js' }),
+      'tsconfig.json': tsconfig(),
       'src/index.ts': `import { speexjs } from 'speexjs/server'
 import { schema } from 'speexjs/schema'
 import { Config } from './config/index.js'
 import { HealthController } from './controllers/health.controller.js'
 
-// ─── Application ───────────────────────────────────────────
 const app = speexjs()
 
-// ─── Controllers ───────────────────────────────────────────
 app.controller(HealthController)
 
-// ─── Routes ────────────────────────────────────────────────
 app.get('/api/health', async ({ response }) => {
   return response.json({
     status: 'ok',
@@ -370,7 +220,6 @@ app.get('/api/health', async ({ response }) => {
   })
 })
 
-// ─── Start Server ─────────────────────────────────────────
 app.listen(Config.port, () => {
   console.log(\`✓ SpeexJS API running at http://localhost:\${Config.port}\`)
 })
@@ -387,7 +236,6 @@ app.listen(Config.port, () => {
       'src/controllers/health.controller.ts': `import { Controller, get } from 'speexjs/server'
 import { schema } from 'speexjs/schema'
 
-// ─── Health Response Schema ────────────────────────────────
 const HealthResponse = schema.object({
   status: schema.string(),
   uptime: schema.number(),
@@ -411,52 +259,24 @@ export class HealthController extends Controller {
 export function auth() {
   return async (ctx: RouteContext, next: () => Promise<void>) => {
     const token = ctx.request.headers.get('authorization')
-
     if (!token) {
-      ctx.response.status(401).json({
-        error: 'Unauthorized',
-        message: 'Missing authorization header',
-      })
+      ctx.response.status(401).json({ error: 'Unauthorized', message: 'Missing authorization header' })
       return
     }
-
     await next()
   }
 }
 `,
-      '.env.example': `# Server
-PORT=3000
-NODE_ENV=development
-HOST=localhost
-
-# Auth (change in production!)
-APP_KEY=your-base64-32-byte-key-here
-SESSION_SECRET=change-this-in-production
-
-# Database (example)
-DATABASE_URL=postgresql://localhost:5432/myapp
-`,
-      '.gitignore': `node_modules/
-dist/
-.env
-*.log
-`,
+      '.env.example': ENV_EXAMPLE_DB,
+      '.gitignore': GITIGNORE,
     },
   },
 
   spark: {
     dirs: ['src', 'src/controllers', 'src/middleware', 'src/config', 'src/database/migrations', 'src/models'],
     files: {
-      'package.json': (name: string) => JSON.stringify({
-        name, version: '0.1.0', type: 'module', private: true,
-        scripts: { dev: 'speexjs serve', build: 'tsc', start: 'node dist/index.js', lint: 'biome check src/' },
-        dependencies: { speexjs: 'latest' },
-        devDependencies: { '@types/node': '^26.0.1', tsx: '^4.19.0', typescript: '^5.7.0' },
-      }, null, 2),
-      'tsconfig.json': JSON.stringify({
-        compilerOptions: { target: 'ES2022', module: 'ESNext', moduleResolution: 'bundler', strict: true, outDir: './dist', rootDir: './src', skipLibCheck: true },
-        include: ['src/**/*.ts'], exclude: ['node_modules', 'dist'],
-      }, null, 2),
+      'package.json': (name: string) => pkg(name, { dev: 'speexjs serve', build: 'tsc', start: 'node dist/index.js', lint: 'biome check src/' }),
+      'tsconfig.json': tsconfig({}, { skipLibCheck: true }),
       'src/index.ts': `import { speexjs } from 'speexjs/server'
 import { schema } from 'speexjs/schema'
 
@@ -482,35 +302,23 @@ app.listen(PORT, () => {
   appKey: process.env.APP_KEY || '',
 } as const
 `,
-      '.env.example': `PORT=3000
-NODE_ENV=development
-APP_KEY=
-`,
-      '.gitignore': 'node_modules/\ndist/\n.env\n*.log\n',
+      '.env.example': 'PORT=3000\nNODE_ENV=development\nAPP_KEY=\n',
+      '.gitignore': GITIGNORE,
     },
   },
 }
 
-const TEMPLATE_ALIASES: Record<string, string> = {
-  api: 'api-only',
-  full: 'fullstack',
-  spark: 'spark',
-}
+const TEMPLATE_ALIASES: Record<string, string> = { api: 'api-only', full: 'fullstack', spark: 'spark' }
 
 function getTemplate(name: string): string {
   return TEMPLATE_ALIASES[name] ?? name
 }
 
 function toPascalCase(str: string): string {
-  return str
-    .replace(/[-_\s]+(.)?/g, (_, c: string) => (c ?? '').toUpperCase())
-    .replace(/^(.)/, (c: string) => c.toUpperCase())
+  return str.replace(/[-_\s]+(.)?/g, (_, c: string) => (c ?? '').toUpperCase()).replace(/^(.)/, (c: string) => c.toUpperCase())
 }
 
-export async function initProject(
-  name: string,
-  options: Record<string, any>,
-): Promise<void> {
+export async function initProject(name: string, options: Record<string, any>): Promise<void> {
   const targetDir = resolve(process.cwd(), name)
 
   if (existsSync(targetDir)) {
@@ -522,11 +330,7 @@ export async function initProject(
   const template = TEMPLATES[templateName]
 
   if (!template) {
-    console.error(
-      colors.red(
-        `Unknown template '${options.template}'. Use: blank, fullstack, api-only, spark`,
-      ),
-    )
+    console.error(colors.red(`Unknown template '${options.template}'. Use: blank, fullstack, api-only, spark`))
     process.exit(1)
   }
 
@@ -539,20 +343,14 @@ export async function initProject(
   for (const [filePath, content] of Object.entries(template.files)) {
     const fullPath = resolve(targetDir, filePath)
     mkdirSync(dirname(fullPath), { recursive: true })
-
-    const resolvedContent =
-      typeof content === 'function' ? content(name) : content
-
-    writeFileSync(fullPath, resolvedContent, 'utf-8')
+    writeFileSync(fullPath, typeof content === 'function' ? content(name) : content, 'utf-8')
   }
 
   if (options.git !== false) {
     try {
       const { execSync } = await import('child_process')
       execSync('git init', { cwd: targetDir, stdio: 'ignore' })
-    } catch {
-      // git not available
-    }
+    } catch { /* git not available */ }
   }
 
   if (options.install !== false) {
@@ -562,9 +360,7 @@ export async function initProject(
       console.log(`  ${colors.cyan('→')} Installing dependencies with ${pm}...`)
       execSync(`${pm} install`, { cwd: targetDir, stdio: 'inherit' })
     } catch {
-      console.log(
-        `  ${colors.yellow('!')} Dependency install skipped. Run '${pm} install' manually.`,
-      )
+      console.log(`  ${colors.yellow('!')} Dependency install skipped. Run '${pm} install' manually.`)
     }
   }
 

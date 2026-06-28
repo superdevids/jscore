@@ -378,10 +378,10 @@ export function pluralize(count: number, singular: string): string {
 }
 
 /**
- * Removes all HTML tags from a string, including script and style content.
+ * Removes HTML tags from a string. Only removes tags, not their content.
  *
  * @example stripHtml('<p>Hello <b>world</b></p>') // "Hello world"
- * @example stripHtml('<script>alert("x")</script>hi') // "hi"
+ * @example stripHtml('<script>alert("x")</script>hi') // 'alert("x")hi'
  */
 export function stripHtml(str: string): string {
   return str.replace(/<[^>]*>/g, '')

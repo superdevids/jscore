@@ -31,115 +31,36 @@ import { CoerceStringSchema, CoerceNumberSchema, CoerceBooleanSchema, CoerceDate
 // Usage: schema.string(), schema.object({...}), schema.array(schema.number())
 
 export const schema = {
-  string(): StringSchema {
-    return new StringSchema()
-  },
-
-  number(): NumberSchema {
-    return new NumberSchema()
-  },
-
-  boolean(): BooleanSchema {
-    return new BooleanSchema()
-  },
-
-  bigint(): BigIntSchema {
-    return new BigIntSchema()
-  },
-
-  symbol(): SymbolSchema {
-    return new SymbolSchema()
-  },
-
-  undefined(): UndefinedSchema {
-    return new UndefinedSchema()
-  },
-
-  null(): NullSchema {
-    return new NullSchema()
-  },
-
-  nan(): NaNSchema {
-    return new NaNSchema()
-  },
-
-  object<T extends Record<string, SchemaBase<unknown>>>(shape: T): ObjectSchema<T> {
-    return new ObjectSchema(shape)
-  },
-
-  array<T>(itemSchema: SchemaBase<T>): ArraySchema<T> {
-    return new ArraySchema(itemSchema)
-  },
-
-  tuple<T extends SchemaBase<unknown>[]>(...schemas: T): TupleSchema<T> {
-    return new TupleSchema(schemas as any) as TupleSchema<T>
-  },
-
-  enum<T extends string>(values: readonly T[]): EnumSchema<T> {
-    return new EnumSchema(values)
-  },
-
-  union<T extends SchemaBase<unknown>[]>(...schemas: T): UnionSchema<T[number] extends SchemaBase<infer U> ? U : never> {
-    return new UnionSchema(schemas) as any
-  },
-
-  intersection<A, B>(left: SchemaBase<A>, right: SchemaBase<B>): IntersectionSchema<A, B> {
-    return new IntersectionSchema(left, right)
-  },
-
-  record<V>(valueSchema: SchemaBase<V>): RecordSchema<V> {
-    return new RecordSchema(valueSchema)
-  },
-
-  map<K, V>(keySchema: SchemaBase<K>, valueSchema: SchemaBase<V>): MapSchema<K, V> {
-    return new MapSchema(keySchema, valueSchema)
-  },
-
-  set<T>(itemSchema: SchemaBase<T>): SetSchema<T> {
-    return new SetSchema(itemSchema)
-  },
-
-  date(): DateSchema {
-    return new DateSchema()
-  },
-
-  literal<T extends string | number | boolean | null | undefined>(value: T): LiteralSchema<T> {
-    return new LiteralSchema(value)
-  },
-
-  any(): AnySchema {
-    return new AnySchema()
-  },
-
-  unknown(): UnknownSchema {
-    return new UnknownSchema()
-  },
-
-  // ─── Coerce ─────────────────────────────────────────────
+  string: () => new StringSchema(),
+  number: () => new NumberSchema(),
+  boolean: () => new BooleanSchema(),
+  bigint: () => new BigIntSchema(),
+  symbol: () => new SymbolSchema(),
+  undefined: () => new UndefinedSchema(),
+  null: () => new NullSchema(),
+  nan: () => new NaNSchema(),
+  object: <T extends Record<string, SchemaBase<unknown>>>(shape: T) => new ObjectSchema(shape),
+  array: <T>(itemSchema: SchemaBase<T>) => new ArraySchema(itemSchema),
+  tuple: <T extends SchemaBase<unknown>[]>(...schemas: T) => new TupleSchema(schemas as any) as TupleSchema<T>,
+  enum: <T extends string>(values: readonly T[]) => new EnumSchema(values),
+  union: <T extends SchemaBase<unknown>[]>(...schemas: T) => new UnionSchema(schemas) as any,
+  intersection: <A, B>(left: SchemaBase<A>, right: SchemaBase<B>) => new IntersectionSchema(left, right),
+  record: <V>(valueSchema: SchemaBase<V>) => new RecordSchema(valueSchema),
+  map: <K, V>(keySchema: SchemaBase<K>, valueSchema: SchemaBase<V>) => new MapSchema(keySchema, valueSchema),
+  set: <T>(itemSchema: SchemaBase<T>) => new SetSchema(itemSchema),
+  date: () => new DateSchema(),
+  literal: <T extends string | number | boolean | null | undefined>(value: T) => new LiteralSchema(value),
+  any: () => new AnySchema(),
+  unknown: () => new UnknownSchema(),
 
   coerce: {
-    string(): CoerceStringSchema {
-      return new CoerceStringSchema()
-    },
-
-    number(): CoerceNumberSchema {
-      return new CoerceNumberSchema()
-    },
-
-    boolean(): CoerceBooleanSchema {
-      return new CoerceBooleanSchema()
-    },
-
-    date(): CoerceDateSchema {
-      return new CoerceDateSchema()
-    },
+    string: () => new CoerceStringSchema(),
+    number: () => new CoerceNumberSchema(),
+    boolean: () => new CoerceBooleanSchema(),
+    date: () => new CoerceDateSchema(),
   },
 
-  // ─── Transform ──────────────────────────────────────────
-
-  transform<T>(fn: (value: unknown) => T): StandaloneTransformSchema<T> {
-    return new StandaloneTransformSchema(fn)
-  },
+  transform: <T>(fn: (value: unknown) => T) => new StandaloneTransformSchema(fn),
 } as const
 
 /** @deprecated Use `schema` instead. Will be removed in v1.0.0 */
