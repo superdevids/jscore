@@ -1,72 +1,38 @@
-# Roadmap SpeexJS Core
+# Roadmap — SpeexJS Core
 
-## v0.4.0 — Modul Indonesia & Error Foundation ✅ (Selesai)
+## ✅ Completed (v0.7.0)
 
-### Modul Baru
-- ✅ **validation** — `isNIK()`, `parseNIK()`, `isNPWP()`, `isPlatNomor()`, `isPhone("id")`, `isKodepos()`, `isNoRekening()`, `isEmail()`, `isURL()` — zero-dep, khusus Indonesia
-- ✅ **error** — `createError()` factory, `MultiError`, typed error codes
-- ✅ **logger** — Structured logger zero-dep, child loggers, file transport
-- ✅ **color** — `hexToRgb()`, `lighten()`, `darken()`, `contrastRatio()`, `meetsWCAG()`
+- **validation** — `isNIK()`, `parseNIK()`, `isNPWP()`, `isPlatNomor()`, `isPhone()`, `isKodepos()`, `isNoRekening()`, `isEmail()`, `isURL()`
+- **color** — `hexToRgb()`, `rgbToHex()`, `lighten()`, `darken()`, `contrastRatio()`, `meetsWCAG()`
+- **error** — `createError()`, `TypedError`, `MultiError`, `collectErrors()`
+- **logger** — Structured logger, child loggers, file transport
+- **async** — `Queue()`, `Semaphore`, `memoizeAsync()`
+- **math** — `median()`, `stddev()`, `percentile()`, `correlation()`, `formatCurrency()`
+- **string** — `terbilang()`, `formatRupiah()`, `maskString()`, `levenshtein()`, `fuzzyMatch()`
+- **date** — `timeAgo()`, `Duration`, `formatDuration()`, timezone helpers, WIB/WITA/WIT
+- **collection** — `topoSort()`, `slidingWindows()`, `deepGet()`, `deepSet()`
+- **crypto** — `hash()`, `randomHex()`, `generateToken()`, `generateOTP()`, `base64`
+- **dep-exray** — Dependency health scanner + CLI
+- **828+ tests** — 19 test files
 
-### Ekspansi Modul Existing
-- ✅ **core** — `deepEqual()`, `pipe()`, `compose()`
-- ✅ **string** — `maskString()`, `levenshtein()`, `fuzzyMatch()`, `terbilang()`, `formatRupiah()`, `formatBytes()`, `pluralize()`
-- ✅ **math** — `median()`, `stddev()`, `percentile()`, `correlation()`, `formatCurrency()`
-- ✅ **async** — `Queue()`, `Semaphore`, `memoizeAsync()`
-- ✅ **collection** — `topoSort()` (Kahn), `slidingWindows()`, `deepGet()`, `deepSet()`
-- ✅ **date** — `timeAgo()`, `Duration`, `formatDuration()`, `toTimezone()`, WIB/WITA/WIT
+## 🔜 Next (v0.8.0)
 
----
-
-## v0.5.0 — Production Toolkit (Next)
-
-### Ekspansi
-- **validation** — Tambah `isEmail()` detail check, `isURL()` lebih ketat
+- **validation** — `isEmail()` detail check, `isURL()` strict mode
 - **io** — `parseJSONL()`, streaming CSV parser
-- **crypto** — AES-GCM encrypt/decrypt, HMAC signing, hapus xorCipher
+- **crypto** — AES-GCM encrypt/decrypt, HMAC signing
+- TypeDoc API documentation
+- Benchmark suite vs lodash/moment/dayjs
 
-### Infrastructure
-- TypeDoc generated API docs (biar gampang referensi)
-- Benchmark suite vs lodash/moment
-- VS Code Extension publish ke Marketplace
+## 🔜 v0.9.0
 
----
-
-## v0.6.0 — Advanced
-
-### Modul Baru
 - **signal** — Reactive primitives: `signal()`, `computed()`, `effect()` — framework-agnostic
-- **ml** — `cosineSimilarity()`, confusion matrix, F1 score, k-means clustering
-
-### Ekspansi
-- **crypto** — JWT lite buat edge runtime
+- **ml** — `cosineSimilarity()`, confusion matrix, F1 score, k-means
+- **crypto** — JWT lite untuk edge runtime
 - **type** — Schema validation lite
 
----
+## 💡 Future (v1.0.0+)
 
-## v1.0.0 — Stable API
-
-- API freeze — no breaking changes setelah v1.0
-- Dependabot + Renovate configured
+- API freeze — no breaking changes
+- Dependabot + Renovate
 - Co-maintainer onboarding
-
----
-
-## Prioritas Matrix
-
-| Item | Impact | Effort | Priority |
-|------|--------|--------|----------|
-| validation module (isNIK, isNPWP, isPhone) | 🔥🔥🔥 | 🟢 Small | ✅ P0 |
-| error module | 🔥🔥🔥 | 🟢 Small | ✅ P0 |
-| logger module | 🔥🔥🔥 | 🟢 Small | ✅ P0 |
-| color module | 🔥🔥 | 🟢 Small | ✅ P0 |
-| string: terbilang, formatRupiah, maskString | 🔥🔥🔥 | 🟢 Small | ✅ P0 |
-| math: median, stddev, percentile | 🔥🔥 | 🟢 Small | ✅ P1 |
-| async: Queue, Semaphore | 🔥🔥 | 🟡 Medium | ✅ P1 |
-| core: pipe, compose, deepEqual | 🔥🔥🔥 | 🟡 Medium | ✅ P1 |
-| collection: topoSort, deepGet, deepSet | 🔥🔥 | 🟡 Medium | ✅ P1 |
-| date: timeAgo, Duration, tz helpers | 🔥🔥 | 🟡 Medium | ✅ P1 |
-| io: JSONL parser, streaming CSV | 🔥🔥 | 🟡 Medium | P2 |
-| crypto: AES-GCM, HMAC, JWT | 🔥🔥🔥 | 🔴 Large | P2 |
-| signal module | 🔥🔥 | 🔴 Large | P2 |
-| ml module | 🔥🔥 | 🔴 Large | P3 |
+- VS Code extension

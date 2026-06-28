@@ -1,35 +1,35 @@
-# Kebijakan Keamanan
+# Keamanan — SpeexJS Core
 
 ## Melaporkan Kerentanan
 
-Kalau lo nemu celah keamanan di speexjs-core, lapor lewat email: adityasuperdev@gmail.com
+Jika Anda menemukan celah keamanan, **jangan buka GitHub Issue publik**. Laporkan melalui email:
 
-**JANGAN bikin GitHub issue publik untuk kerentanan keamanan.**
+**adityasuperdev@gmail.com**
 
-Lo bakal dapet respon dalam 48 jam. Kalo belum ada kabar, follow-up lewat email.
+Respon dalam 48 jam. Jika belum ada kabar, silakan follow-up.
 
-## Yang Perlu Disertakan
+### Format Laporan
 
 - Deskripsi kerentanan
-- Langkah-langkah reproduksi
+- Langkah reproduksi
 - Versi yang terpengaruh
 - Dampak potensial
-- Saran perbaikan (kalo ada)
+- Saran perbaikan (opsional)
 
-## Ruang Lingkup
+## Supported Versions
 
-- Package npm speexjs-core
-- CLI tool dep-exray
-- GitHub Actions workflows
+| Versi | Dukungan |
+|-------|----------|
+| 0.x | ✅ Patch untuk kerentanan kritis |
+| < 0.1 | ❌ Tidak didukung |
 
-## Di Luar Ruang Lingkup
+## Responsible Disclosure
 
-- Fungsi `xorCipher` di module crypto **SENG A JA BUKAN untuk keamanan**. Itu cuma XOR obfuscation sederhana buat masking data ringan. Jangan pake buat enkripsi data sensitif.
+1. Kerentanan dikonfirmasi → tim bekerja pada fix
+2. Security advisory dipublikasikan di GitHub
+3. Versi patched dirilis ke npm
+4. Kredit diberikan kepada pelapor (jika diizinkan)
 
-## Kebijakan Disclosure
+## Catatan
 
-Begitu kerentanan dikonfirmasi:
-1. Kita bakal kerjain fix
-2. Security advisory bakal dipublish di GitHub
-3. Versi yang udh di-patch bakal dirilis ke npm
-4. Kredit bakal dikasih ke pelapor (kalo mau)
+Fungsi `xorCipher` di module crypto **bukan untuk keamanan**. Ini hanya XOR obfuscation sederhana untuk masking data ringan. Jangan digunakan untuk enkripsi data sensitif.

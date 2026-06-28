@@ -1,17 +1,17 @@
 ﻿# speexjs-core
 
-**Utility library for JavaScript/TypeScript — 200+ functions, zero dependencies.**
+**Utility library — 200+ functions, zero dependencies.**
 
 ```bash
 npm install speexjs-core
 ```
 
-## Fitur
+## Modules
 
-| Module | Fungsi |
-|--------|--------|
+| Module | Isi |
+|--------|-----|
 | **core** | deepClone, deepMerge, debounce, memoize, pipe |
-| **math** | safe float ops, median, stddev, percentile |
+| **math** | Safe float ops, median, stddev, percentile |
 | **date** | formatDate, timeAgo, Duration, WIB/WITA/WIT |
 | **string** | terbilang, formatRupiah, slugify, uuid, nanoid |
 | **validation** | isNIK, isNPWP, isPhone, isKodepos, isPlatNomor |
@@ -22,7 +22,6 @@ npm install speexjs-core
 | **error** | TypedError, createError, MultiError |
 | **logger** | Logger class, console/JSON/file transports |
 | **io** | parseCsv, stringifyCsv, safeJsonParse |
-| **dep-exray** | Dependency scanner — `npx dep-exray .` |
 | **type** | 20+ type guards: isString, isNil, assertDefined |
 
 ## Contoh
@@ -33,15 +32,10 @@ import { formatDate, timeAgo } from 'speexjs-core/date'
 import { terbilang, formatRupiah } from 'speexjs-core/string'
 import { isNIK, isNPWP, isPhone } from 'speexjs-core/validation'
 
-// Validasi data Indonesia
-isNIK('3201010203940001')   // true
-isPhone('08123456789')       // true
-
-// Konversi angka
-terbilang(1500000)           // "satu juta lima ratus ribu"
-formatRupiah(1500000)        // "Rp1.500.000"
-
-// Waktu relatif
+isNIK('3201010203940001')       // true
+isPhone('08123456789')           // true
+terbilang(1500000)               // "satu juta lima ratus ribu"
+formatRupiah(1500000)            // "Rp1.500.000"
 timeAgo(new Date(Date.now() - 5000)) // "5 detik yang lalu"
 ```
 

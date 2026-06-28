@@ -1,55 +1,62 @@
-# Kontribusi ke speexjs-core
+# Kontribusi — SpeexJS Core
+
+Terima kasih tertarik berkontribusi! Berikut panduan singkatnya.
 
 ## Setup Development
 
 ```bash
 cd packages/core
 npm install
-npx tsup
-npx vitest run
+npx tsup        # build
+npx vitest run  # test (828+ tests)
 ```
 
-## Cara Nambah Fungsi Baru
+## Coding Standards
 
-1. Tambah fungsi di module yang sesuai `packages/core/src/<module>/`
-2. Export dari `index.ts` module tersebut
-3. Tambah test di `packages/core/tests/`
-4. Jalankan `npx vitest run` (828 tests harus passing)
-5. Jalankan `npx tsup` biar build sukses
-6. Update `SUMMARY.md` sama `README.md`
+- TypeScript strict mode — tidak boleh ada `any` eksplisit
+- Zero runtime dependencies
+- Setiap fungsi publik harus memiliki unit test
+- Gunakan JSDoc untuk dokumentasi fungsi
+- Format kode dengan Biome (`npx biome check --write`)
 
-## Module yang Tersedia
+## Menambahkan Fungsi Baru
 
-| Module | Lokasi |
-|--------|--------|
-| core | `src/core/` |
-| math | `src/math/` |
-| date | `src/date/` |
-| collection | `src/collection/` |
-| string | `src/string/` |
-| async | `src/async/` |
-| io | `src/io/` |
-| type | `src/type/` |
-| crypto | `src/crypto/` |
-| path | `src/path/` |
-| color | `src/color/` |
-| validation | `src/validation/` |
-| error | `src/error/` |
-| logger | `src/logger/` |
-| dep-exray | `src/dep-exray/` |
+1. Tentukan module yang sesuai (`src/<module>/`)
+2. Implementasi fungsi + export dari `index.ts`
+3. Tambah unit test di `tests/`
+4. Jalankan `npx vitest run` — semua test harus passing
+5. Update `SUMMARY.md`
 
-## Aturan Commit
+## Melaporkan Bug
 
-Pake [Conventional Commits](https://www.conventionalcommits.org/):
+Buka [GitHub Issues](https://github.com/adityasuperdev/speexjs/issues) dengan:
 
-```
-feat(core): nambah deepMerge function
-fix(math): benerin floating point rounding
-docs: update README
-```
+- Deskripsi jelas dan langkah reproduksi
+- Versi speexjs-core dan environment (Node.js version, OS)
+- Kode minimal yang mereproduksi masalah
+
+## Mengajukan Fitur
+
+Buka GitHub Issue dengan label `enhancement`. Jelaskan:
+
+- Masalah yang ingin diselesaikan
+- Contoh penggunaan (API yang diinginkan)
+- Alternatif yang sudah dipertimbangkan
 
 ## Pull Request
 
-1. Bikin branch dari `master`
+1. Branch dari `master`
 2. Pastikan `npx tsup && npx vitest run` lolos
-3. Buka PR ke `master` dengan judul dan deskripsi jelas
+3. Ikuti [Conventional Commits](https://www.conventionalcommits.org/):
+
+```
+feat(core): tambah deepMerge function
+fix(math): perbaiki floating point rounding
+docs: update README
+```
+
+4. Buka PR ke `master` dengan deskripsi jelas
+
+## License
+
+Dengan berkontribusi, Anda menyetujui bahwa kontribusi dilisensikan di bawah [MIT License](LICENSE).
