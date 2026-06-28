@@ -21,7 +21,11 @@ export class SchemaError extends Error {
 // ─── Schema base class ──────────────────────────────────────
 
 export abstract class Schema<T> {
-  protected abstract _parse(value: unknown): T
+  /**
+   * Parse a value. Internal method — subclasses override this.
+   * @internal
+   */
+  abstract _parse(value: unknown): T
 
   parse(value: unknown): T {
     return this._parse(value)
@@ -76,7 +80,7 @@ class OptionalSchema<T> extends Schema<T | undefined> {
     super()
   }
 
-  protected _parse(value: unknown): T | undefined {
+  _parse(value: unknown): T | undefined {
     if (value === undefined) return undefined
     return this.inner._parse(value)
   }
@@ -87,7 +91,7 @@ class NullableSchema<T> extends Schema<T | null> {
     super()
   }
 
-  protected _parse(value: unknown): T | null {
+  _parse(value: unknown): T | null {
     if (value === null) return null
     return this.inner._parse(value)
   }
@@ -101,7 +105,7 @@ class DefaultSchema<T> extends Schema<T> {
     super()
   }
 
-  protected _parse(value: unknown): T {
+  _parse(value: unknown): T {
     if (value === undefined) return this.defaultValue
     return this.inner._parse(value)
   }
@@ -116,7 +120,7 @@ class RefineSchema<T> extends Schema<T> {
     super()
   }
 
-  protected _parse(value: unknown): T {
+  _parse(value: unknown): T {
     const result = this.inner._parse(value)
     if (!this.fn(result)) {
       throw new SchemaError(msg('refine_fail', { message: this.errorMsg }))
@@ -133,7 +137,7 @@ class TransformSchema<T, U> extends Schema<U> {
     super()
   }
 
-  protected _parse(value: unknown): U {
+  _parse(value: unknown): U {
     const result = this.inner._parse(value)
     return this.fn(result)
   }

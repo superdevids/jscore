@@ -50,11 +50,6 @@ export class Router {
   private groupMiddleware: Middleware[] = []
   private groupPrefix = ''
   private namedRoutes = new Map<string, RouteEntry>()
-  private container: Container
-
-  constructor(container: Container) {
-    this.container = container
-  }
 
   get(path: string, handler: RouteHandler): this {
     return this.match(['GET'], path, handler)

@@ -202,7 +202,13 @@ export {
   isPhone,
   isEmail,
   isURL,
+  parseNIK,
+  isPlatNomor,
+  isKodepos,
+  isNoRekening,
 } from './validation/index.js'
+
+export type { NIKInfo } from './validation/index.js'
 
 // ─── error (typed errors) ───────────────────────────────
 export {

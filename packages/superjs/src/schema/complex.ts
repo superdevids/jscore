@@ -66,7 +66,7 @@ export class ObjectSchema<T extends Shape> extends Schema<{ [K in keyof T]: Infe
     return new ObjectSchema({ ...this.shape, ...other.shape } as T & U)
   }
 
-  protected _parse(value: unknown): { [K in keyof T]: Infer<T[K]> } {
+  _parse(value: unknown): { [K in keyof T]: Infer<T[K]> } {
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
       throw new SchemaError(msg('type_object'))
     }
@@ -158,7 +158,7 @@ export class ArraySchema<T> extends Schema<T[]> {
     return this
   }
 
-  protected _parse(value: unknown): T[] {
+  _parse(value: unknown): T[] {
     if (!Array.isArray(value)) throw new SchemaError(msg('type_array'))
     const result: T[] = []
     for (let i = 0; i < value.length; i++) {
@@ -190,7 +190,7 @@ export class TupleSchema<T extends Schema<unknown>[]> extends Schema<TupleSchema
     super()
   }
 
-  protected _parse(value: unknown): TupleSchemaTypes<T> {
+  _parse(value: unknown): TupleSchemaTypes<T> {
     if (!Array.isArray(value)) throw new SchemaError(msg('type_array'))
     if (value.length !== this.schemas.length) {
       throw new SchemaError(msg('tuple_length', { length: this.schemas.length }))
@@ -220,7 +220,7 @@ export class EnumSchema<T extends string> extends Schema<T> {
     super()
   }
 
-  protected _parse(value: unknown): T {
+  _parse(value: unknown): T {
     if (typeof value !== 'string') throw new SchemaError(msg('type_string'))
     for (const v of this.values) {
       if (v === value) return value as T
@@ -240,7 +240,7 @@ export class UnionSchema<T> extends Schema<T> {
     super()
   }
 
-  protected _parse(value: unknown): T {
+  _parse(value: unknown): T {
     const errors: string[] = []
     for (const schema of this.schemas) {
       try {
@@ -263,14 +263,14 @@ export class IntersectionSchema<A, B> extends Schema<A & B> {
     super()
   }
 
-  protected _parse(value: unknown): A & B {
+  _parse(value: unknown): A & B {
     const a = this.left._parse(value)
     const b = this.right._parse(value)
     if (typeof a === 'object' && a !== null && typeof b === 'object' && b !== null) {
       return { ...a, ...b } as A & B
     }
-    if (typeof a !== 'object' || typeof b !== 'object') {
-      if (a === b) return a as unknown as A & B
+    if (typeof a !== 'object' || a === null || typeof b !== 'object' || b === null) {
+      if (a === (b as unknown)) return a as unknown as A & B
     }
     throw new SchemaError(msg('intersection_fail'))
   }
@@ -283,7 +283,7 @@ export class RecordSchema<V> extends Schema<Record<string, V>> {
     super()
   }
 
-  protected _parse(value: unknown): Record<string, V> {
+  _parse(value: unknown): Record<string, V> {
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
       throw new SchemaError(msg('type_object'))
     }
@@ -308,7 +308,7 @@ export class MapSchema<K, V> extends Schema<Map<K, V>> {
     super()
   }
 
-  protected _parse(value: unknown): Map<K, V> {
+  _parse(value: unknown): Map<K, V> {
     if (!(value instanceof Map)) throw new SchemaError(msg('map_not_map'))
     const result = new Map<K, V>()
     for (const [k, v] of value) {
@@ -325,7 +325,7 @@ export class SetSchema<T> extends Schema<Set<T>> {
     super()
   }
 
-  protected _parse(value: unknown): Set<T> {
+  _parse(value: unknown): Set<T> {
     if (!(value instanceof Set)) throw new SchemaError(msg('set_not_set'))
     const result = new Set<T>()
     for (const item of value) {
@@ -338,7 +338,7 @@ export class SetSchema<T> extends Schema<Set<T>> {
 // ─── DateSchema ─────────────────────────────────────────────
 
 export class DateSchema extends Schema<Date> {
-  protected _parse(value: unknown): Date {
+  _parse(value: unknown): Date {
     if (value instanceof Date) {
       if (Number.isNaN(value.getTime())) throw new SchemaError(msg('date_invalid'))
       return value
@@ -361,7 +361,7 @@ export class LiteralSchema<T extends LiteralValue> extends Schema<T> {
     super()
   }
 
-  protected _parse(value: unknown): T {
+  _parse(value: unknown): T {
     if (value !== this.expected) {
       throw new SchemaError(msg('literal_fail', { expected: String(this.expected) }))
     }
@@ -372,7 +372,7 @@ export class LiteralSchema<T extends LiteralValue> extends Schema<T> {
 // ─── AnySchema ──────────────────────────────────────────────
 
 export class AnySchema extends Schema<any> {
-  protected _parse(value: unknown): any {
+  _parse(value: unknown): any {
     return value
   }
 }
@@ -380,7 +380,7 @@ export class AnySchema extends Schema<any> {
 // ─── UnknownSchema ──────────────────────────────────────────
 
 export class UnknownSchema extends Schema<unknown> {
-  protected _parse(value: unknown): unknown {
+  _parse(value: unknown): unknown {
     return value
   }
 }

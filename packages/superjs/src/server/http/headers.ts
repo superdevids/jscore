@@ -56,30 +56,24 @@ export class HeadersMap {
     }
   }
 
-  keys(): IterableIterator<string> {
-    return this.data.keys()
+  *keys(): IterableIterator<string> {
+    for (const key of this.data.keys()) {
+      yield key
+    }
   }
 
-  values(): IterableIterator<string> {
-    const self = this
-    return {
-      *[Symbol.iterator]() {
-        for (const [, values] of self.data) {
-          for (const value of values) {
-            yield value
-          }
-        }
-      },
-      [Symbol.iterator]() {
-        return this
-      },
+  *values(): IterableIterator<string> {
+    for (const [, values] of this.data) {
+      for (const value of values) {
+        yield value
+      }
     }
   }
 
   toJSON(): Record<string, string | string[]> {
     const result: Record<string, string | string[]> = {}
     for (const [key, values] of this.data) {
-      result[key] = values.length === 1 ? values[0] as string : values
+      result[key] = values.length === 1 ? (values[0] as string) : values
     }
     return result
   }

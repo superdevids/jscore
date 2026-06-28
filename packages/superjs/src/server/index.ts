@@ -31,13 +31,13 @@ export class SuperApp {
   private engine: ServerEngine
   private serverInstance: ServerInstance | undefined
   private globalPipeline: MiddlewarePipeline
-  private started = false
   private viewEngine: ViewEngine | undefined
+  private started = false
   private serverPromise: Promise<void> | undefined
 
   constructor(options: AppOptions = {}) {
     this.container = options.container ?? new Container()
-    this.router = new Router(this.container)
+    this.router = new Router()
     this.engine = options.engine ?? new NodeEngine()
     this.globalPipeline = new MiddlewarePipeline()
 

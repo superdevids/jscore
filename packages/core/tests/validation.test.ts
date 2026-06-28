@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { isNIK, isNPWP, isPhone, isEmail, isURL } from '../src/validation/index.js'
+import { isNIK, isNPWP, isPhone, isEmail, isURL, parseNIK, isPlatNomor, isKodepos, isNoRekening } from '../src/validation/index.js'
 
 describe('isNIK', () => {
   it('validates correct male NIK', () => {
@@ -135,4 +135,52 @@ describe('isURL', () => {
   it('rejects just protocol', () => {
     expect(isURL('https://')).toBe(false)
   })
+})
+
+describe('parseNIK', () => {
+  it('parses male NIK', () => {
+    const result = parseNIK('3201010203940001')
+    expect(result.valid).toBe(true)
+    expect(result.gender).toBe('LAKI-LAKI')
+    expect(result.birthDate).toBeInstanceOf(Date)
+    expect(result.province).toBe('JAWA BARAT')
+    expect(result.provinceCode).toBe('32')
+  })
+  it('parses female NIK (day+40)', () => {
+    const result = parseNIK('3201015203940001')
+    expect(result.valid).toBe(true)
+    expect(result.gender).toBe('PEREMPUAN')
+  })
+  it('returns invalid for bad NIK', () => {
+    const result = parseNIK('12345')
+    expect(result.valid).toBe(false)
+    expect(result.gender).toBeNull()
+  })
+  it('returns invalid for bad date', () => {
+    const result = parseNIK('3201012902230001')
+    expect(result.valid).toBe(false)
+  })
+})
+
+describe('isPlatNomor', () => {
+  it('validates Jakarta plate', () => { expect(isPlatNomor('B 1234 CD')).toBe(true) })
+  it('validates without suffix', () => { expect(isPlatNomor('B 1')).toBe(true) })
+  it('validates 3-letter suffix', () => { expect(isPlatNomor('AB 5678 XYZ')).toBe(true) })
+  it('rejects random text', () => { expect(isPlatNomor('INVALID')).toBe(false) })
+  it('rejects empty', () => { expect(isPlatNomor('')).toBe(false) })
+})
+
+describe('isKodepos', () => {
+  it('validates 5-digit', () => { expect(isKodepos('16110')).toBe(true) })
+  it('rejects 4-digit', () => { expect(isKodepos('1234')).toBe(false) })
+  it('rejects non-numeric', () => { expect(isKodepos('ABCDE')).toBe(false) })
+  it('rejects empty', () => { expect(isKodepos('')).toBe(false) })
+})
+
+describe('isNoRekening', () => {
+  it('validates 10-digit', () => { expect(isNoRekening('1234567890')).toBe(true) })
+  it('validates 8-digit (min)', () => { expect(isNoRekening('12345678')).toBe(true) })
+  it('validates 16-digit (max)', () => { expect(isNoRekening('1234567890123456')).toBe(true) })
+  it('rejects 7-digit', () => { expect(isNoRekening('1234567')).toBe(false) })
+  it('rejects empty', () => { expect(isNoRekening('')).toBe(false) })
 })

@@ -1,6 +1,6 @@
 import { createReadStream, existsSync, statSync } from 'node:fs'
 import { extname, join } from 'node:path'
-import { createGzip, createBrotliCompress } from 'node:zlib'
+import { createGzip } from 'node:zlib'
 import { randomUUID } from 'node:crypto'
 
 import type { RouteContext } from '../router'
@@ -126,7 +126,7 @@ export function session(options?: SessionOptions): Middleware {
     }
     const sessionData = sessions.get(id) as Record<string, unknown>
 
-    ;(ctx as Record<string, unknown>).session = sessionData
+    ;(ctx as unknown as Record<string, unknown>).session = sessionData
 
     if (request.cookie(opts.name) === undefined) {
       response.cookie(opts.name, id, {
@@ -161,7 +161,7 @@ export function auth(guard?: string): Middleware {
       return
     }
 
-    ;(ctx as Record<string, unknown>).user = user
+    ;(ctx as unknown as Record<string, unknown>).user = user
 
     return next()
   }
@@ -390,11 +390,53 @@ export function csrf(): Middleware {
 
 export function compress(): Middleware {
   return (ctx: RouteContext, next: () => Promise<void>) => {
-    const { request, response } = ctx
+    const { request } = ctx
     const acceptEncoding = request.headers.get('accept-encoding') ?? ''
+
+    if (acceptEncoding.includes('gzip')) {
+      return compressWith(ctx, next, 'gzip')
+    }
 
     return next()
   }
+}
+
+function compressWith(
+  ctx: RouteContext,
+  next: () => Promise<void>,
+  _encoding: string,
+): Promise<void> {
+  const originalEnd = ctx.response.rawResponse.end.bind(ctx.response.rawResponse)
+  const originalWrite = ctx.response.rawResponse.write.bind(ctx.response.rawResponse)
+
+  const chunks: Buffer[] = []
+
+  ctx.response.rawResponse.write = function (chunk: unknown, ...args: unknown[]) {
+    if (Buffer.isBuffer(chunk) || typeof chunk === 'string') {
+      chunks.push(Buffer.from(chunk))
+    }
+    return true
+  } as typeof ctx.response.rawResponse.write
+
+  ctx.response.rawResponse.end = function (chunk?: unknown, ...args: unknown[]) {
+    if (chunk !== undefined && chunk !== null) {
+      if (Buffer.isBuffer(chunk) || typeof chunk === 'string') {
+        chunks.push(Buffer.from(chunk))
+      }
+    }
+
+    ctx.response.header('content-encoding', 'gzip')
+
+    const gzip = createGzip()
+    const combined = Buffer.concat(chunks)
+    const compressed = gzip.end(combined) as unknown as Buffer
+
+    ctx.response.header('content-length', String(compressed.length))
+    originalEnd(compressed, ...args)
+    return ctx.response.rawResponse
+  } as typeof ctx.response.rawResponse.end
+
+  return next()
 }
 
 export function helmet(): Middleware {

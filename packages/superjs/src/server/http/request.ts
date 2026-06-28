@@ -331,7 +331,6 @@ function parseMultipartBody(
 ): MultipartPart[] {
   const result: MultipartPart[] = []
   const boundaryBuffer = Buffer.from(`--${boundary}`)
-  const endBoundaryBuffer = Buffer.from(`--${boundary}--`)
 
   let start = 0
   let searchFrom = 0

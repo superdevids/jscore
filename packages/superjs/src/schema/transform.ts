@@ -4,7 +4,7 @@ import { msg } from './messages.js'
 // ─── CoerceStringSchema ─────────────────────────────────────
 
 export class CoerceStringSchema extends Schema<string> {
-  protected _parse(value: unknown): string {
+  _parse(value: unknown): string {
     if (value === null || value === undefined) throw new SchemaError(msg('type_string'))
     return String(value)
   }
@@ -13,7 +13,7 @@ export class CoerceStringSchema extends Schema<string> {
 // ─── CoerceNumberSchema ─────────────────────────────────────
 
 export class CoerceNumberSchema extends Schema<number> {
-  protected _parse(value: unknown): number {
+  _parse(value: unknown): number {
     if (typeof value === 'number') return value
     if (typeof value === 'string') {
       const trimmed = value.trim()
@@ -31,7 +31,7 @@ export class CoerceNumberSchema extends Schema<number> {
 // ─── CoerceBooleanSchema ────────────────────────────────────
 
 export class CoerceBooleanSchema extends Schema<boolean> {
-  protected _parse(value: unknown): boolean {
+  _parse(value: unknown): boolean {
     if (typeof value === 'boolean') return value
     if (value === 0 || value === 1) return value === 1
     if (typeof value === 'string') {
@@ -46,7 +46,7 @@ export class CoerceBooleanSchema extends Schema<boolean> {
 // ─── CoerceDateSchema ───────────────────────────────────────
 
 export class CoerceDateSchema extends Schema<Date> {
-  protected _parse(value: unknown): Date {
+  _parse(value: unknown): Date {
     if (value instanceof Date) {
       if (Number.isNaN(value.getTime())) throw new SchemaError(msg('coerce_date_fail'))
       return value
@@ -67,7 +67,7 @@ export class StandaloneTransformSchema<T> extends Schema<T> {
     super()
   }
 
-  protected _parse(value: unknown): T {
+  _parse(value: unknown): T {
     return this.fn(value)
   }
 }

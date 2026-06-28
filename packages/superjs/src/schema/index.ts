@@ -75,7 +75,7 @@ export const s = {
   },
 
   tuple<T extends SchemaBase<unknown>[]>(...schemas: T): TupleSchema<T> {
-    return new TupleSchema(schemas)
+    return new TupleSchema(schemas as any) as TupleSchema<T>
   },
 
   enum<T extends string>(values: readonly T[]): EnumSchema<T> {

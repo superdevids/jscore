@@ -86,7 +86,7 @@ export class StringSchema extends Schema<string> {
     return new StringUppercaseSchema(this)
   }
 
-  protected _parse(value: unknown): string {
+  _parse(value: unknown): string {
     if (typeof value !== 'string') throw new SchemaError(msg('type_string'))
     for (const check of this.checks) check(value)
     return value
@@ -100,7 +100,7 @@ class StringTrimSchema extends Schema<string> {
     super()
   }
 
-  protected _parse(value: unknown): string {
+  _parse(value: unknown): string {
     const result = this.inner._parse(value)
     return result.trim()
   }
@@ -111,7 +111,7 @@ class StringLowercaseSchema extends Schema<string> {
     super()
   }
 
-  protected _parse(value: unknown): string {
+  _parse(value: unknown): string {
     const result = this.inner._parse(value)
     return result.toLowerCase()
   }
@@ -122,7 +122,7 @@ class StringUppercaseSchema extends Schema<string> {
     super()
   }
 
-  protected _parse(value: unknown): string {
+  _parse(value: unknown): string {
     const result = this.inner._parse(value)
     return result.toUpperCase()
   }
@@ -182,7 +182,7 @@ export class NumberSchema extends Schema<number> {
     return this
   }
 
-  protected _parse(value: unknown): number {
+  _parse(value: unknown): number {
     if (typeof value !== 'number' || Number.isNaN(value)) {
       throw new SchemaError(msg('type_number'))
     }
@@ -194,7 +194,7 @@ export class NumberSchema extends Schema<number> {
 // ─── BooleanSchema ──────────────────────────────────────────
 
 export class BooleanSchema extends Schema<boolean> {
-  protected _parse(value: unknown): boolean {
+  _parse(value: unknown): boolean {
     if (typeof value !== 'boolean') throw new SchemaError(msg('type_boolean'))
     return value
   }
@@ -203,7 +203,7 @@ export class BooleanSchema extends Schema<boolean> {
 // ─── BigIntSchema ───────────────────────────────────────────
 
 export class BigIntSchema extends Schema<bigint> {
-  protected _parse(value: unknown): bigint {
+  _parse(value: unknown): bigint {
     if (typeof value !== 'bigint') throw new SchemaError(msg('type_bigint'))
     return value
   }
@@ -212,7 +212,7 @@ export class BigIntSchema extends Schema<bigint> {
 // ─── SymbolSchema ───────────────────────────────────────────
 
 export class SymbolSchema extends Schema<symbol> {
-  protected _parse(value: unknown): symbol {
+  _parse(value: unknown): symbol {
     if (typeof value !== 'symbol') throw new SchemaError(msg('type_symbol'))
     return value
   }
@@ -221,7 +221,7 @@ export class SymbolSchema extends Schema<symbol> {
 // ─── UndefinedSchema ────────────────────────────────────────
 
 export class UndefinedSchema extends Schema<undefined> {
-  protected _parse(value: unknown): undefined {
+  _parse(value: unknown): undefined {
     if (value !== undefined) throw new SchemaError(msg('type_undefined'))
     return undefined
   }
@@ -230,7 +230,7 @@ export class UndefinedSchema extends Schema<undefined> {
 // ─── NullSchema ─────────────────────────────────────────────
 
 export class NullSchema extends Schema<null> {
-  protected _parse(value: unknown): null {
+  _parse(value: unknown): null {
     if (value !== null) throw new SchemaError(msg('type_null'))
     return null
   }
@@ -239,7 +239,7 @@ export class NullSchema extends Schema<null> {
 // ─── NaNSchema ──────────────────────────────────────────────
 
 export class NaNSchema extends Schema<number> {
-  protected _parse(value: unknown): number {
+  _parse(value: unknown): number {
     if (typeof value !== 'number' || !Number.isNaN(value)) {
       throw new SchemaError(msg('type_nan'))
     }
@@ -248,8 +248,6 @@ export class NaNSchema extends Schema<number> {
 }
 
 // ─── Internal email validator ───────────────────────────────
-
-const LOCAL_SPECIAL = "!#$%&'*+/=?^_`{|}~-"
 
 function isValidEmail(value: string): boolean {
   if (value.length > 254) return false

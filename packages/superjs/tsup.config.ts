@@ -12,6 +12,7 @@ export default defineConfig({
     'client/index': 'src/client/index.ts',
     'client/signals/index': 'src/client/signals/index.ts',
     'client/vdom/index': 'src/client/vdom/index.ts',
+    'client/vdom/jsx-runtime': 'src/client/vdom/jsx-runtime.ts',
     'rpc/index': 'src/rpc/index.ts',
     'schema/index': 'src/schema/index.ts',
     'cli/index': 'src/cli/index.ts',
