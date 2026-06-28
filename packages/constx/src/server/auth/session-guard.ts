@@ -40,7 +40,7 @@ export class SessionGuard {
 
   constructor(config?: SessionGuardConfig) {
     this.config = {
-      cookieName: 'constx_session',
+      cookieName: 'speedx_session',
       lifetime: 120,
       table: 'users',
       identifier: 'email',

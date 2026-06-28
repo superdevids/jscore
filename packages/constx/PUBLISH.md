@@ -1,6 +1,6 @@
-# Panduan Publishing ConstX ke npm
+# Panduan Publishing SpeedX ke npm
 
-> Panduan lengkap untuk mempublikasikan package ConstX ke npm registry.
+> Panduan lengkap untuk mempublikasikan package SpeedX ke npm registry.
 
 ---
 
@@ -9,7 +9,7 @@
 - [Prerequisites](#prerequisites)
 - [Build](#build)
 - [Update Versi](#update-versi)
-- [Publishing ConstX](#publishing-ConstX)
+- [Publishing SpeedX](#publishing-SpeedX)
 - [Verifikasi](#verifikasi)
 - [Menangani Error Publish](#menangani-error-publish)
 - [Rollback](#rollback)
@@ -31,11 +31,11 @@ npm login
 npm whoami
 ```
 
-Pastikan Anda memiliki akses publish ke package `ConstX`:
+Pastikan Anda memiliki akses publish ke package `SpeedX`:
 
 ```bash
 # Cek akses
-npm access ls-collaborators ConstX
+npm access ls-collaborators SpeedX
 ```
 
 ### 2. Build Siap
@@ -82,7 +82,7 @@ git pull origin main
 
 ## Update Versi
 
-ConstX mengikuti [Semantic Versioning](https://semver.org/):
+SpeedX mengikuti [Semantic Versioning](https://semver.org/):
 
 | Command | Efek | Contoh |
 |---|---|---|
@@ -122,13 +122,13 @@ git tag v0.3.0
 
 ---
 
-## Publishing ConstX
+## Publishing SpeedX
 
 ### Step-by-step
 
 ```bash
-# 1. Masuk ke package ConstX
-cd packages/ConstX
+# 1. Masuk ke package SpeedX
+cd packages/SpeedX
 
 # 2. Update versi
 npm version patch -m "chore: bump version to %s"
@@ -151,7 +151,7 @@ npm publish
 npm publish --tag beta
 
 # Install dengan tag beta
-npm install ConstX@beta
+npm install SpeedX@beta
 
 # Publish dengan tag alpha
 npm publish --tag alpha
@@ -197,22 +197,22 @@ Setelah publish, verifikasi bahwa package terpublish dengan benar:
 
 ```bash
 # Cek versi terbaru di npm
-npm view ConstX version
+npm view SpeedX version
 
 # Cek detail package
-npm view ConstX
+npm view SpeedX
 
 # Coba install di project kosong
 cd /tmp
 mkdir test-publish
 cd test-publish
 npm init -y
-npm install ConstX
-node -e "const sjs = require('ConstX'); console.log(Object.keys(sjs))"
+npm install SpeedX
+node -e "const sjs = require('SpeedX'); console.log(Object.keys(sjs))"
 
 # Cek bahwa file dist ada
-npm pack ConstX
-tar -xzf ConstX-*.tgz
+npm pack SpeedX
+tar -xzf SpeedX-*.tgz
 ls package/
 ```
 
@@ -224,7 +224,7 @@ ls package/
 
 ```
 npm ERR! 403 403 Forbidden
-npm ERR! You do not have permission to publish "ConstX"
+npm ERR! You do not have permission to publish "SpeedX"
 ```
 
 **Solusi:**
@@ -234,7 +234,7 @@ npm ERR! You do not have permission to publish "ConstX"
 npm whoami
 
 # Cek collaborators
-npm access ls-collaborators ConstX
+npm access ls-collaborators SpeedX
 
 # Minta akses dari maintainer: superdevids
 ```
@@ -314,13 +314,13 @@ git push origin :refs/tags/v0.2.0
 Jika terpaksa harus unpublish (dalam 72 jam):
 
 ```bash
-npm unpublish ConstX@0.2.0 --force
+npm unpublish SpeedX@0.2.0 --force
 ```
 
 > **Catatan:** npm memiliki kebijakan ketat tentang unpublish. Hanya versi tertentu dalam 72 jam ke belakang yang bisa di-unpublish. Jika melebihi 72 jam, buat versi baru dengan deprecation warning:
 
 ```bash
-npm deprecate ConstX@0.2.0 "Versi ini mengandung bug kritis. Gunakan >=0.2.1"
+npm deprecate SpeedX@0.2.0 "Versi ini mengandung bug kritis. Gunakan >=0.2.1"
 ```
 
 ---
@@ -335,7 +335,7 @@ Jika publish menyebabkan masalah, langkah yang disarankan:
 
 ```bash
 # Deprecate versi bermasalah
-npm deprecate ConstX@0.2.0 "Versi ini bermasalah. Upgrade ke 0.2.1"
+npm deprecate SpeedX@0.2.0 "Versi ini bermasalah. Upgrade ke 0.2.1"
 
 # Buat fix
 git checkout -b fix/rollback-fix
@@ -381,4 +381,4 @@ Sebelum publish, pastikan checklist berikut terpenuhi:
 
 ---
 
-> **Catatan:** Package `ConstX` sudah dikonfigurasi dengan `"publishConfig": { "access": "public" }` dan `"files": ["dist"]`, jadi hanya folder `dist/` yang akan dipublish ke npm.
+> **Catatan:** Package `SpeedX` sudah dikonfigurasi dengan `"publishConfig": { "access": "public" }` dan `"files": ["dist"]`, jadi hanya folder `dist/` yang akan dipublish ke npm.

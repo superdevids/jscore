@@ -29,7 +29,7 @@ export function makeSchema(name: string): void {
 
   mkdirSync(targetDir, { recursive: true })
 
-  const content = `import { s, type Infer } from 'constx/schema'
+  const content = `import { s, type Infer } from 'speedx/schema'
 
 export const ${schemaName} = s.object({
   id: s.string().uuid(),

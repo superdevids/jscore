@@ -28,9 +28,9 @@ runs:
       with:
         node-version: 20
 
-    - name: Install constx-core
+    - name: Install speedx-core
       shell: bash
-      run: npm install -g constx-core
+      run: npm install -g speedx-core
 
     - name: Run dep-exray scan
       id: scan

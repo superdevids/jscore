@@ -1,12 +1,12 @@
-# ConstX Monorepo 🚀
+# SpeedX Monorepo 🚀
 
 **Dua package dalam satu monorepo — untuk developer JavaScript/TypeScript Indonesia dan dunia.**
 
 ```
-ConstX/
+SpeedX/
 ├── packages/
-│   ├── ConstX/   → ConstX          (Fullstack Framework — zero dep, server+client+rpc+db+auth+cli)
-│   └── core/      → ConstX-core     (Utility Library — zero dep, 90+ functions)
+│   ├── SpeedX/   → SpeedX          (Fullstack Framework — zero dep, server+client+rpc+db+auth+cli)
+│   └── core/      → SpeedX-core     (Utility Library — zero dep, 90+ functions)
 ```
 
 ---
@@ -15,27 +15,27 @@ ConstX/
 
 | Package | npm | Deskripsi |
 |---------|-----|-----------|
-| **ConstX** | `npm install ConstX` | Fullstack framework: Server (Laravel-like), Client (Signal-based VDOM), RPC (type-safe), Database (Query Builder + Migrations), Auth (Session + Token), CLI. Zero dependencies. |
-| **ConstX-core** | `npm install ConstX-core` | Utility library: deepClone, debounce, formatDate, terbilang, isNIK, Logger, dep-exray, dan 90+ fungsi lainnya. Zero runtime dependencies. |
+| **SpeedX** | `npm install SpeedX` | Fullstack framework: Server (Laravel-like), Client (Signal-based VDOM), RPC (type-safe), Database (Query Builder + Migrations), Auth (Session + Token), CLI. Zero dependencies. |
+| **SpeedX-core** | `npm install SpeedX-core` | Utility library: deepClone, debounce, formatDate, terbilang, isNIK, Logger, dep-exray, dan 90+ fungsi lainnya. Zero runtime dependencies. |
 
 ---
 
 ## 🚀 Quickstart
 
-### ConstX (Fullstack Framework)
+### SpeedX (Fullstack Framework)
 
 ```bash
-npm install ConstX
+npm install SpeedX
 ```
 
 ```typescript
-import { ConstX } from 'ConstX/server'
-import { s } from 'ConstX/schema'
+import { SpeedX } from 'SpeedX/server'
+import { s } from 'SpeedX/schema'
 
-const app = ConstX()
+const app = SpeedX()
 
 app.get('/', async ({ response }) => {
-  return response.html('<h1>ConstX 🚀</h1>')
+  return response.html('<h1>SpeedX 🚀</h1>')
 })
 
 app.get('/api/users', async ({ response }) => {
@@ -43,22 +43,22 @@ app.get('/api/users', async ({ response }) => {
   return response.json(users)
 })
 
-app.listen(3000, () => console.log('ConstX running on http://localhost:3000'))
+app.listen(3000, () => console.log('SpeedX running on http://localhost:3000'))
 ```
 
-Dokumentasi lengkap: **[packages/ConstX/README.md](./packages/ConstX/README.md)**
+Dokumentasi lengkap: **[packages/SpeedX/README.md](./packages/SpeedX/README.md)**
 
-### ConstX-core (Utility Library)
+### SpeedX-core (Utility Library)
 
 ```bash
-npm install ConstX-core
+npm install SpeedX-core
 ```
 
 ```typescript
-import { deepClone } from 'ConstX-core'
-import { formatDate } from 'ConstX-core/date'
-import { isNIK } from 'ConstX-core/validation'
-import { terbilang, formatRupiah } from 'ConstX-core/string'
+import { deepClone } from 'SpeedX-core'
+import { formatDate } from 'SpeedX-core/date'
+import { isNIK } from 'SpeedX-core/validation'
+import { terbilang, formatRupiah } from 'SpeedX-core/string'
 
 deepClone({ a: 1, b: { c: new Date() } })
 formatDate(new Date(), 'DD/MM/YYYY')  // "28/06/2026"
@@ -73,7 +73,7 @@ Dokumentasi lengkap: **[packages/core/README.md](./packages/core/README.md)**
 
 ## ✨ Fitur Unggulan
 
-### ConstX (Framework)
+### SpeedX (Framework)
 - **Zero dependencies** — 100% native Node.js
 - **Server** — Laravel-like: Router, Middleware, Controller, DI, Engine
 - **Database** — Query Builder, Migrations, Pagination (MySQL/SQLite/PostgreSQL)
@@ -82,9 +82,9 @@ Dokumentasi lengkap: **[packages/core/README.md](./packages/core/README.md)**
 - **Client** — Signal-based reactivity, Virtual DOM, JSX, SSR
 - **RPC** — Type-safe bidirectional communication
 - **Cache, Storage, Events** — Enterprise features
-- **CLI** — `ConstX init`, `make:*`, `serve`, `list-routes`
+- **CLI** — `SpeedX init`, `make:*`, `serve`, `list-routes`
 
-### ConstX-core
+### SpeedX-core
 - **90+ functions** — 16 modules (core, math, date, collection, string, async, io, type, crypto, path, validation, error, logger, color, dep-exray)
 - **TypeScript strict** — full type safety, zero `any`
 - **Zero runtime dependencies** — pure JS/TS
@@ -95,7 +95,7 @@ Dokumentasi lengkap: **[packages/core/README.md](./packages/core/README.md)**
 
 ## 📊 Statistik
 
-| Metrik | ConstX | ConstX-core |
+| Metrik | SpeedX | SpeedX-core |
 |--------|-------------|---------|
 | Versi | 0.2.0 | 0.6.0 |
 | File | 67 | 50+ |
@@ -109,8 +109,8 @@ Dokumentasi lengkap: **[packages/core/README.md](./packages/core/README.md)**
 ## 🗺️ Roadmap
 
 Lihat roadmap masing-masing package:
-- [ConstX ROADMAP](./packages/ConstX/ROADMAP.md)
-- [ConstX-core ROADMAP](./packages/core/ROADMAP.md)
+- [SpeedX ROADMAP](./packages/SpeedX/ROADMAP.md)
+- [SpeedX-core ROADMAP](./packages/core/ROADMAP.md)
 
 ---
 

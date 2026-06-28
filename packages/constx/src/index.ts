@@ -1,4 +1,4 @@
-// ConstX — Fullstack JavaScript/TypeScript Framework
+// SpeedX — Fullstack JavaScript/TypeScript Framework
 // 🇮🇩 Indonesia First, Built for the World
 
 // Schema & Validation

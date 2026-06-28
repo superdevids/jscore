@@ -1,13 +1,13 @@
 {
-  "name": "constx-monorepo",
+  "name": "speedx-monorepo",
   "version": "1.0.0",
   "private": true,
-  "description": "ConstX Monorepo — constx-core (utility library) + constx (fullstack framework) 🇮🇩",
+  "description": "SpeedX Monorepo — speedx-core (utility library) + speedx (fullstack framework) 🇮🇩",
   "scripts": {
     "build:core": "cd packages/core && npm run build",
-    "build:constx": "cd packages/constx && npm run build",
-    "build:all": "npm run build:core && npm run build:constx",
+    "build:speedx": "cd packages/constx && npm run build",
+    "build:all": "npm run build:core && npm run build:speedx",
     "publish:core": "cd packages/core && npm publish",
-    "publish:constx": "cd packages/constx && npm publish"
+    "publish:speedx": "cd packages/constx && npm publish"
   }
 }

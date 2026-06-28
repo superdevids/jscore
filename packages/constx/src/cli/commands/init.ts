@@ -19,12 +19,12 @@ const TEMPLATES: Record<string, TemplateContent> = {
             type: 'module',
             private: true,
             scripts: {
-              dev: 'ConstX serve',
-              build: 'ConstX build',
+              dev: 'SpeedX serve',
+              build: 'SpeedX build',
               start: 'node dist/index.js',
             },
             dependencies: {
-              ConstX: 'latest',
+              SpeedX: 'latest',
             },
             devDependencies: {
               '@types/node': '^26.0.1',
@@ -55,24 +55,24 @@ const TEMPLATES: Record<string, TemplateContent> = {
         null,
         2,
       ),
-      'src/index.ts': `import { ConstX } from 'ConstX/server'
+      'src/index.ts': `import { SpeedX } from 'speedx/server'
 
-const app = ConstX()
+const app = SpeedX()
 
 const PORT = Number(process.env.PORT) || 3000
 
 app.get('/', async ({ response }) => {
-  return response.html('<h1>ConstX 🚀</h1>')
+  return response.html('<h1>SpeedX 🚀</h1>')
 })
 
 app.listen(PORT, () => {
-  console.log(\`ConstX running on http://localhost:\${PORT}\`)
+  console.log(\`SpeedX running on http://localhost:\${PORT}\`)
 })
 `,
-      'src/app.ts': `import { ConstX } from 'ConstX/server'
+      'src/app.ts': `import { SpeedX } from 'speedx/server'
 
 export function createApp() {
-  const app = ConstX()
+  const app = SpeedX()
   return app
 }
 `,
@@ -107,12 +107,12 @@ dist/
             type: 'module',
             private: true,
             scripts: {
-              dev: 'ConstX serve',
+              dev: 'SpeedX serve',
               build: 'tsc',
               start: 'node dist/server/index.js',
             },
             dependencies: {
-              ConstX: 'latest',
+              SpeedX: 'latest',
             },
             devDependencies: {
               '@types/node': '^26.0.1',
@@ -135,7 +135,7 @@ dist/
             isolatedModules: true,
             resolveJsonModule: true,
             jsx: 'react-jsx',
-            jsxImportSource: '@ConstX/vdom',
+            jsxImportSource: '@SpeedX/vdom',
             outDir: './dist',
             rootDir: './src',
           },
@@ -145,12 +145,12 @@ dist/
         null,
         2,
       ),
-      'src/server/index.ts': `import { ConstX } from 'ConstX/server'
+      'src/server/index.ts': `import { SpeedX } from 'speedx/server'
 import { UserController } from './controllers/user.controller.js'
 
 const PORT = Number(process.env.PORT) || 3000
 
-const app = ConstX()
+const app = SpeedX()
 
 app.controller(UserController)
 
@@ -161,7 +161,7 @@ app.get('/', async ({ response }) => {
     <head>
       <meta charset="UTF-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>ConstX Fullstack</title>
+      <title>SpeedX Fullstack</title>
     </head>
     <body>
       <div id="root"></div>
@@ -172,10 +172,10 @@ app.get('/', async ({ response }) => {
 })
 
 app.listen(PORT, () => {
-  console.log(\`ConstX running on http://localhost:\${PORT}\`)
+  console.log(\`SpeedX running on http://localhost:\${PORT}\`)
 })
 `,
-      'src/server/controllers/user.controller.ts': `import { Controller, get, post } from 'ConstX/server'
+      'src/server/controllers/user.controller.ts': `import { Controller, get, post } from 'speedx/server'
 
 export class UserController extends Controller {
   @get('/users')
@@ -205,8 +205,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     root.innerHTML = \`
       <div style="text-align:center;padding:2rem">
-        <h1>ConstX Fullstack</h1>
-        <p>Welcome to ConstX!</p>
+        <h1>SpeedX Fullstack</h1>
+        <p>Welcome to SpeedX!</p>
       </div>
     \`
   }
@@ -262,12 +262,12 @@ dist/
             type: 'module',
             private: true,
             scripts: {
-              dev: 'ConstX serve',
+              dev: 'SpeedX serve',
               build: 'tsc',
               start: 'node dist/index.js',
             },
             dependencies: {
-              ConstX: 'latest',
+              SpeedX: 'latest',
             },
             devDependencies: {
               '@types/node': '^26.0.1',
@@ -298,21 +298,21 @@ dist/
         null,
         2,
       ),
-      'src/index.ts': `import { ConstX } from 'ConstX/server'
+      'src/index.ts': `import { SpeedX } from 'speedx/server'
 
 const PORT = Number(process.env.PORT) || 3000
 
-const app = ConstX()
+const app = SpeedX()
 
 app.get('/api/health', async ({ response }) => {
   return response.json({ status: 'ok', timestamp: new Date().toISOString() })
 })
 
 app.listen(PORT, () => {
-  console.log(\`ConstX API running on http://localhost:\${PORT}\`)
+  console.log(\`SpeedX API running on http://localhost:\${PORT}\`)
 })
 `,
-      'src/controllers/health.controller.ts': `import { Controller, get } from 'ConstX/server'
+      'src/controllers/health.controller.ts': `import { Controller, get } from 'speedx/server'
 
 export class HealthController extends Controller {
   @get('/health')
@@ -324,7 +324,7 @@ export class HealthController extends Controller {
   }
 }
 `,
-      'src/middleware/auth.ts': `import type { RouteContext } from 'ConstX/server/router'
+      'src/middleware/auth.ts': `import type { RouteContext } from 'speedx/server/router'
 
 export function auth() {
   return async (ctx: RouteContext, next: () => Promise<void>) => {
@@ -434,7 +434,7 @@ export async function initProject(
 
   console.log()
   console.log(`${colors.bold('╔════════════════════════════════════╗')}`)
-  console.log(`${colors.bold('║')}        ${colors.green('ConstX 🚀 Project Created')}${colors.bold('       ║')}`)
+  console.log(`${colors.bold('║')}        ${colors.green('SpeedX 🚀 Project Created')}${colors.bold('       ║')}`)
   console.log(`${colors.bold('╚════════════════════════════════════╝')}`)
   console.log()
   console.log(`  ${colors.bold('Name:')}     ${toPascalCase(name)}`)

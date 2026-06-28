@@ -88,14 +88,14 @@
 
 ### Dibenerin
 - Cross-platform `clean` script
-- GitHub Actions: dep-exray-scan pake constx-core
+- GitHub Actions: dep-exray-scan pake speedx-core
 - Hapus keyword "zero-dependency" yang misleading
 
 ## [0.3.0] - 2026-06-27
 
 ### Diubah
-- `constx-dep-exray` digabung ke `constx-core` jadi module built-in
-- Satu package: `npm install constx-core` dapet semua
+- `speedx-dep-exray` digabung ke `speedx-core` jadi module built-in
+- Satu package: `npm install speedx-core` dapet semua
 - 7 npm packages di-unpublish/deprecate
 
 ### Ditambahkan

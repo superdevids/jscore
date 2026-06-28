@@ -1,9 +1,9 @@
-﻿# constx-core
+﻿# speedx-core
 
 > **JavaScript toolkit all-in-one buat developer Indonesia — Standard Library + Dependency Scanner + 🇮🇩 Validasi NIK/NPWP/Phone + Logger + Typed Errors**
 
 ```bash
-npm install constx-core
+npm install speedx-core
 ```
 
 Satu package buat semua kebutuhan JavaScript lo: utility functions, async helpers, crypto, path manipulation, typed errors, structured logging, **plus** dependency health scanner dan validasi data Indonesia (NIK, NPWP, Phone).
@@ -56,14 +56,14 @@ Satu package buat semua kebutuhan JavaScript lo: utility functions, async helper
 ## Contoh Kode
 
 ```typescript
-import { deepClone } from "constx-core"
-import { formatDate, timeAgo, TIMEZONE_WIB } from "constx-core/date"
-import { Queue } from "constx-core/async"
-import { uuid, maskString, terbilang, formatRupiah, formatBytes } from "constx-core/string"
-import { isNIK, isNPWP, isPhone } from "constx-core/validation"
-import { createError } from "constx-core/error"
-import { Logger } from "constx-core/logger"
-import { hexToRgb, contrastRatio } from "constx-core/color"
+import { deepClone } from "speedx-core"
+import { formatDate, timeAgo, TIMEZONE_WIB } from "speedx-core/date"
+import { Queue } from "speedx-core/async"
+import { uuid, maskString, terbilang, formatRupiah, formatBytes } from "speedx-core/string"
+import { isNIK, isNPWP, isPhone } from "speedx-core/validation"
+import { createError } from "speedx-core/error"
+import { Logger } from "speedx-core/logger"
+import { hexToRgb, contrastRatio } from "speedx-core/color"
 
 // Validasi data Indonesia
 isNIK("3201010203940001")     // true
@@ -107,7 +107,7 @@ npx dep-exray /path/to/project --json --verbose
 ```
 
 ### Fitur
-- Deteksi replacement: lodash → constx-core, moment → constx-core/date, uuid → native crypto.randomUUID()
+- Deteksi replacement: lodash → speedx-core, moment → speedx-core/date, uuid → native crypto.randomUUID()
 - Estimasi ukuran dependency
 - CVE detection
 - JSON output untuk CI/CD
@@ -118,8 +118,8 @@ npx dep-exray /path/to/project --json --verbose
 ## Quick Start
 
 ```bash
-git clone https://github.com/superdevids/constx.git
-cd constx/packages/core
+git clone https://github.com/superdevids/speedx.git
+cd speedx/packages/core
 npm install
 npx tsup              # Build
 npx vitest run        # Test (828 tests)

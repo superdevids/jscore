@@ -1,4 +1,4 @@
-# ConstX Framework — Ringkasan Lengkap
+# SpeedX Framework — Ringkasan Lengkap
 
 > **Fullstack JavaScript/TypeScript Framework** — Server, Client, RPC, Schema, CLI, Database, Auth, Cache, Storage. Zero Dependencies. 🇮🇩 Indonesia First.
 >
@@ -32,7 +32,7 @@
 
 ## 1. Native Core
 
-> Lokasi: `ConstX` (main entry) | File: `src/native/`
+> Lokasi: `SpeedX` (main entry) | File: `src/native/`
 
 ### args.ts — Argument Parsing
 
@@ -170,12 +170,12 @@
 
 ## 2. Schema
 
-> Import: `ConstX/schema` | File: `src/schema/`
+> Import: `SpeedX/schema` | File: `src/schema/`
 
 ### Factory Namespace `s`
 
 ```ts
-import { s } from 'ConstX/schema'
+import { s } from 'SpeedX/schema'
 ```
 
 #### Primitives
@@ -308,7 +308,7 @@ import { s } from 'ConstX/schema'
 
 ## 3. Server / HTTP
 
-> Import: `ConstX/server/http` | File: `src/server/http/`
+> Import: `SpeedX/server/http` | File: `src/server/http/`
 
 ### SuperRequest
 
@@ -424,7 +424,7 @@ import { s } from 'ConstX/schema'
 
 ## 4. Server / Router
 
-> Import: `ConstX/server/router` | File: `src/server/router/`
+> Import: `SpeedX/server/router` | File: `src/server/router/`
 
 ### Router Class
 
@@ -476,7 +476,7 @@ interface RouteContext {
 
 ## 5. Server / Middleware
 
-> Import: `ConstX/server/middleware` | File: `src/server/middleware/`
+> Import: `SpeedX/server/middleware` | File: `src/server/middleware/`
 
 ### Built-in Middleware (10)
 
@@ -512,7 +512,7 @@ type Middleware = (ctx: RouteContext, next: () => Promise<void>) => void | Promi
 
 ## 6. Server / Controller
 
-> Import: `ConstX/server/controller` | File: `src/server/controller/`
+> Import: `SpeedX/server/controller` | File: `src/server/controller/`
 
 ### Base Controller
 
@@ -546,7 +546,7 @@ type Middleware = (ctx: RouteContext, next: () => Promise<void>) => void | Promi
 
 ## 7. Server / Container
 
-> Import: `ConstX/server/container` | File: `src/server/container/`
+> Import: `SpeedX/server/container` | File: `src/server/container/`
 
 ### Container (DI)
 
@@ -565,7 +565,7 @@ type Middleware = (ctx: RouteContext, next: () => Promise<void>) => void | Promi
 
 ## 8. Server / Engine
 
-> Import: `ConstX/server/engine` | File: `src/server/engine/`
+> Import: `SpeedX/server/engine` | File: `src/server/engine/`
 
 | Class / Interface | Deskripsi |
 |---|---|
@@ -577,7 +577,7 @@ type Middleware = (ctx: RouteContext, next: () => Promise<void>) => void | Promi
 
 ## 9. Server / Auth
 
-> Import: `ConstX/server/auth` | File: `src/server/auth/`
+> Import: `SpeedX/server/auth` | File: `src/server/auth/`
 
 ### AuthManager
 
@@ -630,7 +630,7 @@ type Middleware = (ctx: RouteContext, next: () => Promise<void>) => void | Promi
 
 ## 10. Server / Gate
 
-> Import: `ConstX/server/gate` | File: `src/server/gate/`
+> Import: `SpeedX/server/gate` | File: `src/server/gate/`
 
 ### Gate Class
 
@@ -657,7 +657,7 @@ type Middleware = (ctx: RouteContext, next: () => Promise<void>) => void | Promi
 
 ## 11. Server / Cache
 
-> Import: `ConstX/server/cache` | File: `src/server/cache/`
+> Import: `SpeedX/server/cache` | File: `src/server/cache/`
 
 ### Cache Class
 
@@ -687,7 +687,7 @@ type Middleware = (ctx: RouteContext, next: () => Promise<void>) => void | Promi
 
 ## 12. Server / Storage
 
-> Import: `ConstX/server/storage` | File: `src/server/storage/`
+> Import: `SpeedX/server/storage` | File: `src/server/storage/`
 
 ### Storage Class
 
@@ -721,7 +721,7 @@ type Middleware = (ctx: RouteContext, next: () => Promise<void>) => void | Promi
 
 ## 13. Server / Events
 
-> Import: `ConstX/server/events` | File: `src/server/events/`
+> Import: `SpeedX/server/events` | File: `src/server/events/`
 
 ### Event Class
 
@@ -752,7 +752,7 @@ type Middleware = (ctx: RouteContext, next: () => Promise<void>) => void | Promi
 
 ## 14. Server / Database
 
-> Import: `ConstX/server/database` | File: `src/server/database/`
+> Import: `SpeedX/server/database` | File: `src/server/database/`
 
 ### Connection
 
@@ -945,7 +945,7 @@ type Middleware = (ctx: RouteContext, next: () => Promise<void>) => void | Promi
 
 ## 15. Server / Helpers
 
-> Import: `ConstX/server` (via helpers) | File: `src/server/helpers.ts`
+> Import: `SpeedX/server` (via helpers) | File: `src/server/helpers.ts`
 
 ### URLBuilder
 
@@ -980,9 +980,9 @@ type Middleware = (ctx: RouteContext, next: () => Promise<void>) => void | Promi
 
 ## 16. Client
 
-> Import: `ConstX/client` | File: `src/client/`
+> Import: `SpeedX/client` | File: `src/client/`
 
-### Signals (`ConstX/client/signals`)
+### Signals (`SpeedX/client/signals`)
 
 | Class / Function | Deskripsi |
 |---|---|
@@ -1004,7 +1004,7 @@ type Middleware = (ctx: RouteContext, next: () => Promise<void>) => void | Promi
 | `toSignal(val)` | Konversi ke Signal |
 | `mergeSignals(signals)` | Gabung multiple signals |
 
-### VDOM (`ConstX/client/vdom`)
+### VDOM (`SpeedX/client/vdom`)
 
 | Function | Deskripsi |
 |---|---|
@@ -1022,12 +1022,12 @@ type Middleware = (ctx: RouteContext, next: () => Promise<void>) => void | Promi
 
 | Export | Deskripsi |
 |---|---|
-| `createElement(tag, props, ...children)` | JSX factory (`ConstX/client/vdom/jsx`) |
+| `createElement(tag, props, ...children)` | JSX factory (`SpeedX/client/vdom/jsx`) |
 | `jsx(tag, props, key?)` | Automatic JSX runtime |
 | `jsxs(tag, props, key?)` | JSX with multiple children |
 | `Fragment` | JSX Fragment |
 
-### Server Render (`ConstX/client/render`)
+### Server Render (`SpeedX/client/render`)
 
 | Function | Deskripsi |
 |---|---|
@@ -1040,7 +1040,7 @@ type Middleware = (ctx: RouteContext, next: () => Promise<void>) => void | Promi
 |---|---|
 | `defineAdapter(framework)` | Definisikan adapter framework |
 
-### Client Router (`ConstX/client/router`)
+### Client Router (`SpeedX/client/router`)
 
 | Class / Type | Deskripsi |
 |---|---|
@@ -1052,7 +1052,7 @@ type Middleware = (ctx: RouteContext, next: () => Promise<void>) => void | Promi
 
 ## 17. RPC
 
-> Import: `ConstX/rpc` | File: `src/rpc/`
+> Import: `SpeedX/rpc` | File: `src/rpc/`
 
 ### RpcServer
 
@@ -1087,19 +1087,19 @@ type Middleware = (ctx: RouteContext, next: () => Promise<void>) => void | Promi
 
 ## 18. CLI
 
-> Command: `ConstX` (global) | File: `src/cli/`
+> Command: `SpeedX` (global) | File: `src/cli/`
 
 ### Commands
 
 | Command | Deskripsi |
 |---|---|
-| `ConstX init [name]` | Buat project baru (blank/fullstack/api-only) |
-| `ConstX make:controller <name>` | Generate controller file |
-| `ConstX make:middleware <name>` | Generate middleware file |
-| `ConstX make:schema <name>` | Generate schema file |
-| `ConstX list-routes` | Lihat semua route |
-| `ConstX serve` | Jalankan development server |
-| `ConstX --help` | Tampilkan bantuan |
+| `SpeedX init [name]` | Buat project baru (blank/fullstack/api-only) |
+| `SpeedX make:controller <name>` | Generate controller file |
+| `SpeedX make:middleware <name>` | Generate middleware file |
+| `SpeedX make:schema <name>` | Generate schema file |
+| `SpeedX list-routes` | Lihat semua route |
+| `SpeedX serve` | Jalankan development server |
+| `SpeedX --help` | Tampilkan bantuan |
 
 ### Options
 
@@ -1114,11 +1114,11 @@ type Middleware = (ctx: RouteContext, next: () => Promise<void>) => void | Promi
 
 | Alias | Perintah |
 |---|---|
-| `ConstX routes` | `list-routes` |
-| `ConstX lr` | `list-routes` |
-| `ConstX dev` | `serve` |
-| `ConstX -v` | `version` |
-| `ConstX -h` | `help` |
+| `SpeedX routes` | `list-routes` |
+| `SpeedX lr` | `list-routes` |
+| `SpeedX dev` | `serve` |
+| `SpeedX -v` | `version` |
+| `SpeedX -h` | `help` |
 
 ### Generate Commands
 
@@ -1132,10 +1132,10 @@ type Middleware = (ctx: RouteContext, next: () => Promise<void>) => void | Promi
 
 ## 19. Entry Point (SuperApp)
 
-> Import: `ConstX` | File: `src/server/index.ts`
+> Import: `SpeedX` | File: `src/server/index.ts`
 
 ```ts
-import { ConstX } from 'ConstX'
+import { SpeedX } from 'SpeedX'
 ```
 
 ### SuperApp Class
@@ -1168,7 +1168,7 @@ import { ConstX } from 'ConstX'
 ### Factory
 
 ```ts
-function ConstX(options?: AppOptions): SuperApp
+function SpeedX(options?: AppOptions): SuperApp
 ```
 
 ---
@@ -1177,22 +1177,22 @@ function ConstX(options?: AppOptions): SuperApp
 
 | Import | Modul |
 |---|---|
-| `ConstX` | Schema, Server, Client, RPC (gabungan) |
-| `ConstX/server` | SuperApp, Router, Middleware, Controller, Container, Engine, Auth, Gate, Cache, Storage, Events, Database, Helpers |
-| `ConstX/server/http` | SuperRequest, SuperResponse, HeadersMap, HttpStatus, Cookies, Upload |
-| `ConstX/server/router` | Router, RouteHandler, RouteContext |
-| `ConstX/server/middleware` | Middleware, MiddlewarePipeline, 10 middleware factories |
-| `ConstX/server/controller` | Controller, decorators (@controller, @get, @post, @put, @patch, @del) |
-| `ConstX/server/container` | Container |
-| `ConstX/server/auth` | AuthManager, SessionGuard, TokenGuard |
-| `ConstX/server/gate` | Gate, AuthorizationError |
-| `ConstX/server/cache` | Cache, cacheResponse |
-| `ConstX/server/storage` | Storage, LocalDisk, createStorage |
-| `ConstX/server/events` | Event, createEvent |
-| `ConstX/server/database` | DatabaseConnection, QueryBuilder, SchemaBuilder, Migrator, Pagination, Seeder |
-| `ConstX/client` | Signals, VDOM, Render, Router |
-| `ConstX/client/signals` | Signal, Computed, Effect |
-| `ConstX/client/vdom` | h, fragment, render, patch, hydrate, renderToString |
-| `ConstX/client/vdom/jsx-runtime` | jsx, jsxs, Fragment |
-| `ConstX/rpc` | RpcServer, RpcClient, types |
-| `ConstX/schema` | s, all schema types, Infer |
+| `SpeedX` | Schema, Server, Client, RPC (gabungan) |
+| `SpeedX/server` | SuperApp, Router, Middleware, Controller, Container, Engine, Auth, Gate, Cache, Storage, Events, Database, Helpers |
+| `SpeedX/server/http` | SuperRequest, SuperResponse, HeadersMap, HttpStatus, Cookies, Upload |
+| `SpeedX/server/router` | Router, RouteHandler, RouteContext |
+| `SpeedX/server/middleware` | Middleware, MiddlewarePipeline, 10 middleware factories |
+| `SpeedX/server/controller` | Controller, decorators (@controller, @get, @post, @put, @patch, @del) |
+| `SpeedX/server/container` | Container |
+| `SpeedX/server/auth` | AuthManager, SessionGuard, TokenGuard |
+| `SpeedX/server/gate` | Gate, AuthorizationError |
+| `SpeedX/server/cache` | Cache, cacheResponse |
+| `SpeedX/server/storage` | Storage, LocalDisk, createStorage |
+| `SpeedX/server/events` | Event, createEvent |
+| `SpeedX/server/database` | DatabaseConnection, QueryBuilder, SchemaBuilder, Migrator, Pagination, Seeder |
+| `SpeedX/client` | Signals, VDOM, Render, Router |
+| `SpeedX/client/signals` | Signal, Computed, Effect |
+| `SpeedX/client/vdom` | h, fragment, render, patch, hydrate, renderToString |
+| `SpeedX/client/vdom/jsx-runtime` | jsx, jsxs, Fragment |
+| `SpeedX/rpc` | RpcServer, RpcClient, types |
+| `SpeedX/schema` | s, all schema types, Infer |

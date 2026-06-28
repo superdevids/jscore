@@ -2,9 +2,9 @@ import { Schema, SchemaError } from './types.js'
 import { msg } from './messages.js'
 
 //
-// Validator functions below are derived from constx-core/validation.
+// Validator functions below are derived from speedx-core/validation.
 // When the monorepo workspace is active, these can be replaced with:
-//   import { isNIK, isNPWP, isPhone } from 'constx-core/validation'
+//   import { isNIK, isNPWP, isPhone } from 'speedx-core/validation'
 //
 
 // ─── NIK validator ──────────────────────────────────────────

@@ -6,7 +6,7 @@
 npm login
 ```
 
-## Cara Publish constx-core
+## Cara Publish speedx-core
 
 ```bash
 cd packages/core

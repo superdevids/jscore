@@ -94,8 +94,8 @@ export interface SessionOptions {
 
 export function session(options?: SessionOptions): Middleware {
 	const opts = {
-		name: "constx_session",
-		secret: "constx-secret-change-in-production",
+		name: "speedx_session",
+		secret: "speedx-secret-change-in-production",
 		maxAge: 7200,
 		httpOnly: true,
 		secure: false,

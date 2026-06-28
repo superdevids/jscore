@@ -1,8 +1,8 @@
-# Contributing to ConstX
+# Contributing to SpeedX
 
 > **Bahasa Indonesia** · *English version below*
 
-Terima kasih atas minat Anda untuk berkontribusi ke **ConstX**! Kami sangat menghargai kontribusi dari komunitas, baik berupa laporan bug, permintaan fitur, maupun pull request.
+Terima kasih atas minat Anda untuk berkontribusi ke **SpeedX**! Kami sangat menghargai kontribusi dari komunitas, baik berupa laporan bug, permintaan fitur, maupun pull request.
 
 ---
 
@@ -20,7 +20,7 @@ Terima kasih atas minat Anda untuk berkontribusi ke **ConstX**! Kami sangat meng
 
 ## Laporan Bug
 
-Jika Anda menemukan bug, harap laporkan melalui [GitHub Issues](https://github.com/superdevids/ConstX/issues).
+Jika Anda menemukan bug, harap laporkan melalui [GitHub Issues](https://github.com/superdevids/SpeedX/issues).
 
 **Sebelum melaporkan:**
 
@@ -30,7 +30,7 @@ Jika Anda menemukan bug, harap laporkan melalui [GitHub Issues](https://github.c
 
 **Informasi yang diperlukan:**
 
-- Versi ConstX yang digunakan
+- Versi SpeedX yang digunakan
 - Versi Node.js (`node --version`)
 - Sistem operasi
 - Kode minimal untuk mereproduksi masalah
@@ -41,7 +41,7 @@ Jika Anda menemukan bug, harap laporkan melalui [GitHub Issues](https://github.c
 
 ## Pengajuan Fitur Baru
 
-Kami terbuka untuk ide-ide baru! Silakan ajukan fitur melalui [GitHub Issues](https://github.com/superdevids/ConstX/issues) dengan label `enhancement`.
+Kami terbuka untuk ide-ide baru! Silakan ajukan fitur melalui [GitHub Issues](https://github.com/superdevids/SpeedX/issues) dengan label `enhancement`.
 
 **Panduan:**
 
@@ -59,8 +59,8 @@ Kami terbuka untuk ide-ide baru! Silakan ajukan fitur melalui [GitHub Issues](ht
 1. **Fork** repository ke akun GitHub Anda.
 2. **Clone** fork Anda ke lokal:
    ```bash
-   git clone https://github.com/USERNAME/ConstX.git
-   cd ConstX
+   git clone https://github.com/USERNAME/SpeedX.git
+   cd SpeedX
    ```
 3. **Buat branch** baru untuk perubahan Anda:
    ```bash
@@ -120,7 +120,7 @@ Kami menggunakan [Conventional Commits](https://www.conventionalcommits.org/):
 
 ### Zero Dependencies
 
-ConstX berkomitmen untuk **zero runtime dependencies**. Semua fungsionalitas harus diimplementasikan tanpa menggunakan package npm eksternal (kecuali devDependencies untuk build/testing).
+SpeedX berkomitmen untuk **zero runtime dependencies**. Semua fungsionalitas harus diimplementasikan tanpa menggunakan package npm eksternal (kecuali devDependencies untuk build/testing).
 
 ### Testing
 
@@ -158,8 +158,8 @@ ConstX berkomitmen untuk **zero runtime dependencies**. Semua fungsionalitas har
 
 ```bash
 # Clone repository
-git clone https://github.com/superdevids/ConstX.git
-cd ConstX
+git clone https://github.com/superdevids/SpeedX.git
+cd SpeedX
 
 # Install dependencies (hanya devDependencies)
 npm install
@@ -200,19 +200,19 @@ npm run dev
 # Link untuk testing lokal di project lain
 npm link
 cd /path/to/project
-npm link ConstX
+npm link SpeedX
 ```
 
 ---
 
 ## Struktur Monorepo
 
-ConstX menggunakan **monorepo** dengan struktur sebagai berikut:
+SpeedX menggunakan **monorepo** dengan struktur sebagai berikut:
 
 ```
-ConstX/
+SpeedX/
 ├── packages/
-│   └── ConstX/              # Package utama (framework)
+│   └── SpeedX/              # Package utama (framework)
 │       ├── src/
 │       │   ├── index.ts      # Entry point utama
 │       │   ├── native/       # Core helpers (zero-dependency)
@@ -251,47 +251,47 @@ ConstX/
 
 | Import Path | Deskripsi |
 |---|---|
-| `ConstX` | Main entry (schema, server, client, rpc) |
-| `ConstX/server` | Server framework |
-| `ConstX/server/http` | HTTP layer |
-| `ConstX/server/router` | Router |
-| `ConstX/server/middleware` | Middleware |
-| `ConstX/server/controller` | Controller |
-| `ConstX/server/container` | DI Container |
-| `ConstX/server/auth` | Authentication |
-| `ConstX/server/gate` | Authorization |
-| `ConstX/server/cache` | Cache system |
-| `ConstX/server/storage` | File storage |
-| `ConstX/server/events` | Event system |
-| `ConstX/server/database` | Database layer |
-| `ConstX/client` | Client framework |
-| `ConstX/client/signals` | Reactive signals |
-| `ConstX/client/vdom` | Virtual DOM |
-| `ConstX/client/vdom/jsx-runtime` | JSX runtime |
-| `ConstX/rpc` | RPC system |
-| `ConstX/schema` | Schema validation |
+| `SpeedX` | Main entry (schema, server, client, rpc) |
+| `SpeedX/server` | Server framework |
+| `SpeedX/server/http` | HTTP layer |
+| `SpeedX/server/router` | Router |
+| `SpeedX/server/middleware` | Middleware |
+| `SpeedX/server/controller` | Controller |
+| `SpeedX/server/container` | DI Container |
+| `SpeedX/server/auth` | Authentication |
+| `SpeedX/server/gate` | Authorization |
+| `SpeedX/server/cache` | Cache system |
+| `SpeedX/server/storage` | File storage |
+| `SpeedX/server/events` | Event system |
+| `SpeedX/server/database` | Database layer |
+| `SpeedX/client` | Client framework |
+| `SpeedX/client/signals` | Reactive signals |
+| `SpeedX/client/vdom` | Virtual DOM |
+| `SpeedX/client/vdom/jsx-runtime` | JSX runtime |
+| `SpeedX/rpc` | RPC system |
+| `SpeedX/schema` | Schema validation |
 
 ---
 
 ## Lisensi
 
-Dengan berkontribusi ke ConstX, Anda setuju bahwa kontribusi Anda akan dilisensikan di bawah [MIT License](LICENSE).
+Dengan berkontribusi ke SpeedX, Anda setuju bahwa kontribusi Anda akan dilisensikan di bawah [MIT License](LICENSE).
 
 ---
 
 ---
 
-# Contributing to ConstX
+# Contributing to SpeedX
 
 > *English version*
 
-Thank you for your interest in contributing to **ConstX**! We appreciate all contributions, including bug reports, feature requests, and pull requests.
+Thank you for your interest in contributing to **SpeedX**! We appreciate all contributions, including bug reports, feature requests, and pull requests.
 
 ---
 
 ## Reporting Bugs
 
-Report bugs via [GitHub Issues](https://github.com/superdevids/ConstX/issues).
+Report bugs via [GitHub Issues](https://github.com/superdevids/SpeedX/issues).
 
 **Before reporting:**
 
@@ -300,7 +300,7 @@ Report bugs via [GitHub Issues](https://github.com/superdevids/ConstX/issues).
 
 **Required information:**
 
-- ConstX version
+- SpeedX version
 - Node.js version
 - Operating system
 - Minimal reproduction code
@@ -311,7 +311,7 @@ Report bugs via [GitHub Issues](https://github.com/superdevids/ConstX/issues).
 
 ## Feature Requests
 
-Submit feature requests via [GitHub Issues](https://github.com/superdevids/ConstX/issues) with the `enhancement` label.
+Submit feature requests via [GitHub Issues](https://github.com/superdevids/SpeedX/issues) with the `enhancement` label.
 
 - Describe the problem, not just the solution.
 - Provide clear use cases.
@@ -353,8 +353,8 @@ Submit feature requests via [GitHub Issues](https://github.com/superdevids/Const
 ## Development Setup
 
 ```bash
-git clone https://github.com/superdevids/ConstX.git
-cd ConstX
+git clone https://github.com/superdevids/SpeedX.git
+cd SpeedX
 npm install
 npm run build
 npm test
@@ -364,4 +364,4 @@ npm test
 
 ## License
 
-By contributing to ConstX, you agree that your contributions will be licensed under the [MIT License](LICENSE).
+By contributing to SpeedX, you agree that your contributions will be licensed under the [MIT License](LICENSE).
