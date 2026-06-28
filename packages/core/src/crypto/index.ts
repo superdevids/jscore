@@ -162,9 +162,15 @@ export function generateOTP(length: number = 6): string {
 
 /**
  * Simple XOR cipher — symmetrical, for light obfuscation only.
- * NOT real encryption.
  *
- * @param str - The input string.
+ * ⚠️ WARNING: This is NOT encryption. XOR cipher provides zero security
+ * against any attacker. Do NOT use this for passwords, API keys, personal
+ * data, or any sensitive information. It can be trivially reversed.
+ * For real encryption, use native `crypto.subtle` (Web) or `node:crypto`.
+ *
+ * Suitable only for: basic data masking, simple anti-scraping, educational purposes.
+ *
+ * @param str - The input string (will be transformed).
  * @param key - The cipher key.
  * @returns The XOR-transformed string.
  */

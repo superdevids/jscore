@@ -1,6 +1,6 @@
 ﻿# superjs
 
-> **superJS — Semua JavaScript utility dalam 1 package — Standard Library + Dependency Scanner**
+> **SuperJS — Semua JavaScript utility dalam 1 package — Standard Library + Dependency Scanner**
 
 ```
 npm install superjs-core
@@ -162,3 +162,4 @@ superjs/
 ├── LICENSE
 └── README.md
 ```
+

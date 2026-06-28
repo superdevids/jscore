@@ -91,18 +91,24 @@
     "dev": "tsup --watch",
     "test": "vitest run",
     "test:watch": "vitest",
-    "lint": "tsc --noEmit",
+    "test:coverage": "vitest run --coverage",
+    "lint": "biome check src/",
+    "lint:fix": "biome check --write src/",
+    "typecheck": "tsc --noEmit",
     "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
     "size": "size-limit",
-    "bench": "vitest bench"
+    "bench": "vitest bench",
+    "ci": "npm run lint && npm run typecheck && npm run build && npm run test:coverage"
   },
   "dependencies": {
     "commander": "^12.0.0",
     "picocolors": "^1.1.0"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.5.1",
     "@size-limit/file": "^11.0.0",
     "@types/node": "^26.0.1",
+    "@vitest/coverage-v8": "^2.1.9",
     "size-limit": "^11.0.0",
     "tsup": "^8.3.0",
     "typescript": "^5.7.0",

@@ -2,7 +2,7 @@
   "name": "superjs",
   "version": "0.1.0",
   "private": true,
-  "description": "JavaScript ecosystem tools monorepo — superjs-core",
+  "description": "superjs-core — Zero-dependency JS standard library + dependency scanner",
   "scripts": {
     "ext:install": "cd extensions\\vscode-dep-exray && npm install",
     "ext:compile": "cd extensions\\vscode-dep-exray && npm run compile",
