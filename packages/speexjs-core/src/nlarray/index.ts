@@ -428,12 +428,12 @@ export class NDArray<T = number> {
     if (step > 0) {
       const n = Math.max(0, Math.ceil((actualStop - actualStart) / step))
       for (let i = 0; i < n; i++) {
-        result.push(actualStart + i * step)
+        result.push(parseFloat((actualStart + i * step).toFixed(10)))
       }
     } else {
       const n = Math.max(0, Math.ceil((actualStart - actualStop) / (-step)))
       for (let i = 0; i < n; i++) {
-        result.push(actualStart + i * step)
+        result.push(parseFloat((actualStart + i * step).toFixed(10)))
       }
     }
 

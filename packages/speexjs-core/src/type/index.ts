@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Checks if a value is a string.
  */
 export function isString(value: unknown): value is string {
@@ -144,6 +144,23 @@ export const castArray = ensureArray
  * Possible values: "string", "number", "boolean", "array", "object", "function",
  * "date", "regexp", "map", "set", "promise", "null", "undefined", "nan", "infinity"
  */
+
+/**
+ * Checks if a value is a plain object (created by {} or 
+ew Object()).
+ *
+ * @param value - Value to check.
+ * @returns Whether the value is a plain object.
+ *
+ * @example isPlainObject({})         // true
+ * @example isPlainObject([])         // false
+ * @example isPlainObject(new Date()) // false
+ */
+export function isPlainObject(value: unknown): value is Record<string, unknown> {
+  if (value === null || value === undefined || typeof value !== 'object') return false
+  const proto = Object.getPrototypeOf(value)
+  return proto === null || proto === Object.prototype
+}
 export function getType(value: unknown): string {
   if (value === null) return 'null'
   if (value === undefined) return 'undefined'

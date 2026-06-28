@@ -562,8 +562,8 @@ describe('matmul', () => {
   })
 
   it('performs batched matmul with broadcasting', () => {
-    const a = NDArray.from([[[1, 2], [3, 4]]]) // shape [1, 2, 2]
-    const b = NDArray.from([[[5, 6], [7, 8]], [[1, 2], [3, 4]]]) // shape [2, 2, 2]
+    const a = new NDArray([1, 2, 3, 4], [1, 2, 2]) // shape [1, 2, 2]
+    const b = new NDArray([5, 6, 7, 8, 1, 2, 3, 4], [2, 2, 2]) // shape [2, 2, 2]
     const r = a.matmul(b)
     expect(r.shape).toEqual([2, 2, 2])
   })

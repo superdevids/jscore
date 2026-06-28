@@ -565,10 +565,10 @@ describe('diff', () => {
     expect(diff(a, b)).toEqual({ b: undefined })
   })
 
-  it('includes keys only in second object', () => {
+  it('excludes keys only in second object', () => {
     const a = { a: 1 }
     const b = { a: 1, b: 2 }
-    expect(diff(a, b)).toEqual({ b: 2 })
+    expect(diff(a, b)).toEqual({})
   })
 
   it('treats arrays as atomic values', () => {

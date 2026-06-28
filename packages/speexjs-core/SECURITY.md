@@ -1,35 +1,38 @@
-# Keamanan — SpeexJS Core
+# Security — SpeexJS Core
 
-## Melaporkan Kerentanan
+## Reporting Vulnerabilities
 
-Jika Anda menemukan celah keamanan, **jangan buka GitHub Issue publik**. Laporkan melalui email:
+If you discover a security vulnerability, **do not open a public GitHub issue**. Please report it privately via email:
 
 **adityasuperdev@gmail.com**
 
-Respon dalam 48 jam. Jika belum ada kabar, silakan follow-up.
+We aim to respond within 48 hours. If you don't hear back, please follow up.
 
-### Format Laporan
+### Report Template
 
-- Deskripsi kerentanan
-- Langkah reproduksi
-- Versi yang terpengaruh
-- Dampak potensial
-- Saran perbaikan (opsional)
+- Description of the vulnerability
+- Steps to reproduce
+- Affected versions
+- Potential impact
+- Suggested fix (optional)
 
 ## Supported Versions
 
-| Versi | Dukungan |
-|-------|----------|
-| 0.x | ✅ Patch untuk kerentanan kritis |
-| < 0.1 | ❌ Tidak didukung |
+| Version | Support |
+|---------|---------|
+| 0.7.x   | ✅ Security patches |
+| 0.6.x   | ✅ Critical fixes only |
+| < 0.6   | ❌ Not supported |
 
-## Responsible Disclosure
+## Responsible Disclosure Process
 
-1. Kerentanan dikonfirmasi → tim bekerja pada fix
-2. Security advisory dipublikasikan di GitHub
-3. Versi patched dirilis ke npm
-4. Kredit diberikan kepada pelapor (jika diizinkan)
+1. Vulnerability confirmed → team works on a fix
+2. Security advisory published on GitHub
+3. Patched version released to npm
+4. Reporter credited (if desired)
 
-## Catatan
+## Scope Notes
 
-Fungsi `xorCipher` di module crypto **bukan untuk keamanan**. Ini hanya XOR obfuscation sederhana untuk masking data ringan. Jangan digunakan untuk enkripsi data sensitif.
+- **NDArray** (`nlarray`, `nlfunction`) and **functional modules** follow standard numeric computing practices. They process data as provided and do not introduce security boundaries.
+- **Crypto module** provides basic utility functions (XOR obfuscation, hashing helpers) intended for light data masking — **not** for encryption of sensitive data. Use dedicated libraries for production security.
+- **Dep-exray** reads `package.json` / `node_modules` metadata from the local file system. It does not execute arbitrary code or make network requests beyond npm registry lookups.

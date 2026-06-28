@@ -517,6 +517,19 @@ export function toCobolCase(str: string): string {
 }
 
 /**
+ * Escapes special regex characters in a string.
+ *
+ * @param str - String to escape.
+ * @returns Escaped string safe for use in the RegExp constructor.
+ *
+ * @example escapeRegExp('hello.world') // 'hello\.world'
+ * @example escapeRegExp('(test)')      // '\(test\)'
+ */
+export function escapeRegExp(str: string): string {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+/**
  * Counts character frequency in a string.
  *
  * @example charCount('hello') // { h: 1, e: 1, l: 2, o: 1 }

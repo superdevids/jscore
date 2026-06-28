@@ -246,6 +246,7 @@ export {
   similarity,
   dedent,
   wordCount,
+  escapeRegExp,
   swapCase,
   toCobolCase,
   charCount,
@@ -302,6 +303,7 @@ export {
   ensureArray,
   castArray,
   getType,
+  isPlainObject,
 } from './type/index.js'
 
 // ─── dep-exray (dependency scanner) ───────────────────────────

@@ -443,11 +443,58 @@ dist/
 `,
     },
   },
+
+  spark: {
+    dirs: ['src', 'src/controllers', 'src/middleware', 'src/config', 'src/database/migrations', 'src/models'],
+    files: {
+      'package.json': (name: string) => JSON.stringify({
+        name, version: '0.1.0', type: 'module', private: true,
+        scripts: { dev: 'speexjs serve', build: 'tsc', start: 'node dist/index.js', lint: 'biome check src/' },
+        dependencies: { speexjs: 'latest' },
+        devDependencies: { '@types/node': '^26.0.1', tsx: '^4.19.0', typescript: '^5.7.0' },
+      }, null, 2),
+      'tsconfig.json': JSON.stringify({
+        compilerOptions: { target: 'ES2022', module: 'ESNext', moduleResolution: 'bundler', strict: true, outDir: './dist', rootDir: './src', skipLibCheck: true },
+        include: ['src/**/*.ts'], exclude: ['node_modules', 'dist'],
+      }, null, 2),
+      'src/index.ts': `import { speexjs } from 'speexjs/server'
+import { schema } from 'speexjs/schema'
+
+const app = speexjs()
+const PORT = Number(process.env.PORT) || 3000
+
+app.use(app.router.cors())
+app.use(app.router.bodyParser())
+app.use(app.router.csrf())
+
+app.get('/api/health', async ({ response }) => {
+  return response.json({ status: 'ok', timestamp: new Date().toISOString() })
+})
+
+app.listen(PORT, () => {
+  console.log(\`⚡ SpeexJS API running on http://localhost:\${PORT}\`)
+})
+`,
+      'src/config/index.ts': `export const Config = {
+  port: Number(process.env.PORT) || 3000,
+  env: process.env.NODE_ENV || 'development',
+  isProd: process.env.NODE_ENV === 'production',
+  appKey: process.env.APP_KEY || '',
+} as const
+`,
+      '.env.example': `PORT=3000
+NODE_ENV=development
+APP_KEY=
+`,
+      '.gitignore': 'node_modules/\ndist/\n.env\n*.log\n',
+    },
+  },
 }
 
 const TEMPLATE_ALIASES: Record<string, string> = {
   api: 'api-only',
   full: 'fullstack',
+  spark: 'spark',
 }
 
 function getTemplate(name: string): string {
@@ -477,7 +524,7 @@ export async function initProject(
   if (!template) {
     console.error(
       colors.red(
-        `Unknown template '${options.template}'. Use: blank, fullstack, api-only`,
+        `Unknown template '${options.template}'. Use: blank, fullstack, api-only, spark`,
       ),
     )
     process.exit(1)

@@ -1,33 +1,42 @@
 # Changelog
 
+## [0.8.0] - 2026-06-29
+
+### Added
+- **nlarray** — NumPy-like NDArray with 60+ methods: zeros, ones, arange, linspace, reshape, add/sub/mul/div (broadcasting), sum/mean/var/std (axis-aware), matmul, transpose, slice, concatenate, etc.
+- **nlfunction** — Functional programming toolkit: curry, partial, partialRight, tap, trace, memoizeSync, negate, before, wrapArray, constant, over, comparing, memoizeLast
+- **collection** — 18 new object/dictionary operations: pickBy, omitBy, mapKeys, mapValues, invert, invertBy, toPairs, fromPairs, hasPath, unset, mergeWith, defaults, defaultsDeep, deepFreeze, at, renameKeys, diff, fromKeys
+
+### Changed
+- **validation** — Removed Indonesia-specific validators (NIK, NPWP, PlatNomor, Kodepos, NoRekening, NoSIM, Passport, NoBPJS, NoKK). Kept global: isEmail, isURL, isPhone
+- **string** — Removed terbilang(), formatRupiah(). Kept 40+ string functions
+- **date** — Removed isHolidayIndonesia(), getIndonesianHolidayNames(), WIB/WITA/WIT timezone constants. timeAgo/timeRemaining default locale changed to 'en' (English)
+- **index.ts** — Updated all exports for new modules
+
 ## [0.7.0] - 2026-06-28
 
-### Ditambahkan
-- **validation** — `parseNIK()` extract data dari NIK (gender, provinsi, tanggal lahir)
-- **validation** — `isPlatNomor()` validasi plat kendaraan Indonesia
-- **validation** — `isKodepos()` validasi kode pos Indonesia
-- **validation** — `isNoRekening()` validasi nomor rekening bank
+### Added
 - **color** — `hexToRgb()`, `rgbToHex()`, `lighten()`, `darken()`, `contrastRatio()`, `meetsWCAG()`
 - **core** — `deepEqual()`, `pipe()`, `compose()`
 - **string** — `formatBytes()`, `randomString()`, `randomBoolean()`, `pluralize()`
+- **string** — `levenshtein()`, `fuzzyMatch()`, `maskString()`
 - **collection** — `deepGet()`, `deepSet()`
 - **async** — `Queue()`, `Semaphore`, `memoizeAsync()`
 - **math** — `median()`, `stddev()`, `sampleStddev()`, `percentile()`, `correlation()`, `formatCurrency()`
-- **string** — `levenshtein()`, `fuzzyMatch()`, `maskString()`, `terbilang()`, `formatRupiah()`
 - **date** — `timeAgo()`, `timeRemaining()`, `Duration`, `formatDuration()`, `toTimezone()`, `formatInTimezone()`
-- **validation** — `isNIK()`, `isNPWP()`, `isPhone()`, `isEmail()`, `isURL()`
+- **validation** — `isPhone()`, `isEmail()`, `isURL()`
 - **error** — `createError()`, `TypedError`, `MultiError`, `collectErrors()`
-- **logger** — `Logger` class dengan console/JSON/file transport
+- **logger** — `Logger` class with console/JSON/file transport
 
-### Diubah
-- Dokumentasi menggunakan Bahasa Indonesia
-- Penambahan 828 total tests (19 test files)
-- `sideEffects: false` untuk tree-shaking optimal
+### Changed
+- Full English documentation and API references
+- Added 828 total tests across 19 test files
+- `sideEffects: false` for optimal tree-shaking
 
-### Dibenerin
+### Fixed
 - `round(1.005, 2)` floating-point bug
 - `parseDate('29/02/2023')` invalid leap year detection
-- Prototype pollution dan ReDoS edge cases
+- Prototype pollution and ReDoS edge cases
 
 ## [0.6.0] - 2026-06-27
 

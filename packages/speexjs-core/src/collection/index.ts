@@ -990,9 +990,8 @@ export function diff<T>(a: T, b: T): Partial<T> {
     const aVal = (a as Record<string, unknown>)[key]
     const bVal = (b as Record<string, unknown>)[key]
 
-    // Key only in second object: mark as added
+    // Key only in second object: skip (diff only includes keys from first object)
     if (!(key in (a as Record<string, unknown>))) {
-      result[key] = bVal
       continue
     }
 
