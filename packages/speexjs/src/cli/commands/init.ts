@@ -42,81 +42,54 @@ const GITIGNORE = 'node_modules/\ndist/\n.env\n*.log\n'
 
 const TEMPLATES: Record<string, TemplateContent> = {
   blank: {
-    dirs: ['src', 'src/config', 'src/controllers', 'src/middleware', 'src/models', 'src/pages'],
+    dirs: ['src', 'src/config', 'src/controllers', 'src/middleware', 'src/models'],
     files: {
       'package.json': (name: string) => pkg(name, { dev: 'speexjs serve', build: 'speexjs build', start: 'node dist/index.js', lint: 'tsc --noEmit' }),
-      'tsconfig.json': tsconfig({ jsx: 'react-jsx', jsxImportSource: '@speexjs/vdom' }, { include: ['src/**/*.ts', 'src/**/*.tsx'] }),
-      'src/index.ts': `import { speexjs, cors, bodyParser, PageView } from 'speexjs/server'
+      'tsconfig.json': tsconfig({}, { include: ['src/**/*.ts'] }),
+      'src/index.ts': `import { speexjs, cors, bodyParser } from 'speexjs/server'
 import { Config } from './config/index.js'
 import { HealthController } from './controllers/health.controller.js'
 
 const app = speexjs()
-const view = new PageView()
 
 app.use(cors())
 app.use(bodyParser())
 
 app.controller(HealthController)
 
-app.get('/', async ({ response }) => {
-  return response.setViewEngine(view).page('home', { name: 'SpeexJS' })
-})
-
-app.get('/about', async ({ response }) => {
-  return response.setViewEngine(view).page('about')
+app.get('/', ({ response }) => {
+  return response.html(\`
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="utf-8"/>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+      <title>SpeexJS</title>
+      <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+               background: #0f172a; color: #e2e8f0; display: flex; align-items: center;
+               justify-content: center; min-height: 100vh; text-align: center; }
+        .container { padding: 2rem; }
+        h1 { font-size: 2.5rem; margin-bottom: 1rem; background: linear-gradient(135deg, #60a5fa, #a78bfa);
+             -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        p { color: #94a3b8; margin-bottom: 0.5rem; }
+        a { color: #60a5fa; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <h1>SpeexJS</h1>
+        <p>Fullstack TypeScript Framework — Zero dependencies.</p>
+        <p style="margin-top: 1rem;"><a href="/api/health">API Health</a></p>
+      </div>
+    </body>
+    </html>
+  \`)
 })
 
 export { app }
-`,
-      'src/pages/_app.tsx': `import type { VNode } from 'speexjs/client/vdom'
-
-export default function App({ children }: { children: VNode; title?: string }) {
-  return (
-    <html lang="en">
-      <head>
-        <meta charset="utf-8"/>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-        <title>{title ?? 'SpeexJS'}</title>
-      </head>
-      <body style="font-family: sans-serif; margin: 0; padding: 0;">{children}</body>
-    </html>
-  )
-}
-`,
-'src/pages/_layout.tsx': `import type { VNode } from 'speexjs/client/vdom'
-
-export default function Layout({ children }: { children: VNode }) {
-  return (
-    <div style="max-width: 800px; margin: 0 auto; padding: 2rem;">
-      <nav style="margin-bottom: 2rem;">
-        <a href="/" style="margin-right: 1rem;">Home</a>
-        <a href="/about">About</a>
-      </nav>
-      <main>{children}</main>
-    </div>
-  )
-}
-`,
-'src/pages/home.tsx': `import type { VNode } from 'speexjs/client/vdom'
-
-export const metadata = { title: 'Home - SpeexJS' }
-
-export default function Home(): VNode {
-  return <h1>Welcome to SpeexJS!</h1>
-}
-`,
-'src/pages/about.tsx': `import type { VNode } from 'speexjs/client/vdom'
-
-export const metadata = { title: 'About - SpeexJS' }
-
-export default function About(): VNode {
-  return (
-    <div>
-      <h1>About</h1>
-      <p>Built with SpeexJS — Zero dependencies fullstack framework.</p>
-    </div>
-  )
-}
 `,
       'src/config/index.ts': `export const Config = {
   port: Number(process.env.PORT ?? '3000'),
@@ -442,22 +415,20 @@ export { app }
   },
 
   blog: {
-    dirs: ['src', 'src/config', 'src/controllers', 'src/middleware', 'src/models', 'src/pages', 'public'],
+    dirs: ['src', 'src/config', 'src/controllers', 'src/middleware', 'src/models', 'public'],
     files: {
       'package.json': (name: string) => pkg(name, { dev: 'speexjs serve', build: 'speexjs build', start: 'node dist/index.js' }),
       'tsconfig.json': tsconfig({ jsx: 'react-jsx', jsxImportSource: '@speexjs/vdom' }, { include: ['src/**/*.ts', 'src/**/*.tsx'] }),
-      'src/index.ts': `import { speexjs, cors, bodyParser, PageView, staticFiles } from 'speexjs/server'
+      'src/index.ts': `import { speexjs, cors, bodyParser, staticFiles } from 'speexjs/server'
 import { Config } from './config/index.js'
 
 const app = speexjs()
-const view = new PageView()
 
 app.use(cors())
 app.use(staticFiles('public', { maxAge: 86400 }))
 app.use(bodyParser())
 
-app.get('/', async ({ response }) => response.setViewEngine(view).page('home', { title: 'My Blog' }))
-app.get('/blog/:slug', async ({ response, params }) => response.setViewEngine(view).page('post', { slug: params.slug }))
+app.get('/', ({ response }) => response.html(\`<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><title>My Blog</title></head><body style="font-family:sans-serif;padding:2rem;max-width:800px;margin:0 auto;"><h1>My Blog</h1><p>Welcome to my blog.</p></body></html>\`))
 
 export { app }
 `,
