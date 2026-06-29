@@ -3,15 +3,8 @@ import type { AuthUser } from './session-guard.js'
 import { randomHex } from '../../native/crypto.js'
 
 export interface TokenProvider {
-  create(
-    userId: string | number,
-    tokenHash: string,
-    name?: string,
-    abilities?: string[],
-  ): Promise<void>
-  find(
-    tokenHash: string,
-  ): Promise<{
+  create(userId: string | number, tokenHash: string, name?: string, abilities?: string[]): Promise<void>
+  find(tokenHash: string): Promise<{
     userId: string | number
     abilities: string[]
   } | null>
@@ -39,9 +32,11 @@ interface TokenRecord {
 }
 
 export class TokenGuard {
-  private config: Required<
-    Omit<TokenGuardConfig, 'provider' | 'userLookup' | 'secret'>
-  > & { provider: TokenProvider | undefined; userLookup: UserLookup | undefined; secret?: string }
+  private config: Required<Omit<TokenGuardConfig, 'provider' | 'userLookup' | 'secret'>> & {
+    provider: TokenProvider | undefined
+    userLookup: UserLookup | undefined
+    secret?: string
+  }
 
   constructor(config?: TokenGuardConfig) {
     this.config = {
@@ -56,37 +51,23 @@ export class TokenGuard {
     }
   }
 
-  async createToken(
-    userId: string | number,
-    name?: string,
-    abilities?: string[],
-  ): Promise<string> {
+  async createToken(userId: string | number, name?: string, abilities?: string[]): Promise<string> {
     if (this.config.provider === undefined) {
-      throw new Error(
-        'TokenProvider is required to create tokens. Configure a provider in TokenGuardConfig.',
-      )
+      throw new Error('TokenProvider is required to create tokens. Configure a provider in TokenGuardConfig.')
     }
 
     const plaintext = randomHex(this.config.tokenLength)
-    const tokenHash = this.config.hashTokens
-      ? this.hashToken(plaintext)
-      : plaintext
-    await this.config.provider.create(
-      userId,
-      tokenHash,
-      name ?? this.config.tokenName,
-      abilities,
-    )
+    const tokenHash = this.config.hashTokens ? this.hashToken(plaintext) : plaintext
+    await this.config.provider.create(userId, tokenHash, name ?? this.config.tokenName, abilities)
     return plaintext
   }
 
   private hashToken(plaintext: string): string {
     const secret = this.config.secret ?? process.env.APP_KEY
-    if (!secret && process.env.NODE_ENV === 'production') {
-      throw new Error('TokenGuard requires a secret in production')
+    if (!secret) {
+      throw new Error('TokenGuard requires a secret. Provide it via config.secret or APP_KEY environment variable.')
     }
-    const key = secret ?? 'speexjs-dev-token'
-    const hmac = createHmac('sha256', key)
+    const hmac = createHmac('sha256', secret)
     hmac.update(plaintext)
     return hmac.digest('hex')
   }
@@ -131,9 +112,7 @@ export class TokenGuard {
     await this.config.provider.deleteAllForUser(userId)
   }
 
-  private async findTokenRecord(
-    token: string,
-  ): Promise<TokenRecord | null> {
+  private async findTokenRecord(token: string): Promise<TokenRecord | null> {
     if (this.config.provider === undefined) return null
     const tokenHash = this.config.hashTokens ? this.hashToken(token) : token
     return this.config.provider.find(tokenHash)

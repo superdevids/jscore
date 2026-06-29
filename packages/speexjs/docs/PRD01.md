@@ -1,6 +1,6 @@
 # Product Requirements Document — SpeexJS
 
-> **Version:** 1.0 (PRD)
+> **Version:** 1.0.1 (PRD)
 > **Status:** Draft
 > **Last Updated:** 2026-06-29
 > **Document Owner:** SpeexJS Core Team

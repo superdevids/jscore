@@ -1,9 +1,34 @@
+interface AttemptEntry {
+  count: number
+  lockedUntil: number
+}
+
+export interface LockoutStore {
+  get(key: string): AttemptEntry | undefined
+  set(key: string, value: AttemptEntry): void
+  delete(key: string): void
+}
+
+class MapStore implements LockoutStore {
+  private store = new Map<string, AttemptEntry>()
+  get(key: string): AttemptEntry | undefined {
+    return this.store.get(key)
+  }
+  set(key: string, value: AttemptEntry): void {
+    this.store.set(key, value)
+  }
+  delete(key: string): void {
+    this.store.delete(key)
+  }
+}
+
 export class AccountLockout {
-  private attempts = new Map<string, { count: number; lockedUntil: number }>()
+  private attempts: LockoutStore
   private maxAttempts = 5
   private lockoutDuration = 900000
 
-  constructor(config?: { maxAttempts?: number; lockoutDurationMs?: number }) {
+  constructor(config?: { maxAttempts?: number; lockoutDurationMs?: number; store?: LockoutStore }) {
+    this.attempts = config?.store ?? new MapStore()
     if (config?.maxAttempts) this.maxAttempts = config.maxAttempts
     if (config?.lockoutDurationMs) this.lockoutDuration = config.lockoutDurationMs
   }
@@ -18,11 +43,16 @@ export class AccountLockout {
   isLocked(identifier: string): boolean {
     const entry = this.attempts.get(identifier)
     if (!entry) return false
-    if (entry.lockedUntil < Date.now()) { this.attempts.delete(identifier); return false }
+    if (entry.lockedUntil < Date.now()) {
+      this.attempts.delete(identifier)
+      return false
+    }
     return true
   }
 
-  clear(identifier: string): void { this.attempts.delete(identifier) }
+  clear(identifier: string): void {
+    this.attempts.delete(identifier)
+  }
 
   remainingAttempts(identifier: string): number {
     const entry = this.attempts.get(identifier)

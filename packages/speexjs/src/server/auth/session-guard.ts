@@ -31,9 +31,10 @@ interface SessionPayload {
 }
 
 export class SessionGuard {
-  private config: Required<
-    Omit<SessionGuardConfig, 'provider' | 'encryptionKey'>
-  > & { provider: UserProvider | undefined; encryptionKey: string }
+  private config: Required<Omit<SessionGuardConfig, 'provider' | 'encryptionKey'>> & {
+    provider: UserProvider | undefined
+    encryptionKey: string
+  }
   private req: SuperRequest | null = null
   private res: SuperResponse | null = null
   private cachedPayload: SessionPayload | null = null
@@ -46,7 +47,12 @@ export class SessionGuard {
       identifier: 'email',
       password: 'password',
       provider: undefined,
-      encryptionKey: config?.encryptionKey ?? process.env.APP_KEY ?? (() => { throw new Error('APP_KEY must be set in production. Add APP_KEY to your .env file.') })(),
+      encryptionKey:
+        config?.encryptionKey ??
+        process.env.APP_KEY ??
+        (() => {
+          throw new Error('APP_KEY must be set in production. Add APP_KEY to your .env file.')
+        })(),
       ...config,
     }
   }
@@ -58,22 +64,15 @@ export class SessionGuard {
     return this
   }
 
-  async attempt(
-    credentials: { email: string; password: string },
-    remember?: boolean,
-  ): Promise<boolean> {
+  async attempt(credentials: { email: string; password: string }, remember?: boolean): Promise<boolean> {
     if (this.config.provider === undefined) return false
 
-    const identifierValue =
-      credentials[this.config.identifier as keyof typeof credentials]
+    const identifierValue = credentials[this.config.identifier as keyof typeof credentials]
     if (identifierValue === undefined || typeof identifierValue !== 'string') {
       return false
     }
 
-    const user = await this.config.provider.findByCredential(
-      this.config.identifier,
-      identifierValue,
-    )
+    const user = await this.config.provider.findByCredential(this.config.identifier, identifierValue)
     if (user === null) return false
 
     const hash = user[this.config.password]
@@ -207,6 +206,7 @@ export class SessionGuard {
     this.res.cookie(this.config.cookieName, encrypted, {
       maxAge,
       httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       path: '/',
     })

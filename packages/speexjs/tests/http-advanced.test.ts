@@ -4,10 +4,7 @@ import { Socket } from 'node:net'
 import { Readable } from 'node:stream'
 import { tmpdir } from 'node:os'
 import { join, sep } from 'node:path'
-import {
-  mkdtempSync, writeFileSync, existsSync, mkdirSync, unlinkSync,
-  rmdirSync, readFileSync,
-} from 'node:fs'
+import { mkdtempSync, writeFileSync, existsSync, mkdirSync, unlinkSync, rmdirSync, readFileSync } from 'node:fs'
 
 import { HttpStatus, statusText } from '../src/server/http/status.js'
 import { HeadersMap } from '../src/server/http/headers.js'
@@ -63,9 +60,7 @@ function createMultipartBody(
   for (const part of parts) {
     lines.push(`--${boundary}`)
     if (part.filename) {
-      lines.push(
-        `Content-Disposition: form-data; name="${part.name}"; filename="${part.filename}"`,
-      )
+      lines.push(`Content-Disposition: form-data; name="${part.name}"; filename="${part.filename}"`)
       lines.push(`Content-Type: ${part.contentType ?? 'application/octet-stream'}`)
     } else {
       lines.push(`Content-Disposition: form-data; name="${part.name}"`)
@@ -216,9 +211,7 @@ describe('SuperRequest - advanced', () => {
     })
 
     it('handles multipart with closing boundary (--)', async () => {
-      const body = createMultipartBody('myboundary', [
-        { name: 'field1', data: 'value1' },
-      ])
+      const body = createMultipartBody('myboundary', [{ name: 'field1', data: 'value1' }])
       const req = new SuperRequest(
         createMockReq({
           method: 'POST',
@@ -234,12 +227,12 @@ describe('SuperRequest - advanced', () => {
     it('skips part without header separator', async () => {
       const body = Buffer.from(
         '--myboundary\r\n' +
-        'Content-Disposition: form-data; name="field1"\r\n' +
-        '\r\n' +
-        'value1\r\n' +
-        '--myboundary\r\n' +
-        'no-header-delimiter-body-without-separator\r\n' +
-        '--myboundary--',
+          'Content-Disposition: form-data; name="field1"\r\n' +
+          '\r\n' +
+          'value1\r\n' +
+          '--myboundary\r\n' +
+          'no-header-delimiter-body-without-separator\r\n' +
+          '--myboundary--',
       )
       const req = new SuperRequest(
         createMockReq({
@@ -257,14 +250,14 @@ describe('SuperRequest - advanced', () => {
     it('skips part without content-disposition header', async () => {
       const body = Buffer.from(
         '--myboundary\r\n' +
-        'Content-Disposition: form-data; name="field1"\r\n' +
-        '\r\n' +
-        'value1\r\n' +
-        '--myboundary\r\n' +
-        'Some-Unknown-Header: value\r\n' +
-        '\r\n' +
-        'body\r\n' +
-        '--myboundary--',
+          'Content-Disposition: form-data; name="field1"\r\n' +
+          '\r\n' +
+          'value1\r\n' +
+          '--myboundary\r\n' +
+          'Some-Unknown-Header: value\r\n' +
+          '\r\n' +
+          'body\r\n' +
+          '--myboundary--',
       )
       const req = new SuperRequest(
         createMockReq({
@@ -392,7 +385,7 @@ describe('SuperRequest - advanced', () => {
     afterEach(() => {
       // Reset static trustedProxies to avoid affecting other tests
       while ((SuperRequest as any).trustedProxies?.length > 0) {
-        (SuperRequest as any).trustedProxies.pop()
+        ;(SuperRequest as any).trustedProxies.pop()
       }
     })
 
@@ -406,16 +399,12 @@ describe('SuperRequest - advanced', () => {
     })
 
     it('uses x-real-ip when x-forwarded-for missing', () => {
-      const req = new SuperRequest(
-        createMockReq({ headers: { 'x-real-ip': '10.0.0.5' } }),
-      )
+      const req = new SuperRequest(createMockReq({ headers: { 'x-real-ip': '10.0.0.5' } }))
       expect(req.ip).toBe('10.0.0.5')
     })
 
     it('uses x-real-ip as array when multiple values', () => {
-      const req = new SuperRequest(
-        createMockReq({ headers: { 'x-real-ip': ['10.0.0.5'] } }),
-      )
+      const req = new SuperRequest(createMockReq({ headers: { 'x-real-ip': ['10.0.0.5'] } }))
       expect(req.ip).toBe('10.0.0.5')
     })
 
@@ -505,9 +494,7 @@ describe('SuperResponse - advanced', () => {
 
   describe('redirect()', () => {
     it('throws on LF injection', () => {
-      expect(() => res.redirect('/login\nx-evil: true')).toThrow(
-        'Invalid redirect URL',
-      )
+      expect(() => res.redirect('/login\nx-evil: true')).toThrow('Invalid redirect URL')
     })
   })
 
@@ -570,9 +557,7 @@ describe('SuperUploadedFile - advanced', () => {
   describe('move()', () => {
     it('writes file to destination', async () => {
       const buf = Buffer.from('move test')
-      const file = await SuperUploadedFile.createFromBuffer(
-        'doc', 'original.txt', 'text/plain', buf, tmpDir,
-      )
+      const file = await SuperUploadedFile.createFromBuffer('doc', 'original.txt', 'text/plain', buf, tmpDir)
       const result = await file.move(tmpDir)
       expect(result).toBe(join(tmpDir, 'original.txt'))
       expect(existsSync(result)).toBe(true)
@@ -582,9 +567,7 @@ describe('SuperUploadedFile - advanced', () => {
 
     it('with custom filename', async () => {
       const buf = Buffer.from('renamed')
-      const file = await SuperUploadedFile.createFromBuffer(
-        'doc', 'original.txt', 'text/plain', buf, tmpDir,
-      )
+      const file = await SuperUploadedFile.createFromBuffer('doc', 'original.txt', 'text/plain', buf, tmpDir)
       const result = await file.move(tmpDir, 'renamed.txt')
       expect(result).toBe(join(tmpDir, 'renamed.txt'))
       expect(existsSync(result)).toBe(true)
@@ -612,8 +595,11 @@ describe('SuperUploadedFile - advanced', () => {
       const filePath = join(tmpDir, 'cleanup-me.txt')
       writeFileSync(filePath, 'temp')
       const file = new SuperUploadedFile({
-        fieldName: 'f', originalName: 'cleanup-me.txt', mimeType: 'text/plain',
-        size: 4, path: filePath,
+        fieldName: 'f',
+        originalName: 'cleanup-me.txt',
+        mimeType: 'text/plain',
+        size: 4,
+        path: filePath,
       })
       await expect(file.cleanup()).resolves.toBeUndefined()
       expect(existsSync(filePath)).toBe(false)
@@ -623,8 +609,11 @@ describe('SuperUploadedFile - advanced', () => {
       const filePath = join(tmpDir, 'already-gone.txt')
       writeFileSync(filePath, 'temp')
       const file = new SuperUploadedFile({
-        fieldName: 'f', originalName: 'already-gone.txt', mimeType: 'text/plain',
-        size: 4, path: filePath,
+        fieldName: 'f',
+        originalName: 'already-gone.txt',
+        mimeType: 'text/plain',
+        size: 4,
+        path: filePath,
       })
       await file.cleanup()
       await file.cleanup()
@@ -634,9 +623,7 @@ describe('SuperUploadedFile - advanced', () => {
   describe('createFromBuffer()', () => {
     it('uses custom tempDir', async () => {
       const buf = Buffer.from('custom dir')
-      const file = await SuperUploadedFile.createFromBuffer(
-        'f', 'custom.jpg', 'image/jpeg', buf, tmpDir,
-      )
+      const file = await SuperUploadedFile.createFromBuffer('f', 'custom.jpg', 'image/jpeg', buf, tmpDir)
       expect(file.path).toContain(tmpDir)
       expect(file.mimeType).toBe('image/jpeg')
       expect(file.extension).toBe('.jpg')
@@ -646,9 +633,7 @@ describe('SuperUploadedFile - advanced', () => {
 
     it('defaults mimeType to application/octet-stream when empty', async () => {
       const buf = Buffer.from('data')
-      const file = await SuperUploadedFile.createFromBuffer(
-        'f', 'file.bin', '', buf, tmpDir,
-      )
+      const file = await SuperUploadedFile.createFromBuffer('f', 'file.bin', '', buf, tmpDir)
       expect(file.mimeType).toBe('application/octet-stream')
       await file.cleanup()
     })
@@ -656,28 +641,30 @@ describe('SuperUploadedFile - advanced', () => {
 
   describe('MIME type detection', () => {
     it('isImage returns true for all image types', () => {
-      const types = [
-        'image/jpeg', 'image/png', 'image/gif', 'image/webp',
-        'image/svg+xml', 'image/bmp', 'image/tiff', 'image/avif',
-      ]
+      const types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml', 'image/bmp', 'image/tiff', 'image/avif']
       for (const t of types) {
         const file = new SuperUploadedFile({
-          fieldName: 'img', originalName: 'f', mimeType: t,
-          size: 0, path: '/tmp/f', buffer: Buffer.alloc(0),
+          fieldName: 'img',
+          originalName: 'f',
+          mimeType: t,
+          size: 0,
+          path: '/tmp/f',
+          buffer: Buffer.alloc(0),
         })
         expect(file.isImage()).toBe(true)
       }
     })
 
     it('isVideo returns true for all video types', () => {
-      const types = [
-        'video/mp4', 'video/mpeg', 'video/webm', 'video/ogg',
-        'video/quicktime', 'video/x-msvideo', 'video/x-matroska',
-      ]
+      const types = ['video/mp4', 'video/mpeg', 'video/webm', 'video/ogg', 'video/quicktime', 'video/x-msvideo', 'video/x-matroska']
       for (const t of types) {
         const file = new SuperUploadedFile({
-          fieldName: 'vid', originalName: 'f', mimeType: t,
-          size: 0, path: '/tmp/f', buffer: Buffer.alloc(0),
+          fieldName: 'vid',
+          originalName: 'f',
+          mimeType: t,
+          size: 0,
+          path: '/tmp/f',
+          buffer: Buffer.alloc(0),
         })
         expect(file.isVideo()).toBe(true)
       }
@@ -685,8 +672,12 @@ describe('SuperUploadedFile - advanced', () => {
 
     it('isImage returns false for non-image types', () => {
       const file = new SuperUploadedFile({
-        fieldName: 'f', originalName: 'f.txt', mimeType: 'text/plain',
-        size: 0, path: '/tmp/f', buffer: Buffer.alloc(0),
+        fieldName: 'f',
+        originalName: 'f.txt',
+        mimeType: 'text/plain',
+        size: 0,
+        path: '/tmp/f',
+        buffer: Buffer.alloc(0),
       })
       expect(file.isImage()).toBe(false)
       expect(file.isVideo()).toBe(false)

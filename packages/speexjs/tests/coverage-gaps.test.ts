@@ -215,7 +215,9 @@ describe.skip('serve command', () => {
   it('exits with error when no entry point is found', async () => {
     mockExistsSync.mockReturnValue(false)
     const { serve } = await import('../src/cli/commands/serve.js')
-    try { await serve({}) } catch {}
+    try {
+      await serve({})
+    } catch {}
     expect(mockExit).toHaveBeenCalledWith(1)
     expect(consoleErrorSpy).toHaveBeenCalled()
   })
@@ -250,21 +252,27 @@ describe.skip('serve command', () => {
   it('parses port and host options', async () => {
     mockExistsSync.mockReturnValue(false)
     const { serve } = await import('../src/cli/commands/serve.js')
-    try { await serve({ port: '8080', host: '0.0.0.0' }) } catch {}
+    try {
+      await serve({ port: '8080', host: '0.0.0.0' })
+    } catch {}
     expect(mockExit).toHaveBeenCalledWith(1)
   })
 
   it('parses short flags -p and -H', async () => {
     mockExistsSync.mockReturnValue(false)
     const { serve } = await import('../src/cli/commands/serve.js')
-    try { await serve({ p: 9000, H: '0.0.0.0' }) } catch {}
+    try {
+      await serve({ p: 9000, H: '0.0.0.0' })
+    } catch {}
     expect(mockExit).toHaveBeenCalledWith(1)
   })
 
   it('disables dev mode when dev=false', async () => {
     mockExistsSync.mockReturnValue(false)
     const { serve } = await import('../src/cli/commands/serve.js')
-    try { await serve({ dev: false }) } catch {}
+    try {
+      await serve({ dev: false })
+    } catch {}
     expect(mockExit).toHaveBeenCalledWith(1)
   })
 
@@ -289,7 +297,9 @@ describe.skip('serve command', () => {
     })
     mockExistsSync.mockReturnValue(false)
     const { serve } = await import('../src/cli/commands/serve.js')
-    try { await serve({ dev: true }) } catch {}
+    try {
+      await serve({ dev: true })
+    } catch {}
     expect(mockExit).toHaveBeenCalledWith(1)
   })
 
@@ -300,14 +310,18 @@ describe.skip('serve command', () => {
     })
     mockExistsSync.mockReturnValue(false)
     const { serve } = await import('../src/cli/commands/serve.js')
-    try { await serve({ dev: true }) } catch {}
+    try {
+      await serve({ dev: true })
+    } catch {}
     expect(mockExit).toHaveBeenCalledWith(1)
   })
 
   it('defaults port to 3000 and host to localhost', async () => {
     mockExistsSync.mockReturnValue(false)
     const { serve } = await import('../src/cli/commands/serve.js')
-    try { await serve({}) } catch {}
+    try {
+      await serve({})
+    } catch {}
     expect(mockExit).toHaveBeenCalledWith(1)
   })
 })
@@ -641,20 +655,14 @@ describe('responseMacros', () => {
     const { responseMacros } = await import('../src/server/helpers.js')
     responseMacros(mockResponse)
     mockResponse.error('Something went wrong')
-    expect(mockResponse.json).toHaveBeenCalledWith(
-      { success: false, message: 'Something went wrong' },
-      400,
-    )
+    expect(mockResponse.json).toHaveBeenCalledWith({ success: false, message: 'Something went wrong' }, 400)
   })
 
   it('error macro sends error response with custom status', async () => {
     const { responseMacros } = await import('../src/server/helpers.js')
     responseMacros(mockResponse)
     mockResponse.error('Not found', 404)
-    expect(mockResponse.json).toHaveBeenCalledWith(
-      { success: false, message: 'Not found' },
-      404,
-    )
+    expect(mockResponse.json).toHaveBeenCalledWith({ success: false, message: 'Not found' }, 404)
   })
 
   it('created macro sends 201 with data', async () => {
@@ -900,10 +908,7 @@ describe('schema/complex - additional coverage', () => {
 
   it('IntersectionSchema returns merged result for objects', async () => {
     const { schema } = await import('../src/schema/index.js')
-    const sc = schema.intersection(
-      schema.object({ a: schema.number() }),
-      schema.object({ b: schema.string() }),
-    )
+    const sc = schema.intersection(schema.object({ a: schema.number() }), schema.object({ b: schema.string() }))
     expect(sc.parse({ a: 1, b: 'x' })).toEqual({ a: 1, b: 'x' })
   })
 
@@ -1300,7 +1305,9 @@ describe('schema/types - additional coverage', () => {
       _parse() {
         throw new Error('Some random error')
       },
-      parse(val: unknown) { return this._parse(val) },
+      parse(val: unknown) {
+        return this._parse(val)
+      },
       safeParse(val: unknown) {
         try {
           const data = this._parse(val)
@@ -1309,13 +1316,27 @@ describe('schema/types - additional coverage', () => {
           return { success: false, error: String(e) }
         }
       },
-      optional() { return this },
-      nullable() { return this },
-      default(v: any) { return this },
-      describe(_d: string) { return this },
-      refine() { return this },
-      transform() { return this },
-      get _internal() { return this },
+      optional() {
+        return this
+      },
+      nullable() {
+        return this
+      },
+      default(v: any) {
+        return this
+      },
+      describe(_d: string) {
+        return this
+      },
+      refine() {
+        return this
+      },
+      transform() {
+        return this
+      },
+      get _internal() {
+        return this
+      },
     }
     const result = throwingSchema.safeParse('x')
     expect(result.success).toBe(false)
@@ -1332,7 +1353,7 @@ describe('schema/types - additional coverage', () => {
 
   it('Schema refine validates with custom function', async () => {
     const { schema } = await import('../src/schema/index.js')
-    const sc = schema.string().refine(val => val.length > 2, 'too short')
+    const sc = schema.string().refine((val) => val.length > 2, 'too short')
     expect(sc.parse('abc')).toBe('abc')
     expect(() => sc.parse('a')).toThrow('too short')
   })
@@ -1422,7 +1443,7 @@ describe('schema - StringSchema transform methods', () => {
 describe('schema - StandaloneTransformSchema', () => {
   it('transforms arbitrary values', async () => {
     const { schema } = await import('../src/schema/index.js')
-    const sc = schema.transform<number>(v => Number(v))
+    const sc = schema.transform<number>((v) => Number(v))
     expect(sc.parse('42')).toBe(42)
     expect(sc.parse('3.14')).toBe(3.14)
   })
@@ -1437,7 +1458,9 @@ describe('schema/complex - non-SchemaError rethrow', () => {
     const { Schema } = await import('../src/schema/index.js')
     const { ArraySchema } = await import('../src/schema/complex.js')
     class ThrowingSchema extends Schema<unknown> {
-      _parse(): unknown { throw new TypeError('non-schema array error') }
+      _parse(): unknown {
+        throw new TypeError('non-schema array error')
+      }
     }
     const sc = new ArraySchema(new ThrowingSchema())
     expect(() => sc.parse(['x'])).toThrow(TypeError)
@@ -1447,7 +1470,9 @@ describe('schema/complex - non-SchemaError rethrow', () => {
     const { Schema } = await import('../src/schema/index.js')
     const { TupleSchema } = await import('../src/schema/complex.js')
     class ThrowingSchema extends Schema<unknown> {
-      _parse(): unknown { throw new RangeError('non-schema tuple error') }
+      _parse(): unknown {
+        throw new RangeError('non-schema tuple error')
+      }
     }
     const sc = new TupleSchema([new ThrowingSchema()])
     expect(() => sc.parse(['x'])).toThrow(RangeError)
@@ -1478,7 +1503,9 @@ describe('schema/primitives - email validator remaining', () => {
 describe('schema/types - safeParse non-SchemaError', () => {
   it('catches non-SchemaError thrown from transform', async () => {
     const { schema } = await import('../src/schema/index.js')
-    const sc = schema.transform(() => { throw new Error('transform general error') })
+    const sc = schema.transform(() => {
+      throw new Error('transform general error')
+    })
     const result = sc.safeParse('x')
     expect(result.success).toBe(false)
     expect(result.error).toBe('Validation failed')
@@ -1562,9 +1589,21 @@ describe.skip('serve command - success paths', () => {
     Object.defineProperty(process, 'execArgv', { value: origExecArgv, configurable: true })
     try {
       const { unlinkSync, rmdirSync } = require('node:fs')
-      if (tmpAppPath) try { unlinkSync(tmpAppPath) } catch { /* ignore */ }
-      if (tmpDir) try { rmdirSync(tmpDir) } catch { /* ignore */ }
-    } catch { /* ignore */ }
+      if (tmpAppPath)
+        try {
+          unlinkSync(tmpAppPath)
+        } catch {
+          /* ignore */
+        }
+      if (tmpDir)
+        try {
+          rmdirSync(tmpDir)
+        } catch {
+          /* ignore */
+        }
+    } catch {
+      /* ignore */
+    }
   })
 
   async function setupAppModule(): Promise<string> {
@@ -1602,7 +1641,9 @@ describe.skip('serve command - success paths', () => {
     })
     mockExistsSync.mockReturnValue(false)
     const { serve } = await import('../src/cli/commands/serve.js')
-    try { await serve({}) } catch {}
+    try {
+      await serve({})
+    } catch {}
     expect(mockExit).toHaveBeenCalledWith(1)
   })
 })
@@ -1717,7 +1758,7 @@ describe('ClientRouter - hash mode back/forward', () => {
   let mockLocation: { pathname: string; search: string; hash: string; href: string }
   let mockHistory: ReturnType<typeof createMockHistory>
   let mockWindow: ReturnType<typeof createMockWindow>
-  const Home: Component = () => ({ type: 'text', text: 'home' } as any)
+  const Home: Component = () => ({ type: 'text', text: 'home' }) as any
 
   beforeEach(() => {
     const { createMockWindow, createMockHistory } = (() => {
@@ -1730,7 +1771,9 @@ describe('ClientRouter - hash mode back/forward', () => {
         }),
         removeEventListener: vi.fn(),
         _popstateHandlers: popstateHandlers,
-        _triggerPopstate() { for (const h of [...popstateHandlers]) h() },
+        _triggerPopstate() {
+          for (const h of [...popstateHandlers]) h()
+        },
       }
       const history = {
         pushState: vi.fn(),
@@ -1759,7 +1802,10 @@ describe('ClientRouter - hash mode back/forward', () => {
   it('back in hash mode sets window.location.hash', async () => {
     const { ClientRouter } = await import('../src/client/router.js')
     const router = new ClientRouter(
-      [{ path: '/', component: Home }, { path: '/two', component: Home }],
+      [
+        { path: '/', component: Home },
+        { path: '/two', component: Home },
+      ],
       { mode: 'hash' },
     )
     await router.navigate('/')
@@ -1772,7 +1818,10 @@ describe('ClientRouter - hash mode back/forward', () => {
   it('forward in hash mode sets window.location.hash', async () => {
     const { ClientRouter } = await import('../src/client/router.js')
     const router = new ClientRouter(
-      [{ path: '/', component: Home }, { path: '/two', component: Home }],
+      [
+        { path: '/', component: Home },
+        { path: '/two', component: Home },
+      ],
       { mode: 'hash' },
     )
     await router.navigate('/')
@@ -1784,7 +1833,7 @@ describe('ClientRouter - hash mode back/forward', () => {
 })
 
 describe('ClientRouter - link click handler', () => {
-  const Home: Component = () => ({ type: 'text', text: 'home' } as any)
+  const Home: Component = () => ({ type: 'text', text: 'home' }) as any
   let mockLocation: { pathname: string; search: string; hash: string; href: string }
   let mockHistory: ReturnType<typeof createMockHistory>
   let mockWindow: ReturnType<typeof createMockWindow>
@@ -1829,7 +1878,7 @@ describe('ClientRouter - link click handler', () => {
     const handler = link.props.onClick
     const preventDefault = vi.fn()
     handler({ preventDefault, metaKey: false, ctrlKey: false, shiftKey: false, button: 0 } as any)
-    await new Promise(r => setTimeout(r, 10))
+    await new Promise((r) => setTimeout(r, 10))
     expect(preventDefault).toHaveBeenCalled()
     expect(onClick).toHaveBeenCalled()
   })
@@ -1871,7 +1920,9 @@ describe('init command - install failures', () => {
   })
 
   it('handles git init failure gracefully', async () => {
-    mockExecSync.mockImplementationOnce(() => { throw new Error('git not found') })
+    mockExecSync.mockImplementationOnce(() => {
+      throw new Error('git not found')
+    })
     const { initProject } = await import('../src/cli/commands/init.js')
     await initProject('test-project', { git: true, install: false })
     expect(mockExecSync).toHaveBeenCalledWith('git init', expect.any(Object))
@@ -1879,7 +1930,9 @@ describe('init command - install failures', () => {
 
   it('logs message when npm install fails', async () => {
     mockExecSync.mockReset()
-    mockExecSync.mockImplementationOnce(() => { throw new Error('install failed') })
+    mockExecSync.mockImplementationOnce(() => {
+      throw new Error('install failed')
+    })
     const { initProject } = await import('../src/cli/commands/init.js')
     await initProject('test-project', { install: true })
     expect(mockExecSync).toHaveBeenCalledWith('npm install', expect.any(Object))
@@ -1887,7 +1940,9 @@ describe('init command - install failures', () => {
 
   it('handles both git init and npm install failures', async () => {
     mockExecSync.mockReset()
-    mockExecSync.mockImplementation(() => { throw new Error('failed') })
+    mockExecSync.mockImplementation(() => {
+      throw new Error('failed')
+    })
     const { initProject } = await import('../src/cli/commands/init.js')
     await initProject('test-project', { git: true, install: true })
     expect(mockExecSync).toHaveBeenCalledTimes(2)
@@ -1920,10 +1975,7 @@ describe('query - count() with named column', () => {
     const qb = new QueryBuilder(conn as any, 'users')
     const result = await qb.count('email')
     expect(result).toBe(7)
-    expect(raw).toHaveBeenCalledWith(
-      'SELECT COUNT(`email`) as aggregate FROM `users`',
-      [],
-    )
+    expect(raw).toHaveBeenCalledWith('SELECT COUNT(`email`) as aggregate FROM `users`', [])
   })
 
   it('count("email") fallback row keys work', async () => {
@@ -2046,7 +2098,9 @@ describe('schema/complex - ObjectSchema rethrows non-SchemaError', () => {
     const { Schema } = await import('../src/schema/index.js')
     const { ObjectSchema } = await import('../src/schema/complex.js')
     class TypeErrorSchema extends Schema<unknown> {
-      _parse(): unknown { throw new TypeError('non-schema object error') }
+      _parse(): unknown {
+        throw new TypeError('non-schema object error')
+      }
     }
     const sc = new ObjectSchema({ field: new TypeErrorSchema() })
     expect(() => sc.parse({ field: 'x' })).toThrow(TypeError)
@@ -2136,13 +2190,15 @@ describe('ClientRouter - popstate updates query', () => {
 
   it('popstate handler updates query signal', async () => {
     const { ClientRouter } = await import('../src/client/router.js')
-    const Home = () => ({ type: 'text', text: 'home' } as any)
+    const Home = () => ({ type: 'text', text: 'home' }) as any
     const router = new ClientRouter([{ path: '/', component: Home }])
     vi.stubGlobal('window', {
       ...mockWindow,
       location: { pathname: '/bar', search: '?q=test', hash: '' },
     })
-    mockWindow._popstateHandlers.forEach((h: () => void) => { h() })
+    mockWindow._popstateHandlers.forEach((h: () => void) => {
+      h()
+    })
     expect(router.query.value).toEqual({ q: 'test' })
   })
 })
@@ -2177,7 +2233,7 @@ describe('ClientRouter - basePath constructor', () => {
 
   it('strips basePath from current path', async () => {
     const { ClientRouter } = await import('../src/client/router.js')
-    const Home = () => ({ type: 'text', text: 'home' } as any)
+    const Home = () => ({ type: 'text', text: 'home' }) as any
     const router = new ClientRouter([{ path: '/foo', component: Home }], { basePath: '/base' })
     expect(router.current.value?.path).toBe('/foo')
   })
@@ -2188,7 +2244,7 @@ describe('ClientRouter - basePath constructor', () => {
       location: { pathname: '/', search: '', hash: '' },
     })
     const { ClientRouter } = await import('../src/client/router.js')
-    const Home = () => ({ type: 'text', text: 'home' } as any)
+    const Home = () => ({ type: 'text', text: 'home' }) as any
     const router = new ClientRouter([{ path: '/', component: Home }], { mode: 'hash' })
     expect(router.current.value?.path).toBe('/')
   })
@@ -2224,7 +2280,7 @@ describe('ClientRouter - link() null/boolean children', () => {
 
   it('maps null/boolean children to empty text nodes', async () => {
     const { ClientRouter } = await import('../src/client/router.js')
-    const Home = () => ({ type: 'text', text: 'home' } as any)
+    const Home = () => ({ type: 'text', text: 'home' }) as any
     const router = new ClientRouter([{ path: '/', component: Home }])
     const link = router.link({ to: '/dest', children: [null, false, true, 'hello'] }) as any
     expect(link.children).toHaveLength(4)
@@ -2319,9 +2375,19 @@ describe.skip('serve command - app without listen method', () => {
 
     try {
       const { unlinkSync, rmdirSync } = require('node:fs')
-      try { unlinkSync(tmpPath) } catch { /* ignore */ }
-      try { rmdirSync(tmpDir) } catch { /* ignore */ }
-    } catch { /* ignore */ }
+      try {
+        unlinkSync(tmpPath)
+      } catch {
+        /* ignore */
+      }
+      try {
+        rmdirSync(tmpDir)
+      } catch {
+        /* ignore */
+      }
+    } catch {
+      /* ignore */
+    }
   })
 })
 
@@ -2421,7 +2487,8 @@ describe('Model - updateOrCreate with values (line 53)', () => {
     const { QueryBuilder } = await import('../src/server/database/query.js')
     const { createDialect } = await import('../src/server/database/dialect.js')
     const dialect = createDialect('mysql')
-    const raw = vi.fn()
+    const raw = vi
+      .fn()
       .mockResolvedValueOnce({ rows: [{ id: 1, name: 'Old', email: 'old@test.com' }] })
       .mockResolvedValueOnce({ rows: { affectedRows: 1 } })
       .mockResolvedValueOnce({ rows: [{ id: 1, name: 'Updated', email: 'old@test.com' }] })
@@ -2439,10 +2506,7 @@ describe('Model - updateOrCreate with values (line 53)', () => {
     }
     UserModel.setConnection(conn)
 
-    const user = await UserModel.updateOrCreate(
-      { email: 'old@test.com' },
-      { name: 'Updated' },
-    )
+    const user = await UserModel.updateOrCreate({ email: 'old@test.com' }, { name: 'Updated' })
     expect(user).toBeInstanceOf(UserModel)
     expect((user as any).name).toBe('Updated')
     expect((user as any).id).toBe(1)
@@ -2618,7 +2682,8 @@ describe('HttpClient', () => {
 
   it('GET request succeeds', async () => {
     mockFetch.mockResolvedValue({
-      ok: true, status: 200,
+      ok: true,
+      status: 200,
       json: vi.fn().mockResolvedValue({ id: 1 }),
       headers: new Headers({ 'content-type': 'application/json' }),
     })
@@ -2632,7 +2697,8 @@ describe('HttpClient', () => {
 
   it('POST request with body', async () => {
     mockFetch.mockResolvedValue({
-      ok: true, status: 201,
+      ok: true,
+      status: 201,
       json: vi.fn().mockResolvedValue({ id: 42 }),
       headers: new Headers({}),
     })
@@ -2648,7 +2714,8 @@ describe('HttpClient', () => {
 
   it('PUT request with body', async () => {
     mockFetch.mockResolvedValue({
-      ok: true, status: 200,
+      ok: true,
+      status: 200,
       json: vi.fn().mockResolvedValue({ id: 1 }),
       headers: new Headers({}),
     })
@@ -2660,7 +2727,8 @@ describe('HttpClient', () => {
 
   it('DELETE request', async () => {
     mockFetch.mockResolvedValue({
-      ok: true, status: 204,
+      ok: true,
+      status: 204,
       json: vi.fn().mockResolvedValue(null),
       headers: new Headers({}),
     })
@@ -2673,7 +2741,8 @@ describe('HttpClient', () => {
 
   it('setHeader adds default header to requests', async () => {
     mockFetch.mockResolvedValue({
-      ok: true, status: 200,
+      ok: true,
+      status: 200,
       json: vi.fn().mockResolvedValue({}),
       headers: new Headers({}),
     })
@@ -2692,14 +2761,15 @@ describe('HttpClient', () => {
     const client = new HttpClient('http://localhost:3000')
     client.setTimeout(10)
     const promise = client.get('/api/slow')
-    await new Promise<void>(resolve => setTimeout(resolve, 20))
+    await new Promise<void>((resolve) => setTimeout(resolve, 20))
     expect(abortSpy).toHaveBeenCalled()
     abortSpy.mockRestore()
   })
 
   it('handles error response (non-ok status)', async () => {
     mockFetch.mockResolvedValue({
-      ok: false, status: 404,
+      ok: false,
+      status: 404,
       json: vi.fn().mockResolvedValue({ error: 'Not Found' }),
       headers: new Headers({}),
     })
@@ -2713,7 +2783,8 @@ describe('HttpClient', () => {
 
   it('trims trailing slash from baseUrl', async () => {
     mockFetch.mockResolvedValue({
-      ok: true, status: 200,
+      ok: true,
+      status: 200,
       json: vi.fn().mockResolvedValue({}),
       headers: new Headers({}),
     })
@@ -2753,7 +2824,7 @@ describe('Mail', () => {
     const mailer = new Mailer(transport)
     const message = { to: 'later@test.com', subject: 'Later', text: 'Delayed' }
     await mailer.sendLater(message)
-    await new Promise<void>(resolve => setImmediate(resolve))
+    await new Promise<void>((resolve) => setImmediate(resolve))
     expect(transport.send).toHaveBeenCalledWith(message)
   })
 })
@@ -3088,10 +3159,7 @@ describe('Factory', () => {
     expect(results[0]).toEqual({ name: 'item_0', value: 0 })
     expect(results[2]).toEqual({ name: 'item_2', value: 2 })
     expect(raw).toHaveBeenCalledTimes(3)
-    expect(raw).toHaveBeenCalledWith(
-      expect.stringContaining('INSERT INTO'),
-      expect.arrayContaining(['item_0', 0]),
-    )
+    expect(raw).toHaveBeenCalledWith(expect.stringContaining('INSERT INTO'), expect.arrayContaining(['item_0', 0]))
   })
 })
 
@@ -3264,9 +3332,7 @@ describe('DatabaseRateLimiterStore', () => {
   it('hit returns count from database row', async () => {
     const { DatabaseRateLimiterStore } = await import('../src/server/middleware/rate-limiter-store.js')
     const runner = makeMockRunner()
-    runner.raw
-      .mockResolvedValueOnce({ rows: [] })
-      .mockResolvedValueOnce({ rows: [{ hits: 3, reset_at: Date.now() + 60000 }] })
+    runner.raw.mockResolvedValueOnce({ rows: [] }).mockResolvedValueOnce({ rows: [{ hits: 3, reset_at: Date.now() + 60000 }] })
     const store = new DatabaseRateLimiterStore(runner)
     const result = await store.hit('db-key', 60000, 10)
     expect(result.count).toBe(3)
@@ -3276,9 +3342,7 @@ describe('DatabaseRateLimiterStore', () => {
   it('hit returns count=1 when row is missing after insert', async () => {
     const { DatabaseRateLimiterStore } = await import('../src/server/middleware/rate-limiter-store.js')
     const runner = makeMockRunner()
-    runner.raw
-      .mockResolvedValueOnce({ rows: [] })
-      .mockResolvedValueOnce({ rows: [] })
+    runner.raw.mockResolvedValueOnce({ rows: [] }).mockResolvedValueOnce({ rows: [] })
     const store = new DatabaseRateLimiterStore(runner)
     const result = await store.hit('db-key-missing', 60000, 10)
     expect(result.count).toBe(1)
@@ -3288,9 +3352,7 @@ describe('DatabaseRateLimiterStore', () => {
   it('hit falls back when insert throws', async () => {
     const { DatabaseRateLimiterStore } = await import('../src/server/middleware/rate-limiter-store.js')
     const runner = makeMockRunner()
-    runner.raw
-      .mockRejectedValueOnce(new Error('DB error'))
-      .mockResolvedValueOnce({ rows: [{ hits: 1, reset_at: Date.now() + 60000 }] })
+    runner.raw.mockRejectedValueOnce(new Error('DB error')).mockResolvedValueOnce({ rows: [{ hits: 1, reset_at: Date.now() + 60000 }] })
     const store = new DatabaseRateLimiterStore(runner)
     const result = await store.hit('db-key-fallback', 60000, 10)
     expect(result.count).toBe(1)
@@ -3342,10 +3404,7 @@ describe('DatabaseSessionStore', () => {
     runner.raw.mockResolvedValue({ rows: [] })
     const store = new DatabaseSessionStore(runner)
     await store.write('sess_write', { role: 'admin' }, 9999999999999)
-    expect(runner.raw).toHaveBeenCalledWith(
-      expect.stringContaining('REPLACE INTO'),
-      ['sess_write', '{"role":"admin"}', 9999999999999],
-    )
+    expect(runner.raw).toHaveBeenCalledWith(expect.stringContaining('REPLACE INTO'), ['sess_write', '{"role":"admin"}', 9999999999999])
   })
 
   it('destroy sends DELETE query', async () => {
@@ -3585,10 +3644,7 @@ describe('NotificationSender', () => {
     const db = createMockDb()
     const ns = new NotificationSender(db as any)
     await ns.markAsRead('abc-123')
-    expect(db.raw).toHaveBeenCalledWith(
-      'UPDATE notifications SET read_at = ? WHERE id = ?',
-      [expect.any(String), 'abc-123'],
-    )
+    expect(db.raw).toHaveBeenCalledWith('UPDATE notifications SET read_at = ? WHERE id = ?', [expect.any(String), 'abc-123'])
   })
 
   it('markAsRead without db does nothing', async () => {
@@ -3601,9 +3657,7 @@ describe('NotificationSender', () => {
     const { NotificationSender } = await import('../src/server/notifications/index.js')
     const db = createMockDb()
     db.raw.mockResolvedValue({
-      rows: [
-        { id: '1', type: 'info', notifiable_id: 42, data: '{"msg":"hello"}', created_at: '2024-01-01' },
-      ],
+      rows: [{ id: '1', type: 'info', notifiable_id: 42, data: '{"msg":"hello"}', created_at: '2024-01-01' }],
     })
     const ns = new NotificationSender(db as any)
     const result = await ns.getUnread(42)
@@ -3622,9 +3676,7 @@ describe('NotificationSender', () => {
     const { NotificationSender } = await import('../src/server/notifications/index.js')
     const db = createMockDb()
     db.raw.mockResolvedValue({
-      rows: [
-        { id: '1', type: 'info', notifiable_id: 42, data: { msg: 'parsed' }, created_at: '2024-01-01' },
-      ],
+      rows: [{ id: '1', type: 'info', notifiable_id: 42, data: { msg: 'parsed' }, created_at: '2024-01-01' }],
     })
     const ns = new NotificationSender(db as any)
     const result = await ns.getUnread(42)
@@ -3802,7 +3854,7 @@ describe('Queue', () => {
     const handler = vi.fn().mockResolvedValue(undefined)
     q.register('email', handler)
     await q.push('email', { to: 'user@test.com' })
-    await new Promise(r => setTimeout(r, 10))
+    await new Promise((r) => setTimeout(r, 10))
     expect(handler).toHaveBeenCalledWith({ to: 'user@test.com' })
   })
 
@@ -3815,7 +3867,7 @@ describe('Queue', () => {
   it('length property reflects pending jobs', async () => {
     const { Queue } = await import('../src/server/queue/index.js')
     const q = new Queue()
-    const slowHandler = vi.fn().mockImplementation(() => new Promise(r => setTimeout(r, 50)))
+    const slowHandler = vi.fn().mockImplementation(() => new Promise((r) => setTimeout(r, 50)))
     q.register('slow', slowHandler)
     q.push('slow', {})
     expect(q.length).toBe(0)
@@ -3825,9 +3877,11 @@ describe('Queue', () => {
     const { Queue } = await import('../src/server/queue/index.js')
     const q = new Queue()
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-    q.register('failing', () => { throw new Error('boom') })
+    q.register('failing', () => {
+      throw new Error('boom')
+    })
     await q.push('failing', {})
-    await new Promise(r => setTimeout(r, 10))
+    await new Promise((r) => setTimeout(r, 10))
     expect(consoleSpy).toHaveBeenCalled()
     consoleSpy.mockRestore()
   })
@@ -3836,13 +3890,17 @@ describe('Queue', () => {
     const { Queue } = await import('../src/server/queue/index.js')
     const q = new Queue()
     const order: string[] = []
-    const handler1 = vi.fn().mockImplementation(async () => { order.push('1') })
-    const handler2 = vi.fn().mockImplementation(async () => { order.push('2') })
+    const handler1 = vi.fn().mockImplementation(async () => {
+      order.push('1')
+    })
+    const handler2 = vi.fn().mockImplementation(async () => {
+      order.push('2')
+    })
     q.register('a', handler1)
     q.register('b', handler2)
     q.push('a', {})
     q.push('b', {})
-    await new Promise(r => setTimeout(r, 20))
+    await new Promise((r) => setTimeout(r, 20))
     expect(order).toEqual(['1', '2'])
   })
 })
@@ -4065,7 +4123,9 @@ describe('model-factory - defineFactory', () => {
   it('returns a Factory instance', async () => {
     const { defineFactory } = await import('../src/server/database/model-factory.js')
     const { Model } = await import('../src/server/database/model.js')
-    class TestModel extends Model { static table = 'test' }
+    class TestModel extends Model {
+      static table = 'test'
+    }
     const factory = defineFactory(TestModel, (faker, index) => ({ name: faker.name(), index }))
     expect(factory).toBeDefined()
     expect(typeof factory.make).toBe('function')
@@ -4078,7 +4138,9 @@ describe('model-factory - defineFactory', () => {
   it('callback receives valid Faker instance with index 0 by default', async () => {
     const { defineFactory } = await import('../src/server/database/model-factory.js')
     const { Model } = await import('../src/server/database/model.js')
-    class TestModel extends Model { static table = 'test' }
+    class TestModel extends Model {
+      static table = 'test'
+    }
     const callback = vi.fn((_faker: any, index: number) => ({ index }))
     const factory = defineFactory(TestModel, callback)
     factory.make()
@@ -4089,7 +4151,9 @@ describe('model-factory - defineFactory', () => {
   it('make() returns empty object when callback returns empty', async () => {
     const { defineFactory } = await import('../src/server/database/model-factory.js')
     const { Model } = await import('../src/server/database/model.js')
-    class TestModel extends Model { static table = 'test' }
+    class TestModel extends Model {
+      static table = 'test'
+    }
     const factory = defineFactory(TestModel, () => ({}))
     expect(factory.make()).toEqual({})
   })
@@ -4097,7 +4161,9 @@ describe('model-factory - defineFactory', () => {
   it('count() allows chaining', async () => {
     const { defineFactory } = await import('../src/server/database/model-factory.js')
     const { Model } = await import('../src/server/database/model.js')
-    class TestModel extends Model { static table = 'test' }
+    class TestModel extends Model {
+      static table = 'test'
+    }
     const factory = defineFactory(TestModel, () => ({}))
     expect(factory.count(5)).toBe(factory)
   })
@@ -4157,53 +4223,77 @@ describe('soft-deletes - withSoftDeletes', () => {
 describe('Model - relation definitions', () => {
   it('hasOne stores relation definition without throwing', async () => {
     const { Model } = await import('../src/server/database/model.js')
-    class UserModel extends Model { static table = 'users' }
-    class ProfileModel extends Model { static table = 'profiles' }
+    class UserModel extends Model {
+      static table = 'users'
+    }
+    class ProfileModel extends Model {
+      static table = 'profiles'
+    }
     expect(() => UserModel.hasOne(ProfileModel)).not.toThrow()
     expect(() => UserModel.hasOne(ProfileModel, 'user_id', 'id')).not.toThrow()
   })
 
   it('hasMany stores relation definition', async () => {
     const { Model } = await import('../src/server/database/model.js')
-    class UserModel extends Model { static table = 'users' }
-    class PostModel extends Model { static table = 'posts' }
+    class UserModel extends Model {
+      static table = 'users'
+    }
+    class PostModel extends Model {
+      static table = 'posts'
+    }
     expect(() => UserModel.hasMany(PostModel)).not.toThrow()
     expect(() => UserModel.hasMany(PostModel, 'user_id', 'id')).not.toThrow()
   })
 
   it('belongsTo stores relation definition', async () => {
     const { Model } = await import('../src/server/database/model.js')
-    class PostModel extends Model { static table = 'posts' }
-    class UserModel extends Model { static table = 'users' }
+    class PostModel extends Model {
+      static table = 'posts'
+    }
+    class UserModel extends Model {
+      static table = 'users'
+    }
     expect(() => PostModel.belongsTo(UserModel)).not.toThrow()
     expect(() => PostModel.belongsTo(UserModel, 'user_id', 'id')).not.toThrow()
   })
 
   it('belongsToMany stores relation definition with auto pivot table', async () => {
     const { Model } = await import('../src/server/database/model.js')
-    class UserModel extends Model { static table = 'users' }
-    class RoleModel extends Model { static table = 'roles' }
+    class UserModel extends Model {
+      static table = 'users'
+    }
+    class RoleModel extends Model {
+      static table = 'roles'
+    }
     expect(() => UserModel.belongsToMany(RoleModel)).not.toThrow()
     expect(() => UserModel.belongsToMany(RoleModel, 'user_role', 'user_id', 'role_id')).not.toThrow()
   })
 
   it('morphMany stores relation definition with morph name', async () => {
     const { Model } = await import('../src/server/database/model.js')
-    class PostModel extends Model { static table = 'posts' }
-    class CommentModel extends Model { static table = 'comments' }
+    class PostModel extends Model {
+      static table = 'posts'
+    }
+    class CommentModel extends Model {
+      static table = 'comments'
+    }
     expect(() => PostModel.morphMany(CommentModel, 'commentable')).not.toThrow()
   })
 
   it('with() configures eager loading with single and multiple relations', async () => {
     const { Model } = await import('../src/server/database/model.js')
-    class UserModel extends Model { static table = 'users' }
+    class UserModel extends Model {
+      static table = 'users'
+    }
     expect(() => UserModel.with('profile')).not.toThrow()
     expect(() => UserModel.with('roles', 'permissions')).not.toThrow()
   })
 
   it('with() accepts empty args without error', async () => {
     const { Model } = await import('../src/server/database/model.js')
-    class UserModel extends Model { static table = 'users' }
+    class UserModel extends Model {
+      static table = 'users'
+    }
     expect(() => UserModel.with()).not.toThrow()
   })
 
@@ -4632,7 +4722,8 @@ describe('Sanctum', () => {
     const s = new Sanctum()
     const token = s.createToken('user1', ['read', 'write'])
     const result = s.verifyToken(token)
-    expect(result).toEqual({ userId: 'user1', abilities: ['read', 'write'] })
+    expect(result).toMatchObject({ userId: 'user1', abilities: ['read', 'write'] })
+    expect(result?.expiresAt).toBeGreaterThan(Date.now())
   })
 
   it('verifyToken returns null for unknown token', async () => {
@@ -5001,7 +5092,9 @@ describe('GraphQLSchema', () => {
   it('execute catches resolver errors', async () => {
     const { GraphQLSchema } = await import('../src/server/graphql/index.js')
     const schema = new GraphQLSchema()
-    schema.query('fail', () => { throw new Error('boom') })
+    schema.query('fail', () => {
+      throw new Error('boom')
+    })
     const res = await schema.execute('{fail}', null)
     expect(res).toEqual({ errors: 'boom' })
   })
@@ -5021,10 +5114,9 @@ describe('EdgeEngine', () => {
   it('handle returns EdgeResponse shape', async () => {
     const { EdgeEngine } = await import('../src/server/engine/edge.js')
     const engine = new EdgeEngine()
-    const res = await engine.handle(
-      { method: 'GET', url: '/test', headers: {} },
-      async (req: any, res: any) => { res.send('ok', 200) },
-    )
+    const res = await engine.handle({ method: 'GET', url: '/test', headers: {} }, async (req: any, res: any) => {
+      res.send('ok', 200)
+    })
     expect(res.status).toBe(200)
     expect(res.body).toBe('ok')
   })
@@ -5315,13 +5407,23 @@ describe('Pagination', () => {
     const p = new Pagination({ data: ['x', 'y'], currentPage: 1, perPage: 2, total: 4, lastPage: 2, from: 1, to: 2 })
     const json = p.toJSON()
     expect(json.data).toEqual(['x', 'y'])
-    expect(json.pagination).toEqual({ currentPage: 1, perPage: 2, total: 4, lastPage: 2, from: 1, to: 2, hasMore: true, hasPrev: false, isEmpty: false })
+    expect(json.pagination).toEqual({
+      currentPage: 1,
+      perPage: 2,
+      total: 4,
+      lastPage: 2,
+      from: 1,
+      to: 2,
+      hasMore: true,
+      hasPrev: false,
+      isEmpty: false,
+    })
   })
 
   it('map transforms data', async () => {
     const { Pagination } = await import('../src/server/database/pagination.js')
     const p = new Pagination({ data: [1, 2, 3], currentPage: 1, perPage: 10, total: 3, lastPage: 1, from: 1, to: 3 })
-    const mapped = p.map(x => x * 2)
+    const mapped = p.map((x) => x * 2)
     expect(mapped.data).toEqual([2, 4, 6])
     expect(mapped.total).toBe(3)
   })
@@ -5374,8 +5476,12 @@ describe('createDriver', () => {
 describe('Model — additional edge coverage', () => {
   it('morphOne stores relation definition', async () => {
     const { Model } = await import('../src/server/database/model.js')
-    class Post extends Model { static table = 'posts' }
-    class Image extends Model { static table = 'images' }
+    class Post extends Model {
+      static table = 'posts'
+    }
+    class Image extends Model {
+      static table = 'images'
+    }
     Post.morphOne(Image as any, 'imageable')
     const store = (Post as any).getStore()
     expect(store.relationDefs.has('morphOne:imageable')).toBe(true)
@@ -5386,8 +5492,12 @@ describe('Model — additional edge coverage', () => {
 
   it('morphMany stores relation definition', async () => {
     const { Model } = await import('../src/server/database/model.js')
-    class Post extends Model { static table = 'posts' }
-    class Comment extends Model { static table = 'comments' }
+    class Post extends Model {
+      static table = 'posts'
+    }
+    class Comment extends Model {
+      static table = 'comments'
+    }
     Post.morphMany(Comment as any, 'commentable')
     const store = (Post as any).getStore()
     const def = store.relationDefs.get('morphMany:commentable')
@@ -5397,8 +5507,12 @@ describe('Model — additional edge coverage', () => {
 
   it('belongsToMany stores pivot table sorted', async () => {
     const { Model } = await import('../src/server/database/model.js')
-    class User extends Model { static table = 'users' }
-    class Role extends Model { static table = 'roles' }
+    class User extends Model {
+      static table = 'users'
+    }
+    class Role extends Model {
+      static table = 'roles'
+    }
     User.belongsToMany(Role as any)
     const store = (User as any).getStore()
     const def = store.relationDefs.get('belongsToMany:roles')
@@ -5407,37 +5521,49 @@ describe('Model — additional edge coverage', () => {
 
   it('all throws when no connection set', async () => {
     const { Model } = await import('../src/server/database/model.js')
-    class Broken extends Model { static table = 'broken' }
+    class Broken extends Model {
+      static table = 'broken'
+    }
     await expect(Broken.all()).rejects.toThrow('Database connection not set')
   })
 
   it('find returns null for no connection', async () => {
     const { Model } = await import('../src/server/database/model.js')
-    class Broken extends Model { static table = 'broken' }
+    class Broken extends Model {
+      static table = 'broken'
+    }
     await expect(Broken.find(1)).rejects.toThrow('Database connection not set')
   })
 
   it('where returns QueryBuilder', async () => {
     const { Model } = await import('../src/server/database/model.js')
-    class Broken extends Model { static table = 'broken' }
+    class Broken extends Model {
+      static table = 'broken'
+    }
     await expect(Broken.where('id', 1)).rejects.toThrow('Database connection not set')
   })
 
   it('create returns instance', async () => {
     const { Model } = await import('../src/server/database/model.js')
-    class Broken extends Model { static table = 'broken' }
+    class Broken extends Model {
+      static table = 'broken'
+    }
     await expect(Broken.create({ name: 'test' })).rejects.toThrow('Database connection not set')
   })
 
   it('updateOrCreate without connection throws', async () => {
     const { Model } = await import('../src/server/database/model.js')
-    class Broken extends Model { static table = 'broken' }
+    class Broken extends Model {
+      static table = 'broken'
+    }
     await expect(Broken.updateOrCreate({ email: 'a@b.com' }, { name: 'A' })).rejects.toThrow('Database connection not set')
   })
 
   it('save without connection on new model throws', async () => {
     const { Model } = await import('../src/server/database/model.js')
-    class Broken extends Model { static table = 'broken' }
+    class Broken extends Model {
+      static table = 'broken'
+    }
     const inst = new Broken()
     inst.name = 'test'
     await expect(inst.save()).rejects.toThrow('Database connection not set')
@@ -5445,7 +5571,9 @@ describe('Model — additional edge coverage', () => {
 
   it('delete without connection throws', async () => {
     const { Model } = await import('../src/server/database/model.js')
-    class Broken extends Model { static table = 'broken' }
+    class Broken extends Model {
+      static table = 'broken'
+    }
     const inst = new Broken()
     inst.id = 1
     await expect(inst.delete()).rejects.toThrow('Database connection not set')
@@ -5453,7 +5581,9 @@ describe('Model — additional edge coverage', () => {
 
   it('with registers eager loads', async () => {
     const { Model } = await import('../src/server/database/model.js')
-    class User extends Model { static table = 'users' }
+    class User extends Model {
+      static table = 'users'
+    }
     User.with('posts', 'comments')
     const store = (User as any).getStore()
     expect(store.eagerLoads.has('posts')).toBe(true)
@@ -5666,17 +5796,29 @@ describe('RefreshDatabase — edge cases', () => {
 // CLI: serve — docs mode
 // ====================================================================
 
-
-
 // ====================================================================
 // Server: Auth - Socialite exchangeCode & getUser with mocked fetch
 // ====================================================================
 
 describe('Socialite — exchangeCode & getUser', () => {
   beforeEach(() => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-      json: vi.fn().mockResolvedValue({ access_token: 'at1', refresh_token: 'rt1', id: '42', name: 'Test', email: 't@t.com', avatar_url: 'https://av.at/1', login: 'testuser', picture: 'https://pic.at/1' }),
-    }))
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        json: vi
+          .fn()
+          .mockResolvedValue({
+            access_token: 'at1',
+            refresh_token: 'rt1',
+            id: '42',
+            name: 'Test',
+            email: 't@t.com',
+            avatar_url: 'https://av.at/1',
+            login: 'testuser',
+            picture: 'https://pic.at/1',
+          }),
+      }),
+    )
   })
 
   afterEach(() => {
@@ -5721,9 +5863,12 @@ describe('Socialite — exchangeCode & getUser', () => {
 
 describe('Socialite — name fallback branch', () => {
   it('registerGitHub uses login when name is null', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-      json: vi.fn().mockResolvedValue({ id: '99', login: 'ghuser', email: 'u@b.com', avatar_url: 'https://av.at/99' }),
-    }))
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        json: vi.fn().mockResolvedValue({ id: '99', login: 'ghuser', email: 'u@b.com', avatar_url: 'https://av.at/99' }),
+      }),
+    )
     const { Socialite } = await import('../src/server/auth/socialite.js')
     const s = new Socialite()
     s.registerGitHub('cid', 'cs')
@@ -5733,9 +5878,12 @@ describe('Socialite — name fallback branch', () => {
     vi.unstubAllGlobals()
   })
   it('registerGitHub uses empty string when email is null', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-      json: vi.fn().mockResolvedValue({ id: '100', name: 'No Email', login: 'noemail', avatar_url: '' }),
-    }))
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        json: vi.fn().mockResolvedValue({ id: '100', name: 'No Email', login: 'noemail', avatar_url: '' }),
+      }),
+    )
     const { Socialite } = await import('../src/server/auth/socialite.js')
     const s = new Socialite()
     s.registerGitHub('cid', 'cs')
@@ -5755,7 +5903,9 @@ describe('EdgeEngine — branch coverage', () => {
     const engine = new EdgeEngine()
     const result = await engine.handle(
       { method: 'POST', url: '/api', headers: { 'content-type': 'application/json' }, body: '{}' },
-      async (req: any, res: any) => { res.send('created', 201) },
+      async (req: any, res: any) => {
+        res.send('created', 201)
+      },
     )
     expect(result.status).toBe(201)
     expect(result.body).toBe('created')
@@ -5764,10 +5914,9 @@ describe('EdgeEngine — branch coverage', () => {
   it('handle returns empty body when handler sets none', async () => {
     const { EdgeEngine } = await import('../src/server/engine/edge.js')
     const engine = new EdgeEngine()
-    const result = await engine.handle(
-      { method: 'GET', url: '/noop', headers: {} },
-      async (_req: any, _res: any) => { /* no body set */ },
-    )
+    const result = await engine.handle({ method: 'GET', url: '/noop', headers: {} }, async (_req: any, _res: any) => {
+      /* no body set */
+    })
     expect(result.body).toBe('')
   })
 })
@@ -5831,10 +5980,22 @@ describe('Dialect — additional branch coverage', () => {
     const { MysqlDialect } = await import('../src/server/database/dialect.js')
     const d = new MysqlDialect()
     const col = d.compileColumn({
-      name: 'count', type: 'integer', unsigned: true, autoIncrement: true,
-      nullable: false, defaultValue: null, unique: false, primary: false,
-      comment: null, after: null, first: false, length: null, precision: null,
-      scale: null, values: null, isForeignId: false,
+      name: 'count',
+      type: 'integer',
+      unsigned: true,
+      autoIncrement: true,
+      nullable: false,
+      defaultValue: null,
+      unique: false,
+      primary: false,
+      comment: null,
+      after: null,
+      first: false,
+      length: null,
+      precision: null,
+      scale: null,
+      values: null,
+      isForeignId: false,
     })
     expect(col).toContain('UNSIGNED')
     expect(col).toContain('AUTO_INCREMENT')
@@ -5873,9 +6034,12 @@ describe('RefreshDatabase — createSqliteMemory fallback', () => {
 
 describe('Socialite — email and avatar fallback', () => {
   it('registerGoogle handles missing email and picture', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-      json: vi.fn().mockResolvedValue({ id: '55', name: 'No Data' }),
-    }))
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        json: vi.fn().mockResolvedValue({ id: '55', name: 'No Data' }),
+      }),
+    )
     const { Socialite } = await import('../src/server/auth/socialite.js')
     const s = new Socialite()
     s.registerGoogle('gid', 'gs')
@@ -5885,5 +6049,3 @@ describe('Socialite — email and avatar fallback', () => {
     vi.unstubAllGlobals()
   })
 })
-
-

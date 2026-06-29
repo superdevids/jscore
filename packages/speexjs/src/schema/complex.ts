@@ -121,35 +121,35 @@ export class ArraySchema<T> extends Schema<T[]> {
   }
 
   min(n: number): this {
-    this.checks.push(val => {
+    this.checks.push((val) => {
       if (val.length < n) throw new SchemaError(msg('array_min', { min: n }))
     })
     return this
   }
 
   max(n: number): this {
-    this.checks.push(val => {
+    this.checks.push((val) => {
       if (val.length > n) throw new SchemaError(msg('array_max', { max: n }))
     })
     return this
   }
 
   length(n: number): this {
-    this.checks.push(val => {
+    this.checks.push((val) => {
       if (val.length !== n) throw new SchemaError(msg('array_length', { length: n }))
     })
     return this
   }
 
   nonempty(): this {
-    this.checks.push(val => {
+    this.checks.push((val) => {
       if (val.length === 0) throw new SchemaError(msg('array_nonempty'))
     })
     return this
   }
 
   unique(): this {
-    this.checks.push(val => {
+    this.checks.push((val) => {
       const seen = new Set<T>()
       for (const item of val) {
         if (seen.has(item)) throw new SchemaError(msg('array_unique'))
@@ -389,9 +389,16 @@ export class UnknownSchema extends Schema<unknown> {
 // ─── PromiseSchema ──────────────────────────────────────────
 
 export class PromiseSchema<T> extends Schema<Promise<T>> {
-  constructor(private inner: Schema<T>) { super() }
-  _parse(value: unknown): Promise<T> {
-    if (value instanceof Promise) return value.then(v => this.inner._parse(v))
-    return Promise.resolve(this.inner._parse(value))
+  constructor(private inner: Schema<T>) {
+    super()
+  }
+  async _parse(value: unknown): Promise<T> {
+    try {
+      const resolved = value instanceof Promise ? await value : value
+      return this.inner._parse(resolved)
+    } catch (e) {
+      if (e instanceof SchemaError) throw e
+      throw new SchemaError(String(e))
+    }
   }
 }
