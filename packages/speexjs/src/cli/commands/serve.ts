@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync, readFileSync, watch } from 'node:fs'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { createServer } from 'node:http'
@@ -131,6 +131,20 @@ export async function serve(options: Record<string, any>): Promise<void> {
     logger.info(
       `Development server starting at ${colors.cyan(`http://${host}:${port}`)}`,
     )
+  }
+
+  // ── File watching for dev ──────────────────────────────
+  if (opts.dev) {
+    const srcDir = resolve(process.cwd(), 'src')
+    try {
+      watch(srcDir, { recursive: true }, (_eventType, filename) => {
+        if (filename && (filename.endsWith('.ts') || filename.endsWith('.tsx'))) {
+          console.log(`\n🔄 File changed: ${filename}. Restarting...`)
+          process.exit(0)
+        }
+      })
+      console.log(`  ${colors.dim('📁 Watching src/ for changes...')}`)
+    } catch { /* watch not available */ }
   }
 
   await startServer()

@@ -9,6 +9,7 @@ import { makeMigration } from './commands/make-migration.js'
 import { makeModel } from './commands/make-model.js'
 import { listRoutes } from './commands/list-routes.js'
 import { serve } from './commands/serve.js'
+import { build as buildCommand } from './commands/build.js'
 
 function showHelp(): void {
   console.log(`${colors.bold('SpeexJS')} ${colors.cyan('v0.2.0')}`)
@@ -102,6 +103,10 @@ async function main(): Promise<void> {
     case 'routes':
     case 'lr': {
       await listRoutes()
+      break
+    }
+    case 'build': {
+      await buildCommand()
       break
     }
     case 'serve':

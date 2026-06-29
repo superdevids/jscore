@@ -16,7 +16,7 @@ function pkg(name: string, scripts: Record<string, string>, extra: Record<string
 
 function tsconfig(compilerExtra: Record<string, any> = {}, topExtra: Record<string, any> = {}): string {
   return JSON.stringify({
-    compilerOptions: { target: 'ES2022', module: 'ESNext', moduleResolution: 'bundler', strict: true, declaration: true, sourceMap: true, esModuleInterop: true, isolatedModules: true, resolveJsonModule: true, outDir: './dist', rootDir: './src', skipLibCheck: true, ...compilerExtra },
+    compilerOptions: { target: 'ES2022', module: 'ESNext', moduleResolution: 'bundler', strict: true, declaration: true, sourceMap: true, esModuleInterop: true, isolatedModules: true, resolveJsonModule: true, outDir: './dist', rootDir: './src', skipLibCheck: true, types: ['node'], ...compilerExtra },
     include: ['src/**/*.ts'],
     exclude: ['node_modules', 'dist'],
     ...topExtra,
@@ -78,7 +78,7 @@ export default function App({ children }: { children: VNode; title?: string }) {
   return (
     <html lang="en">
       <head>
-        <meta charSet="utf-8"/>
+        <meta charset="utf-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
         <title>{title ?? 'SpeexJS'}</title>
       </head>
@@ -201,6 +201,35 @@ export function auth() {
       '.env.example': `PORT=3000
 NODE_ENV=development
 APP_KEY=
+`,
+      '.editorconfig': `root = true
+
+[*]
+indent_style = space
+indent_size = 2
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+`,
+      'biome.json': `{
+  "$schema": "https://biomejs.dev/schemas/1.9.0/schema.json",
+  "organizeImports": {
+    "enabled": true
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true
+    }
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineEnding": "lf"
+  }
+}
 `,
       '.gitignore': `node_modules/
 dist/
@@ -447,7 +476,7 @@ export { app }
       'src/pages/home.tsx': `import type { VNode } from 'speexjs/client/vdom'
 interface Props { title?: string }
 export default function Home({ title }: Props): VNode {
-  return <html lang="en"><head><meta charSet="utf-8"/><title>{title ?? 'Blog'}</title></head>
+  return <html lang="en"><head><meta charset="utf-8"/><title>{title ?? 'Blog'}</title></head>
   <body style="font-family: sans-serif; padding: 2rem; max-width: 800px; margin: 0 auto;">
   <h1>{title ?? 'My Blog'}</h1><p>Welcome to my blog built with SpeexJS!</p>
   </body></html>
@@ -455,7 +484,7 @@ export default function Home({ title }: Props): VNode {
       'src/pages/post.tsx': `import type { VNode } from 'speexjs/client/vdom'
 interface Props { slug?: string }
 export default function Post({ slug }: Props): VNode {
-  return <html lang="en"><head><meta charSet="utf-8"/><title>{slug ?? 'Post'}</title></head>
+  return <html lang="en"><head><meta charset="utf-8"/><title>{slug ?? 'Post'}</title></head>
   <body style="font-family: sans-serif; padding: 2rem; max-width: 800px; margin: 0 auto;">
   <h1>Post: {slug}</h1><a href="/" style="color: #0066cc;">Back</a>
   </body></html>
