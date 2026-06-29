@@ -160,17 +160,17 @@ export class Model {
 
   static async all<T extends typeof Model>(this: T): Promise<InstanceType<T>[]> {
     const rows = await this.query().get()
-    const instances = rows.map((row: any) => this.hydrate(row))
+    const instances = rows.map((row: Record<string, unknown>) => this.hydrate(row))
     await this.loadRelations(instances)
-    return instances as any
+    return instances as InstanceType<T>[]
   }
 
   static async find<T extends typeof Model>(this: T, id: number | string): Promise<InstanceType<T> | null> {
     const row = await this.query().find(id)
     if (!row) return null
-    const instance = this.hydrate(row)
+    const instance = this.hydrate(row as Record<string, unknown>)
     await this.loadRelations([instance])
-    return instance as any
+    return instance as InstanceType<T>
   }
 
   static async where<T extends typeof Model>(this: T, column: string, value: any): Promise<QueryBuilder> {
@@ -179,7 +179,7 @@ export class Model {
 
   static async create<T extends typeof Model>(this: T, data: Record<string, any>): Promise<InstanceType<T>> {
     const id = await this.query().insert(data)
-    return this.find(id) as any
+    return (await this.find(id)) as InstanceType<T>
   }
 
   static async updateOrCreate<T extends typeof Model>(
@@ -199,7 +199,7 @@ export class Model {
 		await updateQb.update(mergeValues)
 		return this.hydrate({ ...existing, ...mergeValues })
 	}
-    return this.create({ ...attributes, ...values }) as any
+    return (await this.create({ ...attributes, ...values })) as InstanceType<T>
   }
 
   // ─── Instance Methods ──────────────────────────────────────
@@ -229,14 +229,16 @@ export class Model {
     if (id === undefined) return
     const fresh = await ModelClass.find(id)
     if (fresh) {
-      for (const key of Object.keys(fresh)) {
-        if (!key.startsWith('_')) (this as any)[key] = (fresh as any)[key]
+      const self = this as Record<string, unknown>
+      const freshRecord = fresh as Record<string, unknown>
+      for (const key of Object.keys(freshRecord)) {
+        if (!key.startsWith('_')) self[key] = freshRecord[key]
       }
     }
     // Load only relations not already loaded
     for (const rel of relations) {
       if (!this._relations[rel] && fresh) {
-        this._relations[rel] = (fresh as any)._relations?.[rel]
+        this._relations[rel] = (fresh as Record<string, Record<string, unknown>>)._relations?.[rel]
       }
     }
   }

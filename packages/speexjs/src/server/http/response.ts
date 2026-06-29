@@ -172,19 +172,7 @@ export class SuperResponse {
 		if (status !== undefined) this._statusCode = status;
 		this.raw.statusCode = this._statusCode;
 		this.flushHeaders();
-		stream.pipe(this.raw);
-		stream.on("end", () => {
-			this._sent = true;
-		});
-		// Note: status code is already sent (headers were flushed before piping),
-		// so setting raw.statusCode here has no effect on the response.
-		stream.on("error", (_err: Error) => {
-			if (!this._sent) {
-				this._sent = true;
-				this.raw.statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
-				this.raw.end();
-			}
-		});
+		this.pipeStream(stream);
 		return this;
 	}
 
@@ -234,20 +222,7 @@ export class SuperResponse {
 
 			this.raw.statusCode = this._statusCode;
 			this.flushHeaders();
-			const readStream = createReadStream(fullPath);
-			readStream.pipe(this.raw);
-			readStream.on("end", () => {
-				this._sent = true;
-			});
-			// Note: status code is already sent (headers were flushed before piping),
-			// so setting raw.statusCode here has no effect on the response.
-			readStream.on("error", () => {
-				if (!this._sent) {
-					this._sent = true;
-					this.raw.statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
-					this.raw.end();
-				}
-			});
+			this.pipeStream(createReadStream(fullPath));
 		} catch {
 			this._statusCode = HttpStatus.NOT_FOUND;
 			this._body = null;
@@ -319,6 +294,20 @@ export class SuperResponse {
 		} else {
 			this.raw.end();
 		}
+	}
+
+	private pipeStream(stream: Readable): void {
+		stream.pipe(this.raw);
+		stream.on("end", () => {
+			this._sent = true;
+		});
+		stream.on("error", () => {
+			if (!this._sent) {
+				this._sent = true;
+				this.raw.statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
+				this.raw.end();
+			}
+		});
 	}
 
 	private flushHeaders(): void {

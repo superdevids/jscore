@@ -11,12 +11,12 @@ export class Container {
   private resolving = new Set<string>()
 
   bind<T>(name: string, factory: Factory<T>): this {
-    this.bindings.set(name, { factory, singleton: false })
+    this.bindings.set(name, { factory, singleton: false } satisfies Binding<T>)
     return this
   }
 
   singleton<T>(name: string, factory: Factory<T>): this {
-    this.bindings.set(name, { factory, singleton: true })
+    this.bindings.set(name, { factory, singleton: true } satisfies Binding<T>)
     return this
   }
 
@@ -25,7 +25,7 @@ export class Container {
       factory: () => instance,
       singleton: true,
       instance,
-    })
+    } satisfies Binding<T>)
     return this
   }
 
@@ -48,11 +48,11 @@ export class Container {
     this.resolving.add(name)
 
     try {
-      const instance = binding.factory() as T
+      const instance = binding.factory()
       if (binding.singleton) {
         binding.instance = instance
       }
-      return instance
+      return instance as T
     } finally {
       this.resolving.delete(name)
     }

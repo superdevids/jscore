@@ -17,8 +17,8 @@ interface WhereClause {
 		| "column";
 	column?: string;
 	operator?: string;
-	value?: any;
-	values?: any[];
+	value?: unknown;
+	values?: unknown[];
 	boolean: "and" | "or";
 	nested?: WhereClause[];
 }
@@ -425,7 +425,7 @@ export class QueryBuilder {
 	 * Use parameterized bindings for user-provided values.
 	 */
 	whereRaw(sql: string, _bindings?: any[]): this {
-		this.wheres.push({ type: "raw", value: sql, boolean: "and" } as any);
+		this.wheres.push({ type: "raw", value: sql, boolean: "and" });
 		return this;
 	}
 
@@ -434,7 +434,7 @@ export class QueryBuilder {
 	 * Use parameterized bindings for user-provided values.
 	 */
 	orWhereRaw(sql: string, _bindings?: any[]): this {
-		this.wheres.push({ type: "raw", value: sql, boolean: "or" } as any);
+		this.wheres.push({ type: "raw", value: sql, boolean: "or" });
 		return this;
 	}
 
@@ -442,19 +442,20 @@ export class QueryBuilder {
 	 * ⚠️ UNSAFE: Raw SQL order by clause. Do NOT pass user input directly.
 	 */
 	orderByRaw(sql: string): this {
-		this.orderBys.push({ column: sql, direction: "asc" } as any);
+		this.orderBys.push({ column: sql, direction: "asc" });
 		return this;
 	}
 
 	whereExists(callback: (query: QueryBuilder) => void): this {
 		const sub = new QueryBuilder(this.connection, this.tableName);
 		callback(sub);
-		this.wheres.push({ type: "exists", nested: (sub as any).wheres, boolean: "and" });
+		this.wheres.push({ type: "exists", nested: (sub as unknown as { wheres: WhereClause[] }).wheres, boolean: "and" });
 		return this;
 	}
 
 	whereColumn(first: string, operator: string, second: string): this {
 		this.wheres.push({ type: "column", column: first, operator, value: second, boolean: "and" });
+		this.dirty();
 		return this;
 	}
 

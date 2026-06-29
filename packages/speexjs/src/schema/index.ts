@@ -22,6 +22,7 @@ export { CoerceStringSchema, CoerceNumberSchema, CoerceBooleanSchema, CoerceDate
 // ─── Factory imports ────────────────────────────────────────
 
 import { Schema as SchemaBase } from './types.js'
+import type { Infer } from './types.js'
 import { StringSchema, NumberSchema, BooleanSchema, BigIntSchema, SymbolSchema, UndefinedSchema, NullSchema, NaNSchema } from './primitives.js'
 import { ObjectSchema, ArraySchema, TupleSchema, EnumSchema, UnionSchema, IntersectionSchema, RecordSchema, MapSchema, SetSchema, DateSchema, LiteralSchema, AnySchema, UnknownSchema } from './complex.js'
 import { CoerceStringSchema, CoerceNumberSchema, CoerceBooleanSchema, CoerceDateSchema, StandaloneTransformSchema } from './transform.js'
@@ -41,9 +42,9 @@ export const schema = {
   nan: () => new NaNSchema(),
   object: <T extends Record<string, SchemaBase<unknown>>>(shape: T) => new ObjectSchema(shape),
   array: <T>(itemSchema: SchemaBase<T>) => new ArraySchema(itemSchema),
-  tuple: <T extends SchemaBase<unknown>[]>(...schemas: T) => new TupleSchema(schemas as any) as TupleSchema<T>,
+  tuple: <T extends SchemaBase<unknown>[]>(...schemas: T) => new TupleSchema(schemas as unknown as [...T]) as unknown as TupleSchema<T>,
   enum: <T extends string>(values: readonly T[]) => new EnumSchema(values),
-  union: <T extends SchemaBase<unknown>[]>(...schemas: T) => new UnionSchema(schemas) as any,
+  union: <T extends SchemaBase<unknown>[]>(...schemas: T) => new UnionSchema(schemas) as unknown as UnionSchema<Infer<T[number]>>,
   intersection: <A, B>(left: SchemaBase<A>, right: SchemaBase<B>) => new IntersectionSchema(left, right),
   record: <V>(valueSchema: SchemaBase<V>) => new RecordSchema(valueSchema),
   map: <K, V>(keySchema: SchemaBase<K>, valueSchema: SchemaBase<V>) => new MapSchema(keySchema, valueSchema),

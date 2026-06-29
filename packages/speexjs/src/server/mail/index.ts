@@ -71,7 +71,7 @@ export class SmtpMailTransport implements MailTransport {
     
     return new Promise((resolve, reject) => {
       const socket = secure 
-        ? (connect as any)(port, host, { rejectUnauthorized: this.config.tls?.rejectUnauthorized !== false })
+        ? (connect as unknown as (port: number, host: string, options: Record<string, unknown>) => import('node:tls').TLSSocket)(port, host, { rejectUnauthorized: this.config.tls?.rejectUnauthorized !== false })
         : createConnection(port, host)
       
       let step = 0
