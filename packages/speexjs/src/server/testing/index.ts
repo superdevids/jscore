@@ -87,7 +87,15 @@ export class TestResponse {
   }
 }
 
+export { actingAs } from './auth.js'
+export { travelTo, travelBack, now } from './clock.js'
 export { RefreshDatabase } from './database.js'
+
+export function assertOk(res: TestResponse): void { if (res.status < 200 || res.status >= 300) throw new Error(`Expected 2xx, got ${res.status}`) }
+export function assertStatus(res: TestResponse, status: number): void { if (res.status !== status) throw new Error(`Expected status ${status}, got ${res.status}`) }
+export function assertJson(res: TestResponse): void { const j = res.json(); if (typeof j !== 'object') throw new Error('Response is not JSON') }
+export function assertSee(res: TestResponse, text: string): void { const body = String(res.body); if (!body.includes(text)) throw new Error(`Expected response to contain "${text}"`) }
+export function assertRedirect(res: TestResponse): void { if (res.status < 300 || res.status >= 400) throw new Error(`Expected redirect (3xx), got ${res.status}`) }
 
 export function testRequest(app: SuperApp): TestRequest {
   return new TestRequest(app)

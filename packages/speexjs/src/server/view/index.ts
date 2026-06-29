@@ -1,53 +1,24 @@
 import { resolve } from 'node:path'
-import { renderToString } from '../../client/vdom/index.js'
+import { resolveAndRender } from './layout-engine.js'
 
 export interface ViewEngine {
   render(page: string, props?: Record<string, unknown>): Promise<string>
+  renderWithMeta(page: string, ctx?: any): Promise<{ html: string; metadata: Record<string, string> }>
 }
 
 export class PageView implements ViewEngine {
   private pagesDir: string
 
   constructor(pagesDir?: string) {
-    const base = pagesDir ?? resolve(process.cwd(), 'src/pages')
-    this.pagesDir = base
+    this.pagesDir = pagesDir ?? resolve(process.cwd(), 'src/pages')
   }
 
-  /**
-   * Load a .tsx page component and render it to HTML string.
-   * The page file should export a default function that returns JSX.
-   *
-   * Example page file (src/pages/home.tsx):
-   * ```tsx
-   * export default function Home({ name }: { name: string }) {
-   *   return <div><h1>Hello {name}!</h1></div>
-   * }
-   * ```
-   */
   async render(page: string, props?: Record<string, unknown>): Promise<string> {
-    const pagePath = resolve(this.pagesDir, page)
+    const { html } = await resolveAndRender(this.pagesDir, page, props ?? {})
+    return html
+  }
 
-    let mod: any
-    try {
-      mod = await import(pagePath)
-    } catch {
-      try {
-        mod = await import(`${pagePath}.tsx`)
-      } catch {
-        try {
-          mod = await import(`${pagePath}/index.tsx`)
-        } catch {
-          throw new Error(`Page not found: ${page} (tried ${pagePath}.tsx and ${pagePath}/index.tsx)`)
-        }
-      }
-    }
-
-    const Component = mod.default || mod
-    if (typeof Component !== 'function') {
-      throw new Error(`Page "${page}" must export a default function component`)
-    }
-
-    const vnode = Component(props ?? {})
-    return renderToString(vnode)
+  async renderWithMeta(page: string, ctx?: any): Promise<{ html: string; metadata: Record<string, string> }> {
+    return resolveAndRender(this.pagesDir, page, ctx)
   }
 }

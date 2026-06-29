@@ -72,53 +72,53 @@ app.listen(Config.port, () => {
 
 export { app }
 `,
-      'src/pages/home.tsx': `import type { VNode } from 'speexjs/client/vdom'
+      'src/pages/_app.tsx': `import type { VNode } from 'speexjs/client/vdom'
 
-interface Props { name?: string }
-
-export default function Home({ name }: Props): VNode {
+export default function App({ children }: { children: VNode; title?: string }) {
   return (
     <html lang="en">
       <head>
         <meta charSet="utf-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-        <title>SpeexJS App</title>
+        <title>{title ?? 'SpeexJS'}</title>
       </head>
-      <body style="font-family: sans-serif; padding: 2rem; text-align: center;">
-        <h1>SpeexJS</h1>
-        <p>Hello {name ?? 'World'}!</p>
-        <p style="color: #666; margin-top: 2rem;">
-          Server running - <a href="/about">About</a>
-        </p>
-      </body>
+      <body style="font-family: sans-serif; margin: 0; padding: 0;">{children}</body>
     </html>
   )
 }
 `,
-      'src/pages/about.tsx': `import type { VNode } from 'speexjs/client/vdom'
+'src/pages/_layout.tsx': `import type { VNode } from 'speexjs/client/vdom'
+
+export default function Layout({ children }: { children: VNode }) {
+  return (
+    <div style="max-width: 800px; margin: 0 auto; padding: 2rem;">
+      <nav style="margin-bottom: 2rem;">
+        <a href="/" style="margin-right: 1rem;">Home</a>
+        <a href="/about">About</a>
+      </nav>
+      <main>{children}</main>
+    </div>
+  )
+}
+`,
+'src/pages/home.tsx': `import type { VNode } from 'speexjs/client/vdom'
+
+export const metadata = { title: 'Home - SpeexJS' }
+
+export default function Home(): VNode {
+  return <h1>Welcome to SpeexJS!</h1>
+}
+`,
+'src/pages/about.tsx': `import type { VNode } from 'speexjs/client/vdom'
+
+export const metadata = { title: 'About - SpeexJS' }
 
 export default function About(): VNode {
   return (
-    <html lang="en">
-      <head>
-        <meta charSet="utf-8"/>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-        <title>About - SpeexJS</title>
-      </head>
-      <body style="font-family: sans-serif; padding: 2rem;">
-        <h1>About SpeexJS</h1>
-        <p>Fullstack TypeScript framework with zero dependencies.</p>
-        <ul>
-          <li>Server with HTTP, Router, Middleware</li>
-          <li>Database ORM with MySQL/PostgreSQL/SQLite</li>
-          <li>Auth with SessionGuard and TokenGuard</li>
-          <li>Validation with 25+ schema types</li>
-          <li>WebSocket broadcasting</li>
-          <li>Queue, Mail, Scheduling</li>
-        </ul>
-        <a href="/" style="color: #0066cc;">Back to Home</a>
-      </body>
-    </html>
+    <div>
+      <h1>About</h1>
+      <p>Built with SpeexJS — Zero dependencies fullstack framework.</p>
+    </div>
   )
 }
 `,

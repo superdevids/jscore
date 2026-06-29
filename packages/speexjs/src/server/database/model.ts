@@ -1,7 +1,7 @@
 import { QueryBuilder } from './query.js'
 import type { QueryRunner } from './types.js'
 
-export type RelationType = 'hasOne' | 'hasMany' | 'belongsTo' | 'belongsToMany' | 'morphOne' | 'morphMany' | 'morphTo'
+export type RelationType = 'hasOne' | 'hasMany' | 'belongsTo' | 'belongsToMany' | 'morphOne' | 'morphMany' | 'morphTo' | 'morphToMany'
 
 interface RelationDefinition {
   type: RelationType
@@ -125,6 +125,18 @@ export class Model {
       foreignKey: foreignKey ?? `${morphName}_id`,
       localKey: 'id',
       morphName,
+    })
+  }
+
+  static morphToMany(relatedModel: typeof Model, morphName: string, table?: string): void {
+    const key = `morphToMany:${morphName}:${relatedModel.table}`
+    this.relationDefs.set(key, {
+      type: 'morphToMany',
+      relatedModel,
+      foreignKey: `${morphName}_id`,
+      localKey: `${morphName}_type`,
+      morphName,
+      pivotTable: table ?? `${morphName}_${relatedModel.table}`,
     })
   }
 
@@ -274,6 +286,26 @@ export class Model {
           .whereIn(`${def.morphName}_id`, localIds).get()
         for (const inst of instances) {
           inst._relations[key] = related.find((r: any) => r[`${def.morphName}_id`] === inst[def.localKey]) ?? null
+        }
+      }
+
+      if (def.type === 'morphToMany' && def.morphName && def.pivotTable) {
+        if (!def.relatedModel.queryRunner) def.relatedModel.setConnection(this.queryRunner!)
+        const pivotQb = new QueryBuilder(this.queryRunner!, def.pivotTable)
+        const pivotRows = await pivotQb
+          .where(`${def.morphName}_type`, this.name)
+          .whereIn(`${def.morphName}_id`, localIds).get()
+        const relatedIds = pivotRows.map((r: any) => r[`${def.relatedModel.table}_id`])
+        if (relatedIds.length > 0) {
+          const related = await def.relatedModel.query().whereIn('id', relatedIds).get()
+          for (const inst of instances) {
+            const pivots = pivotRows.filter((p: any) => p[`${def.morphName}_id`] === inst[def.localKey])
+            inst._relations[key] = pivots
+              .map((p: any) => related.find((r: any) => r.id === p[`${def.relatedModel.table}_id`]))
+              .filter(Boolean)
+          }
+        } else {
+          for (const inst of instances) { inst._relations[key] = [] }
         }
       }
     }
