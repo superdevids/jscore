@@ -1,4 +1,6 @@
-# SpeexJS
+# Summary
 
-See packages/speexkit/SUMMARY.md for the full speexkit module reference.
-See packages/speexjs/SUMMARY.md for the full speexjs module reference.
+| Subpath | Contents |
+|---------|---------|
+| [speexkit](./packages/speexkit/SUMMARY.md) | Utility toolkit: NDArray, ML, Stats, validation, functional, date, async |
+| [speexjs](./packages/speexjs/SUMMARY.md) | Web framework for TypeScript |

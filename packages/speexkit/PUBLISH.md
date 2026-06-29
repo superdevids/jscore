@@ -1,19 +1,32 @@
-# Publishing - SpeexKit
+# Publishing
+
+## Prerequisites
 
 ```bash
 npm login
-npm version patch
-npm run build
-npm run test:coverage
-npm publish
-git push origin master --tags
+npm whoami
 ```
 
-## Checklist
+## Step-by-Step
 
-- [ ] npm run lint && npm run typecheck
-- [ ] npm run build
-- [ ] npm run test:coverage (1477 tests, all passing)
-- [ ] CHANGELOG.md updated
-- [ ] Version bumped in package.json
-- [ ] npm login verified
+```bash
+# 1. Build
+npm run build
+
+# 2. Bump version
+npm version patch -m "chore: bump version to %s"
+
+# 3. Verify
+npm pack --dry-run
+
+# 4. Publish
+npm publish
+```
+
+## Semantic Versioning
+
+| Command | Effect |
+|---------|--------|
+| npm version patch | Bug fix (0.0.x) |
+| npm version minor | New feature (0.x.0) |
+| npm version major | Breaking change (x.0.0) |

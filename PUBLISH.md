@@ -1,3 +1,4 @@
-# Publishing - SpeexJS
+# Publishing
 
-See packages/speex/PUBLISH.md for publishing instructions.
+See packages/speexkit/PUBLISH.md for speexkit publishing instructions.
+See packages/speexjs/PUBLISH.md for speexjs publishing instructions.

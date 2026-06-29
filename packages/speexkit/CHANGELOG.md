@@ -1,33 +1,19 @@
-# Changelog - speexkit
+# Changelog
 
-## [0.8.4] - 2026-06-29
-
-### Changed
+## v0.8.4 (2026-06-29)
 - Updated README for cleaner npm display
 - Fixed encoding issues in markdown files
 
-## [0.8.3] - 2026-06-29
-
-### Added
-- Professional README with badges and comparison table
-
-## [0.8.2] - 2026-06-29
-
-### Added
-- ML module (StandardScaler, LinearRegression, KMeans, KNN, PCA)
-- Stats module (normalPDF, ttestInd, skewness, pearsonCorrelation)
-- Viz-data module (histogram, kde, boxPlotData, ecdf, colorMap)
+## v0.8.2 (2026-06-29)
+- ML module: StandardScaler, LinearRegression, KMeans, KNN, PCA
+- Stats module: normalPDF, ttestInd, skewness, pearsonCorrelation
+- Viz-data module: histogram, kde, boxPlotData, ecdf, colorMap
 - 1,477 tests across 24 test files
-
-### Changed
 - Renamed package from speexjs-core to speexkit
 - Removed Indonesia-specific validators and localization
-- timeAgo/timeRemaining default locale changed to en
 
-## [0.7.0] - 2026-06-28
-
-### Added
-- color, error, logger modules
+## v0.7.0 (2026-06-28)
+- Color, error, logger modules
 - deepEqual, pipe, compose
 - Queue, Semaphore, RateLimiter, Mutex, batch, waterfall
 - Math: median, stddev, percentile, correlation, formatCurrency
