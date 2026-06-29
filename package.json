@@ -1,7 +1,7 @@
 {
-	"name": "SpeexJS",
+	"name": "speexjs-monorepo",
 	"version": "0.8.2",
-	"description": "SpeexJS —— JavaScript toolkit: NDArray (NumPy-like), 250+ functions (core, math, date, string, async, validation, collection, color, error, logger, crypto, path, IO, type, dep-exray, functional tools). Zero dependencies.",
+	"description": "Monorepo for speexkit utility toolkit and speexjs web framework.",
 	"type": "module",
 	"main": "./dist/index.js",
 	"module": "./dist/index.js",

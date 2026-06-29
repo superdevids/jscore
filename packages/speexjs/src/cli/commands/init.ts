@@ -66,10 +66,6 @@ app.get('/about', async ({ response }) => {
   return response.setViewEngine(view).page('about')
 })
 
-app.listen(Config.port, () => {
-  console.log(\`SpeexJS running at http://localhost:\${Config.port}\`)
-})
-
 export { app }
 `,
       'src/pages/_app.tsx': `import type { VNode } from 'speexjs/client/vdom'
