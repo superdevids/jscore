@@ -1,5 +1,7 @@
 # Roadmap
 
+> 📋 For the full product roadmap with feature priorities (P0–P4), see [PRD.md](./PRD.md).
+
 ## ✅ v1.5.2 — Production Ready
 - All critical bugs fixed: 0 known issues
 - Security hardened: all auth keys configurable

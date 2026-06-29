@@ -1,5 +1,7 @@
 # Roadmap
 
+> 📋 For the full product roadmap with feature priorities (P0–P4), see [PRD.md](./PRD.md).
+
 ## v1.4.x — Current
 
 - NDArray with broadcasting, slicing, matmul, axis reductions

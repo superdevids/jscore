@@ -2,6 +2,8 @@
 
 SpeexJS — Fullstack TypeScript framework.
 
+> 📋 [PRD.md](./PRD.md) — Product roadmap & feature priorities (v1.x → v5.0)
+
 | Subpath | Contents |
 |---------|-----|
 | `speexjs` | Main barrel (schema, server, client, rpc) |
