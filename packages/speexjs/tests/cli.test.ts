@@ -226,7 +226,7 @@ describe('initProject', () => {
       const indexCall = writeCalls.find(([p]) => p.toString().replace(/\\/g, '/').endsWith('src/index.ts'))
       expect(indexCall).toBeDefined()
       expect(indexCall![1].toString()).toContain("import { speexjs")
-      expect(indexCall![1].toString()).toContain('app.listen(')
+      expect(indexCall![1].toString()).toContain('export { app }')
     })
 
     it('generates src/config/index.ts with Config object', async () => {

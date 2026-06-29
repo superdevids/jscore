@@ -459,7 +459,6 @@ app.use(bodyParser())
 app.get('/', async ({ response }) => response.setViewEngine(view).page('home', { title: 'My Blog' }))
 app.get('/blog/:slug', async ({ response, params }) => response.setViewEngine(view).page('post', { slug: params.slug }))
 
-app.listen(Config.port, () => console.log(\`Blog running at http://localhost:\${Config.port}\`))
 export { app }
 `,
       'src/config/index.ts': `export const Config = { port: Number(process.env.PORT) || 3000, env: process.env.NODE_ENV || 'development' } as const`,
