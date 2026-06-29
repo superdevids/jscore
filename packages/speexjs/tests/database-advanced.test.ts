@@ -856,7 +856,8 @@ describe("Model", () => {
 	describe("belongsTo", () => {
 		it("generates query with foreign key matching owner key", () => {
 			Post.belongsTo(User);
-			const defs = (Model as any).relationDefs as Map<string, any>;
+			const store = (Post as any).getStore();
+			const defs = store.relationDefs as Map<string, any>;
 			const key = "belongsTo:users";
 			expect(defs.has(key)).toBe(true);
 			const def = defs.get(key);
@@ -868,7 +869,8 @@ describe("Model", () => {
 
 		it("uses custom foreignKey and ownerKey", () => {
 			Post.belongsTo(User, "author_id", "uuid");
-			const defs = (Model as any).relationDefs as Map<string, any>;
+			const store = (Post as any).getStore();
+			const defs = store.relationDefs as Map<string, any>;
 			const key = "belongsTo:users";
 			expect(defs.has(key)).toBe(true);
 			const def = defs.get(key);
@@ -880,7 +882,8 @@ describe("Model", () => {
 	describe("hasMany", () => {
 		it("generates query with join", () => {
 			User.hasMany(Post);
-			const defs = (Model as any).relationDefs as Map<string, any>;
+			const store = (User as any).getStore();
+			const defs = store.relationDefs as Map<string, any>;
 			const key = "hasMany:posts";
 			expect(defs.has(key)).toBe(true);
 			const def = defs.get(key);
@@ -892,7 +895,8 @@ describe("Model", () => {
 
 		it("uses custom foreignKey and localKey", () => {
 			User.hasMany(Post, "author_id", "uuid");
-			const defs = (Model as any).relationDefs as Map<string, any>;
+			const store = (User as any).getStore();
+			const defs = store.relationDefs as Map<string, any>;
 			const key = "hasMany:posts";
 			expect(defs.has(key)).toBe(true);
 			const def = defs.get(key);

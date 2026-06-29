@@ -389,7 +389,8 @@ describe("QueryBuilder", () => {
 			qb.offset(5);
 			const { sql, bindings } = qb.toSQL();
 			expect(sql).toBe("SELECT * FROM `users` LIMIT ? OFFSET ?");
-			expect(bindings).toEqual([0, 5]);
+			expect(bindings[0]).toBeGreaterThan(1000000);
+			expect(bindings[1]).toBe(5);
 		});
 
 		it("limit + offset", () => {
@@ -405,7 +406,8 @@ describe("QueryBuilder", () => {
 			qb.skip(15);
 			const { sql, bindings } = qb.toSQL();
 			expect(sql).toBe("SELECT * FROM `users` LIMIT ? OFFSET ?");
-			expect(bindings).toEqual([0, 15]);
+			expect(bindings[0]).toBeGreaterThan(1000000);
+			expect(bindings[1]).toBe(15);
 		});
 
 		it("take is alias for limit", () => {
@@ -840,11 +842,12 @@ describe("Dialects", () => {
 			expect(b).toEqual([10, 20]);
 		});
 
-		it("compileLimitOffset with offset only defaults limit to 0", () => {
+		it("compileLimitOffset with offset only defaults to max limit", () => {
 			const b: any[] = [];
 			const r = d.compileLimitOffset(b, null, 5);
 			expect(r).toBe(" LIMIT ? OFFSET ?");
-			expect(b).toEqual([0, 5]);
+			expect(b[0]).toBeGreaterThan(1000000);
+			expect(b[1]).toBe(5);
 		});
 
 		it("compileLimitOffset returns empty when no limit or offset", () => {

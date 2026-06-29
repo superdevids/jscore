@@ -96,11 +96,8 @@ export class Computed<T> {
   private _onDepChange = (): void => {
     if (!this._dirty) {
       this._dirty = true
-      const oldValue = this._value
-      this._eval()
-      if (this._value !== oldValue) {
-        for (const s of [...this._subs]) s()
-      }
+      // Notify subscribers eagerly (they will call .value to re-evaluate)
+      for (const s of [...this._subs]) s()
     }
   }
 

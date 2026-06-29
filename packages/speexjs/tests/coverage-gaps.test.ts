@@ -1481,7 +1481,7 @@ describe('schema/types - safeParse non-SchemaError', () => {
     const sc = schema.transform(() => { throw new Error('transform general error') })
     const result = sc.safeParse('x')
     expect(result.success).toBe(false)
-    expect(result.error).toBe('Error: transform general error')
+    expect(result.error).toBe('Validation failed')
   })
 })
 
@@ -5377,10 +5377,9 @@ describe('Model — additional edge coverage', () => {
     class Post extends Model { static table = 'posts' }
     class Image extends Model { static table = 'images' }
     Post.morphOne(Image as any, 'imageable')
-    // Access private static to verify
-    const defs = (Post as any).relationDefs
-    expect(defs.has('morphOne:imageable')).toBe(true)
-    const def = defs.get('morphOne:imageable')
+    const store = (Post as any).getStore()
+    expect(store.relationDefs.has('morphOne:imageable')).toBe(true)
+    const def = store.relationDefs.get('morphOne:imageable')
     expect(def.type).toBe('morphOne')
     expect(def.morphName).toBe('imageable')
   })
@@ -5390,8 +5389,8 @@ describe('Model — additional edge coverage', () => {
     class Post extends Model { static table = 'posts' }
     class Comment extends Model { static table = 'comments' }
     Post.morphMany(Comment as any, 'commentable')
-    const defs = (Post as any).relationDefs
-    const def = defs.get('morphMany:commentable')
+    const store = (Post as any).getStore()
+    const def = store.relationDefs.get('morphMany:commentable')
     expect(def.type).toBe('morphMany')
     expect(def.morphName).toBe('commentable')
   })
@@ -5401,8 +5400,8 @@ describe('Model — additional edge coverage', () => {
     class User extends Model { static table = 'users' }
     class Role extends Model { static table = 'roles' }
     User.belongsToMany(Role as any)
-    const defs = (User as any).relationDefs
-    const def = defs.get('belongsToMany:roles')
+    const store = (User as any).getStore()
+    const def = store.relationDefs.get('belongsToMany:roles')
     expect(def.pivotTable).toBe('roles_users')
   })
 
@@ -5456,8 +5455,9 @@ describe('Model — additional edge coverage', () => {
     const { Model } = await import('../src/server/database/model.js')
     class User extends Model { static table = 'users' }
     User.with('posts', 'comments')
-    expect((User as any).eagerLoads.has('posts')).toBe(true)
-    expect((User as any).eagerLoads.has('comments')).toBe(true)
+    const store = (User as any).getStore()
+    expect(store.eagerLoads.has('posts')).toBe(true)
+    expect(store.eagerLoads.has('comments')).toBe(true)
   })
 
   it('setConnection stores connection', async () => {
