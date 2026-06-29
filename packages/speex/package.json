@@ -1,6 +1,6 @@
 {
     "name": "speexkit",
-    "version": "0.8.2",
+    "version": "0.8.3",
     "description": "SPEEX ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â JavaScript toolkit: NDArray (NumPy-like), 250+ functions (core, math, date, string, async, validation, collection, color, error, logger, crypto, path, IO, type, dep-exray, functional tools). Zero dependencies.",
     "type": "module",
     "main": "./dist/index.js",
