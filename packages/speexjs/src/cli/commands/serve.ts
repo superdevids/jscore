@@ -79,36 +79,10 @@ export async function serve(options: Record<string, any>): Promise<void> {
   // ── Convert path to file:// URL (critical for Windows) ──────
   const entryUrl = toFileUrl(entryPath)
 
-  if (opts.dev) {
-    logger.info(
-      `Development server starting at ${colors.cyan(`http://${host}:${port}`)}`,
-    )
-
+  const startServer = async () => {
     try {
-      const { app } = await import(entryUrl)
-
-      if (!app || typeof app.listen !== 'function') {
-        console.error(
-          colors.red(
-            'Entry point must export { app } with .listen() method',
-          ),
-        )
-        process.exit(1)
-      }
-
-      app.listen(port, host, () => {
-        console.log()
-        console.log(`  ${colors.bold('SpeexJS')} ${colors.green('running')}`)
-        console.log(`  ${colors.dim('→')}  ${colors.cyan(`http://${host}:${port}`)}`)
-        console.log()
-      })
-    } catch (err: any) {
-      console.error(colors.red(`Failed to start server: ${err.message}`))
-      process.exit(1)
-    }
-  } else {
-    try {
-      const { app } = await import(entryUrl)
+      const mod = await import(entryUrl)
+      const app = mod.app || mod.default
 
       if (!app || typeof app.listen !== 'function') {
         console.error(
@@ -130,4 +104,12 @@ export async function serve(options: Record<string, any>): Promise<void> {
       process.exit(1)
     }
   }
+
+  if (opts.dev) {
+    logger.info(
+      `Development server starting at ${colors.cyan(`http://${host}:${port}`)}`,
+    )
+  }
+
+  await startServer()
 }

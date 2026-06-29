@@ -42,56 +42,123 @@ const GITIGNORE = 'node_modules/\ndist/\n.env\n*.log\n'
 
 const TEMPLATES: Record<string, TemplateContent> = {
   blank: {
-    dirs: ['src', 'src/config'],
+    dirs: ['src', 'src/config', 'src/controllers', 'src/middleware', 'src/models'],
     files: {
       'package.json': (name: string) => pkg(name, { dev: 'speexjs serve', build: 'speexjs build', start: 'node dist/index.js', lint: 'tsc --noEmit' }),
       'tsconfig.json': tsconfig(),
-      'src/index.ts': `import { speexjs } from 'speexjs/server'
-import { schema } from 'speexjs/schema'
+      'src/index.ts': `import { speexjs, cors, bodyParser } from 'speexjs/server'
 import { Config } from './config/index.js'
+import { HealthController } from './controllers/health.controller.js'
 
 const app = speexjs()
 
-app.get('/', async ({ response }) => {
+app.use(cors())
+app.use(bodyParser())
+
+app.controller(HealthController)
+
+app.get('/', ({ response }) => {
   return response.html(\`
     <!DOCTYPE html>
     <html lang="en">
-    <head>
-      <meta charset="UTF-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>SpeexJS App</title>
-    </head>
-    <body>
-      <h1>SpeexJS 🚀</h1>
-      <p>Server is running on port \${Config.port}</p>
-    </body>
+    <head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+    <title>SpeexJS</title></head>
+    <body><h1>SpeexJS</h1><p>Server running on port \${Config.port}</p></body>
     </html>
   \`)
 })
 
-app.get('/api/health', async ({ response }) => {
-  return response.json({
-    status: 'ok',
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
-  })
+app.listen(Config.port, () => {
+  console.log(\`SpeexJS running at http://localhost:\${Config.port}\`)
 })
 
-app.listen(Config.port, () => {
-  console.log(\`✓ SpeexJS running at http://localhost:\${Config.port}\`)
-})
+export { app }
 `,
       'src/config/index.ts': `export const Config = {
   port: Number(process.env.PORT) || 3000,
-  host: process.env.HOST || 'localhost',
   env: process.env.NODE_ENV || 'development',
-  appKey: process.env.APP_KEY || '',
   isDev: process.env.NODE_ENV !== 'production',
   isProd: process.env.NODE_ENV === 'production',
+  appKey: process.env.APP_KEY || '',
 } as const
 `,
-      '.env.example': ENV_EXAMPLE,
-      '.gitignore': GITIGNORE,
+      'src/controllers/health.controller.ts': `import { Controller, get } from 'speexjs/server'
+
+export class HealthController extends Controller {
+  @get('/api/health')
+  async check({ response }) {
+    return response.json({
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+    })
+  }
+}
+`,
+      'src/controllers/user.controller.ts': `import { Controller, get, post, put, del } from 'speexjs/server'
+import { schema } from 'speexjs/schema'
+
+const CreateUserSchema = schema.object({
+  name: schema.string().min(3).max(100),
+  email: schema.string().email(),
+  age: schema.number().min(18).optional(),
+})
+
+export class UserController extends Controller {
+  @get('/users')
+  async index({ response }) {
+    return response.json({ data: [] })
+  }
+
+  @get('/users/:id')
+  async show({ response, params }) {
+    return response.json({ data: { id: params.id } })
+  }
+
+  @post('/users')
+  async store({ request, response }) {
+    const body = await request.body()
+    const result = CreateUserSchema.safeParse(body)
+    if (!result.success) {
+      return response.status(422).json({ error: 'VALIDATION_ERROR', message: result.error })
+    }
+    return response.status(201).json({ data: result.data })
+  }
+
+  @put('/users/:id')
+  async update({ request, response, params }) {
+    const body = await request.body()
+    return response.json({ data: { id: params.id, ...body } })
+  }
+
+  @del('/users/:id')
+  async destroy({ response, params }) {
+    return response.json({ message: \`User \${params.id} deleted\` })
+  }
+}
+`,
+      'src/middleware/auth.middleware.ts': `import type { RouteContext } from 'speexjs/server/router'
+
+export function auth() {
+  return async (ctx: RouteContext, next: () => Promise<void>) => {
+    const token = ctx.request.headers.get('authorization')
+    if (!token) {
+      ctx.response.status(401).json({ error: 'UNAUTHORIZED', message: 'Missing authorization header' })
+      return
+    }
+    await next()
+  }
+}
+`,
+      '.env.example': `PORT=3000
+NODE_ENV=development
+APP_KEY=
+`,
+      '.gitignore': `node_modules/
+dist/
+.env
+*.log
+`,
     },
   },
 
@@ -277,15 +344,15 @@ export function auth() {
     files: {
       'package.json': (name: string) => pkg(name, { dev: 'speexjs serve', build: 'tsc', start: 'node dist/index.js', lint: 'biome check src/' }),
       'tsconfig.json': tsconfig({}, { skipLibCheck: true }),
-      'src/index.ts': `import { speexjs } from 'speexjs/server'
+      'src/index.ts': `import { speexjs, cors, bodyParser, csrf } from 'speexjs/server'
 import { schema } from 'speexjs/schema'
 
 const app = speexjs()
 const PORT = Number(process.env.PORT) || 3000
 
-app.use(app.router.cors())
-app.use(app.router.bodyParser())
-app.use(app.router.csrf())
+app.use(cors())
+app.use(bodyParser())
+app.use(csrf())
 
 app.get('/api/health', async ({ response }) => {
   return response.json({ status: 'ok', timestamp: new Date().toISOString() })

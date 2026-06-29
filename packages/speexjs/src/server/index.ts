@@ -10,6 +10,18 @@ import {
 	type StaticOptions,
 	staticFiles as staticFilesMiddleware,
 } from "./middleware";
+export {
+	cors,
+	bodyParser,
+	session,
+	csrf,
+	throttle,
+	helmet,
+	compress,
+	staticFiles,
+	validate,
+	validateQuery,
+} from "./middleware";
 import type { ControllerClass } from "./router";
 import { type RouteContext, type RouteHandler, Router } from "./router";
 
@@ -40,6 +52,9 @@ export {
 	registerExceptionHandler,
 	normalizeError,
 } from "./errors";
+export { Controller, controller, get, post, put, del } from "./controller";
+// `patch` decorator not re-exported here to avoid conflict with client VDOM `patch`
+export { patch as patchDecorator } from "./controller";
 
 export interface ViewEngine {
 	render(

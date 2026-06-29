@@ -4,7 +4,7 @@ import type { SuperResponse } from "../http/response";
 import type { Middleware } from "../middleware";
 import { createControllerInstance } from "../index.js";
 
-export type RouteHandler = (ctx: RouteContext) => void | Promise<void>;
+export type RouteHandler = (ctx: RouteContext) => void | Promise<void> | SuperResponse | Promise<SuperResponse>;
 
 export interface RouteContext {
 	request: SuperRequest;

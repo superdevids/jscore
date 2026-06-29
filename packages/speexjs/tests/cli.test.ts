@@ -225,7 +225,7 @@ describe('initProject', () => {
       const writeCalls = vi.mocked(writeFileSync).mock.calls
       const indexCall = writeCalls.find(([p]) => p.toString().replace(/\\/g, '/').endsWith('src/index.ts'))
       expect(indexCall).toBeDefined()
-      expect(indexCall![1].toString()).toContain("import { speexjs } from 'speexjs/server'")
+      expect(indexCall![1].toString()).toContain("import { speexjs")
       expect(indexCall![1].toString()).toContain('app.listen(')
     })
 
