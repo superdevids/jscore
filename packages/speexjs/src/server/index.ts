@@ -62,6 +62,12 @@ export type { ErrorHint } from './errors/handler.js'
 export { generateDashboardHtml, trackQuery, getRecentQueries, clearQueries, wrapConnection } from './debug/dashboard.js'
 export { Audit, auditMiddleware } from './audit/index.js'
 export { Webhook } from './webhook/index.js'
+export { GraphQLSchema, graphqlMiddleware } from './graphql/index.js'
+export type { Resolver, SubscriptionResolver } from './graphql/index.js'
+export { PubSub, SubscriptionServer } from './graphql/subscriptions.js'
+export { generateOpenApiSpec } from './openapi/index.js'
+export { serveSwaggerUI } from './openapi/ui.js'
+export { createRevalidateHandler, staleWhileRevalidateMiddleware } from './isr/index.js'
 
 export interface AppOptions {
   engine?: ServerEngine

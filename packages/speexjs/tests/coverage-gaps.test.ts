@@ -1925,7 +1925,7 @@ describe('init command - install failures', () => {
       throw new Error('git not found')
     })
     const { initProject } = await import('../src/cli/commands/init.js')
-    await initProject('test-project', { git: true, install: false })
+    await initProject('test-project', { template: 'blank', git: true, install: false })
     expect(mockExecSync).toHaveBeenCalledWith('git init', expect.any(Object))
   })
 
@@ -1935,7 +1935,7 @@ describe('init command - install failures', () => {
       throw new Error('install failed')
     })
     const { initProject } = await import('../src/cli/commands/init.js')
-    await initProject('test-project', { install: true })
+    await initProject('test-project', { template: 'blank', install: true })
     expect(mockExecSync).toHaveBeenCalledWith('npm install', expect.any(Object))
   })
 
@@ -1945,7 +1945,7 @@ describe('init command - install failures', () => {
       throw new Error('failed')
     })
     const { initProject } = await import('../src/cli/commands/init.js')
-    await initProject('test-project', { git: true, install: true })
+    await initProject('test-project', { template: 'blank', git: true, install: true })
     expect(mockExecSync).toHaveBeenCalledTimes(2)
   })
 })
@@ -3699,7 +3699,7 @@ describe('generateOpenApiSpec', () => {
       ],
     }
     const spec = generateOpenApiSpec(router)
-    expect(spec.openapi).toBe('3.0.3')
+    expect(spec.openapi).toBe('3.1.0')
     expect(spec.paths).toHaveProperty('/users')
     expect((spec.paths as any)['/users']).toHaveProperty('get')
     expect((spec.paths as any)['/users']).toHaveProperty('post')

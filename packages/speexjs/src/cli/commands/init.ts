@@ -1,8 +1,9 @@
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
+import { createInterface } from 'node:readline'
 import { colors } from '../../native/colors.js'
 
-interface TemplateContent {
+export interface TemplateContent {
   dirs: string[]
   files: Record<string, string | ((name: string) => string)>
 }
@@ -11,16 +12,48 @@ const PKG_DEPS = { speexjs: 'latest' }
 const PKG_DEVDEPS = { '@types/node': '^26.0.1', tsx: '^4.19.0', typescript: '^5.7.0' }
 
 function pkg(name: string, scripts: Record<string, string>, extra: Record<string, any> = {}): string {
-  return JSON.stringify({ name, version: '0.1.0', type: 'module', private: true, scripts, dependencies: PKG_DEPS, devDependencies: { ...PKG_DEVDEPS, ...extra.devDependencies }, ...extra }, null, 2)
+  return JSON.stringify(
+    {
+      name,
+      version: '0.1.0',
+      type: 'module',
+      private: true,
+      scripts,
+      dependencies: PKG_DEPS,
+      devDependencies: { ...PKG_DEVDEPS, ...extra.devDependencies },
+      ...extra,
+    },
+    null,
+    2,
+  )
 }
 
 function tsconfig(compilerExtra: Record<string, any> = {}, topExtra: Record<string, any> = {}): string {
-  return JSON.stringify({
-    compilerOptions: { target: 'ES2022', module: 'ESNext', moduleResolution: 'bundler', strict: true, declaration: true, sourceMap: true, esModuleInterop: true, isolatedModules: true, resolveJsonModule: true, outDir: './dist', rootDir: './src', skipLibCheck: true, types: ['node'], ...compilerExtra },
-    include: ['src/**/*.ts'],
-    exclude: ['node_modules', 'dist'],
-    ...topExtra,
-  }, null, 2)
+  return JSON.stringify(
+    {
+      compilerOptions: {
+        target: 'ES2022',
+        module: 'ESNext',
+        moduleResolution: 'bundler',
+        strict: true,
+        declaration: true,
+        sourceMap: true,
+        esModuleInterop: true,
+        isolatedModules: true,
+        resolveJsonModule: true,
+        outDir: './dist',
+        rootDir: './src',
+        skipLibCheck: true,
+        types: ['node'],
+        ...compilerExtra,
+      },
+      include: ['src/**/*.ts'],
+      exclude: ['node_modules', 'dist'],
+      ...topExtra,
+    },
+    null,
+    2,
+  )
 }
 
 const ENV_EXAMPLE = `# Server
@@ -44,7 +77,8 @@ const TEMPLATES: Record<string, TemplateContent> = {
   blank: {
     dirs: ['src', 'src/config', 'src/controllers', 'src/middleware', 'src/models'],
     files: {
-      'package.json': (name: string) => pkg(name, { dev: 'speexjs serve', build: 'speexjs build', start: 'node dist/index.js', lint: 'tsc --noEmit' }),
+      'package.json': (name: string) =>
+        pkg(name, { dev: 'speexjs serve', build: 'speexjs build', start: 'node dist/index.js', lint: 'tsc --noEmit' }),
       'tsconfig.json': tsconfig({}, { include: ['src/**/*.ts'] }),
       'src/index.ts': `import { speexjs, cors, bodyParser } from 'speexjs/server'
 import { HealthController } from './controllers/health.controller.js'
@@ -198,7 +232,16 @@ dist/
   },
 
   fullstack: {
-    dirs: ['src/server', 'src/server/controllers', 'src/server/middleware', 'src/client', 'src/client/components', 'src/client/pages', 'src/shared', 'public'],
+    dirs: [
+      'src/server',
+      'src/server/controllers',
+      'src/server/middleware',
+      'src/client',
+      'src/client/components',
+      'src/client/pages',
+      'src/shared',
+      'public',
+    ],
     files: {
       'package.json': (name: string) => pkg(name, { dev: 'speexjs serve', build: 'tsc', start: 'node dist/server/index.js' }),
       'tsconfig.json': tsconfig({ jsx: 'react-jsx', jsxImportSource: '@speexjs/vdom' }, { include: ['src/**/*.ts', 'src/**/*.tsx'] }),
@@ -406,7 +449,8 @@ export function auth() {
   spark: {
     dirs: ['src', 'src/controllers', 'src/middleware', 'src/config', 'src/database/migrations', 'src/models'],
     files: {
-      'package.json': (name: string) => pkg(name, { dev: 'speexjs serve', build: 'tsc', start: 'node dist/index.js', lint: 'biome check src/' }),
+      'package.json': (name: string) =>
+        pkg(name, { dev: 'speexjs serve', build: 'tsc', start: 'node dist/index.js', lint: 'biome check src/' }),
       'tsconfig.json': tsconfig({}, { skipLibCheck: true }),
       'src/index.ts': `import { speexjs, cors, bodyParser, csrf } from 'speexjs/server'
 import { schema } from 'speexjs/schema'
@@ -435,49 +479,19 @@ export { app }
       '.gitignore': GITIGNORE,
     },
   },
-
-  blog: {
-    dirs: ['src', 'src/config', 'src/controllers', 'src/middleware', 'src/models', 'public'],
-    files: {
-      'package.json': (name: string) => pkg(name, { dev: 'speexjs serve', build: 'speexjs build', start: 'node dist/index.js' }),
-      'tsconfig.json': tsconfig({ jsx: 'react-jsx', jsxImportSource: '@speexjs/vdom' }, { include: ['src/**/*.ts', 'src/**/*.tsx'] }),
-      'src/index.ts': `import { speexjs, cors, bodyParser, staticFiles } from 'speexjs/server'
-import { Config } from './config/index.js'
-
-const app = speexjs()
-
-app.use(cors())
-app.use(staticFiles('public', { maxAge: 86400 }))
-app.use(bodyParser())
-
-app.get('/', ({ response }) => response.html(\`<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><title>My Blog</title></head><body style="font-family:sans-serif;padding:2rem;max-width:800px;margin:0 auto;"><h1>My Blog</h1><p>Welcome to my blog.</p></body></html>\`))
-
-export { app }
-`,
-      'src/config/index.ts': `export const Config = { port: Number(process.env.PORT ?? '3000'), env: process.env.NODE_ENV ?? 'development' }`,
-      'src/pages/home.tsx': `import type { VNode } from 'speexjs/client/vdom'
-interface Props { title?: string }
-export default function Home({ title }: Props): VNode {
-  return <html lang="en"><head><meta charset="utf-8"/><title>{title ?? 'Blog'}</title></head>
-  <body style="font-family: sans-serif; padding: 2rem; max-width: 800px; margin: 0 auto;">
-  <h1>{title ?? 'My Blog'}</h1><p>Welcome to my blog built with SpeexJS!</p>
-  </body></html>
-}`,
-      'src/pages/post.tsx': `import type { VNode } from 'speexjs/client/vdom'
-interface Props { slug?: string }
-export default function Post({ slug }: Props): VNode {
-  return <html lang="en"><head><meta charset="utf-8"/><title>{slug ?? 'Post'}</title></head>
-  <body style="font-family: sans-serif; padding: 2rem; max-width: 800px; margin: 0 auto;">
-  <h1>Post: {slug}</h1><a href="/" style="color: #0066cc;">Back</a>
-  </body></html>
-}`,
-      '.env.example': 'PORT=3000\nNODE_ENV=development\n',
-      '.gitignore': 'node_modules/\ndist/\n.env\n',
-    },
-  },
 }
 
 const TEMPLATE_ALIASES: Record<string, string> = { api: 'api-only', full: 'fullstack', spark: 'spark', blog: 'blog' }
+
+const TEMPLATE_DESCRIPTIONS: Record<string, string> = {
+  blank: 'Minimal API with in-memory CRUD',
+  fullstack: 'Full stack with server + client VDOM',
+  'api-only': 'Lean API-only scaffold',
+  spark: 'Opinionated with middleware stack',
+  blog: 'Blog with posts, categories, comments, and tags',
+  saas: 'SaaS with teams, billing, roles, and subscriptions',
+  ecommerce: 'Ecommerce with products, cart, checkout, and orders',
+}
 
 function getTemplate(name: string): string {
   return TEMPLATE_ALIASES[name] ?? name
@@ -485,6 +499,53 @@ function getTemplate(name: string): string {
 
 function toPascalCase(str: string): string {
   return str.replace(/[-_\s]+(.)?/g, (_, c: string) => (c ?? '').toUpperCase()).replace(/^(.)/, (c: string) => c.toUpperCase())
+}
+
+function askQuestion(query: string): Promise<string> {
+  const rl = createInterface({ input: process.stdin, output: process.stdout })
+  return new Promise((resolve) => {
+    rl.question(query, (answer) => {
+      rl.close()
+      resolve(answer.trim())
+    })
+  })
+}
+
+async function selectTemplateInteractive(): Promise<string> {
+  console.log(`\n  ${colors.bold('Select a project template:')}\n`)
+
+  const allTemplateNames = Object.keys(TEMPLATES)
+  const starters = ['blog', 'saas', 'api', 'ecommerce']
+  const classic = allTemplateNames.filter((t) => !starters.includes(t))
+
+  console.log(`  ${colors.bold('Classic Templates:')}`)
+  for (const name of classic) {
+    const alias = Object.entries(TEMPLATE_ALIASES).find(([, v]) => v === name)?.[0]
+    const label = alias ? `${name} (alias: ${alias})` : name
+    const desc = TEMPLATE_DESCRIPTIONS[name] || ''
+    console.log(`    ${colors.cyan(label.padEnd(25))} ${colors.dim(desc)}`)
+  }
+
+  console.log(`\n  ${colors.bold('Official Starters:')}`)
+  for (const name of starters) {
+    const desc = TEMPLATE_DESCRIPTIONS[name] || ''
+    console.log(`    ${colors.green(name.padEnd(25))} ${colors.dim(desc)}`)
+  }
+
+  console.log()
+  const answer = await askQuestion(`  ${colors.yellow('→')} Which template? ${colors.dim('[fullstack]')}: `)
+  return answer || 'fullstack'
+}
+
+async function loadStarterTemplates(): Promise<void> {
+  try {
+    const { STARTER_TEMPLATES } = await import('../templates/index.js')
+    for (const [key, value] of Object.entries(STARTER_TEMPLATES)) {
+      TEMPLATES[key] = value
+    }
+  } catch {
+    console.log(`  ${colors.yellow('!')} Starter templates not found, using built-in templates only.`)
+  }
 }
 
 export async function initProject(name: string, options: Record<string, any>): Promise<void> {
@@ -495,11 +556,21 @@ export async function initProject(name: string, options: Record<string, any>): P
     process.exit(1)
   }
 
-  const templateName = getTemplate(String(options.template || 'fullstack'))
+  await loadStarterTemplates()
+
+  let templateName: string
+
+  if (options.template) {
+    templateName = getTemplate(String(options.template))
+  } else {
+    templateName = getTemplate(await selectTemplateInteractive())
+  }
+
   const template = TEMPLATES[templateName]
 
   if (!template) {
-    console.error(colors.red(`Unknown template '${options.template}'. Use: blank, fullstack, api-only, spark, blog`))
+    const available = Object.keys(TEMPLATES).join(', ')
+    console.error(colors.red(`Unknown template '${templateName}'. Available: ${available}`))
     process.exit(1)
   }
 
@@ -519,7 +590,9 @@ export async function initProject(name: string, options: Record<string, any>): P
     try {
       const { execSync } = await import('child_process')
       execSync('git init', { cwd: targetDir, stdio: 'ignore' })
-    } catch { /* git not available */ }
+    } catch {
+      /* git not available */
+    }
   }
 
   if (options.install !== false) {
@@ -537,7 +610,9 @@ export async function initProject(name: string, options: Record<string, any>): P
 
   console.log()
   console.log(`${colors.bold('╔══════════════════════════════════════════╗')}`)
-  console.log(`${colors.bold('║')}          ${colors.green('SpeexJS')} ${colors.cyan('🚀')} ${colors.bold('Project Created')}         ${colors.bold('║')}`)
+  console.log(
+    `${colors.bold('║')}          ${colors.green('SpeexJS')} ${colors.cyan('🚀')} ${colors.bold('Project Created')}         ${colors.bold('║')}`,
+  )
   console.log(`${colors.bold('╠══════════════════════════════════════════╣')}`)
   console.log(`${colors.bold('║')}  ${colors.dim('Name:')}     ${colors.white(toPascalCase(name))}`)
   console.log(`${colors.bold('║')}  ${colors.dim('Template:')} ${colors.cyan(templateName)}`)

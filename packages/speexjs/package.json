@@ -70,6 +70,10 @@
       "import": "./dist/server/plugin/presets.js",
       "types": "./dist/server/plugin/presets.d.ts"
     },
+    "./server/plugin/registry": {
+      "import": "./dist/server/plugin/registry.js",
+      "types": "./dist/server/plugin/registry.d.ts"
+    },
     "./server/testing": {
       "import": "./dist/server/testing/index.js",
       "types": "./dist/server/testing/index.d.ts"
@@ -89,6 +93,26 @@
     "./server/webhook": {
       "import": "./dist/server/webhook/index.js",
       "types": "./dist/server/webhook/index.d.ts"
+    },
+    "./server/search": {
+      "import": "./dist/server/search/index.js",
+      "types": "./dist/server/search/index.d.ts"
+    },
+    "./server/ai": {
+      "import": "./dist/server/ai/index.js",
+      "types": "./dist/server/ai/index.d.ts"
+    },
+    "./server/graphql": {
+      "import": "./dist/server/graphql/index.js",
+      "types": "./dist/server/graphql/index.d.ts"
+    },
+    "./server/openapi": {
+      "import": "./dist/server/openapi/index.js",
+      "types": "./dist/server/openapi/index.d.ts"
+    },
+    "./server/isr": {
+      "import": "./dist/server/isr/index.js",
+      "types": "./dist/server/isr/index.d.ts"
     },
     "./client": {
       "import": "./dist/client/index.js",

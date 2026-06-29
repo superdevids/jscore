@@ -48,17 +48,60 @@ export interface ComponentContext {
 const nodeCleanups = new WeakMap<Node, () => void>()
 
 const VOID_ELEMENTS = new Set([
-  'area','base','br','col','embed','hr','img','input','link','meta',
-  'param','source','track','wbr',
+  'area',
+  'base',
+  'br',
+  'col',
+  'embed',
+  'hr',
+  'img',
+  'input',
+  'link',
+  'meta',
+  'param',
+  'source',
+  'track',
+  'wbr',
 ])
 
 const SVG_ELEMENTS = new Set([
-  'svg','path','circle','rect','g','text','line','polyline','polygon',
-  'ellipse','use','defs','clipPath','mask','linearGradient','radialGradient',
-  'stop','tspan','textPath','image','foreignObject','marker','pattern',
-  'symbol','filter','feBlend','feColorMatrix','feComponentTransfer',
-  'feComposite','feDropShadow','feFlood','feGaussianBlur','feMerge',
-  'feOffset','feImage','feTile','feTurbulence',
+  'svg',
+  'path',
+  'circle',
+  'rect',
+  'g',
+  'text',
+  'line',
+  'polyline',
+  'polygon',
+  'ellipse',
+  'use',
+  'defs',
+  'clipPath',
+  'mask',
+  'linearGradient',
+  'radialGradient',
+  'stop',
+  'tspan',
+  'textPath',
+  'image',
+  'foreignObject',
+  'marker',
+  'pattern',
+  'symbol',
+  'filter',
+  'feBlend',
+  'feColorMatrix',
+  'feComponentTransfer',
+  'feComposite',
+  'feDropShadow',
+  'feFlood',
+  'feGaussianBlur',
+  'feMerge',
+  'feOffset',
+  'feImage',
+  'feTile',
+  'feTurbulence',
 ])
 
 function isSignal(val: unknown): val is Signal<any> {
@@ -165,7 +208,7 @@ function setProp(el: Element, key: string, value: any, oldValue?: any): void {
     return
   }
   if (key === 'value' || key === 'checked' || key === 'disabled' || key === 'selected') {
-    (el as any)[key] = value
+    ;(el as any)[key] = value
     return
   }
   if (key === 'htmlFor') {
@@ -187,9 +230,18 @@ function removeProp(el: Element, key: string, value: any): void {
     el.removeEventListener(key.slice(2).toLowerCase(), value)
     return
   }
-  if (key === 'style') { el.removeAttribute('style'); return }
-  if (key === 'class' || key === 'className') { el.removeAttribute('class'); return }
-  if (key === 'value' || key === 'checked' || key === 'disabled') { delete (el as any)[key]; return }
+  if (key === 'style') {
+    el.removeAttribute('style')
+    return
+  }
+  if (key === 'class' || key === 'className') {
+    el.removeAttribute('class')
+    return
+  }
+  if (key === 'value' || key === 'checked' || key === 'disabled') {
+    delete (el as any)[key]
+    return
+  }
   el.removeAttribute(key)
 }
 
@@ -197,9 +249,7 @@ function createDOM(vnode: VNode): Node {
   switch (vnode.type) {
     case 'element': {
       const isSVG = SVG_ELEMENTS.has(vnode.tag)
-      const el = isSVG
-        ? document.createElementNS('http://www.w3.org/2000/svg', vnode.tag)
-        : document.createElement(vnode.tag)
+      const el = isSVG ? document.createElementNS('http://www.w3.org/2000/svg', vnode.tag) : document.createElement(vnode.tag)
       for (const [key, value] of Object.entries(vnode.props)) {
         if (key !== 'key') setProp(el, key, value)
       }
@@ -219,10 +269,12 @@ function createDOM(vnode: VNode): Node {
       const result = vnode.component(vnode.props)
       if (result instanceof Promise) {
         const placeholder = document.createComment(' async ')
-        result.then((resolved) => {
-          const node = createDOM(resolved)
-          placeholder.parentNode?.replaceChild(node, placeholder)
-        }).catch(() => { /* async component failed - keep placeholder */ })
+        result
+          .then((resolved) => {
+            const node = createDOM(resolved)
+            placeholder.parentNode?.replaceChild(node, placeholder)
+          })
+          .catch(() => {})
         return placeholder
       }
       return createDOM(result)
@@ -273,7 +325,7 @@ function patchProps(el: Element, oldProps: Record<string, any>, newProps: Record
 }
 
 function getVNodeKey(vn: VNode | undefined, index: number): string | number {
-  return (vn != null && 'key' in vn && (vn as any).key != null) ? (vn as any).key : index
+  return vn != null && 'key' in vn && (vn as any).key != null ? (vn as any).key : index
 }
 
 function patchChildren(parent: Node, oldChildren: VNode[], newChildren: VNode[]): void {
@@ -318,7 +370,7 @@ function patchVNode(dom: Node | null, oldVNode: VNode, newVNode: VNode): void {
     patchChildren(dom, oldVNode.children, newVNode.children)
   } else if (oldVNode.type === 'text' && newVNode.type === 'text') {
     if (oldVNode.text !== newVNode.text) {
-      (dom as Text).textContent = newVNode.text
+      ;(dom as Text).textContent = newVNode.text
     }
   } else if (oldVNode.type === 'fragment' && newVNode.type === 'fragment') {
     patchChildren(dom.parentNode || dom, oldVNode.children, newVNode.children)
@@ -368,7 +420,11 @@ export function hydrate(vnode: VNode, container: HTMLElement): void {
 }
 
 const ESCAPE_MAP: Record<string, string> = {
-  '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;',
+  "'": '&#39;',
 }
 
 function escapeHtml(str: string): string {
@@ -393,9 +449,15 @@ function renderProps(props: Record<string, any>): string {
       out += ' class="' + escapeHtml(String(cls)) + '"'
       continue
     }
-    if (key === 'htmlFor') { out += ' for="' + escapeHtml(String(value)) + '"'; continue }
-    if (value === true) { out += ' ' + key }
-    else { out += ' ' + key + '="' + escapeHtml(String(value)) + '"' }
+    if (key === 'htmlFor') {
+      out += ' for="' + escapeHtml(String(value)) + '"'
+      continue
+    }
+    if (value === true) {
+      out += ' ' + key
+    } else {
+      out += ' ' + key + '="' + escapeHtml(String(value)) + '"'
+    }
   }
   return out
 }
@@ -407,14 +469,17 @@ function renderVNodeToString(vnode: VNode): string {
       if (VOID_ELEMENTS.has(vnode.tag)) return '<' + vnode.tag + renderProps(vnode.props) + '>'
       return '<' + vnode.tag + renderProps(vnode.props) + '>' + children + '</' + vnode.tag + '>'
     }
-    case 'text': return escapeHtml(vnode.text)
-    case 'fragment': return vnode.children.map(renderVNodeToString).join('')
+    case 'text':
+      return escapeHtml(vnode.text)
+    case 'fragment':
+      return vnode.children.map(renderVNodeToString).join('')
     case 'component': {
       const result = vnode.component(vnode.props)
       if (result instanceof Promise) throw new Error('Async components must use renderToStream or ServerRenderer')
       return renderVNodeToString(result)
     }
-    case 'signal': return renderVNodeToString(normalizeChild(vnode.signal.value) ?? text(''))
+    case 'signal':
+      return renderVNodeToString(normalizeChild(vnode.signal.value) ?? text(''))
   }
 }
 
@@ -422,12 +487,103 @@ export function renderToString(vnode: VNode): string {
   return renderVNodeToString(vnode)
 }
 
-export function renderToStream(vnode: VNode): ReadableStream<string> {
+async function compressHtml(html: string, method?: 'gzip' | 'brotli' | false): Promise<Buffer> {
+  if (!method) return Buffer.from(html, 'utf-8')
+  const { gzipSync, brotliCompressSync } = await import('node:zlib')
+  if (method === 'gzip') return gzipSync(Buffer.from(html, 'utf-8'))
+  return brotliCompressSync(Buffer.from(html, 'utf-8'))
+}
+
+function setNodeStreamHeaders(
+  nodeResponse: any,
+  options?: {
+    compress?: 'gzip' | 'brotli' | false
+    headers?: Record<string, string>
+  },
+): void {
+  nodeResponse.setHeader('content-type', 'text/html; charset=utf-8')
+  nodeResponse.setHeader('transfer-encoding', 'chunked')
+  if (options?.headers) {
+    for (const [key, value] of Object.entries(options.headers)) {
+      nodeResponse.setHeader(key, value)
+    }
+  }
+  if (options?.compress === 'gzip') nodeResponse.setHeader('content-encoding', 'gzip')
+  else if (options?.compress === 'brotli') nodeResponse.setHeader('content-encoding', 'br')
+}
+
+export function renderToStream(
+  vnode: VNode,
+  options?: {
+    earlyHints?: { link: string[] }
+    compress?: 'gzip' | 'brotli' | false
+    headers?: Record<string, string>
+  },
+): ReadableStream<string> {
   return new ReadableStream({
-    start(controller) {
-      const html = renderToString(vnode)
-      controller.enqueue(html)
+    async start(controller) {
+      try {
+        const html = renderToString(vnode)
+        const buf = await compressHtml(html, options?.compress)
+        controller.enqueue(buf.toString('binary'))
+      } catch (err: any) {
+        controller.error(err)
+      }
+      controller.close()
+    },
+    pull(controller) {
       controller.close()
     },
   })
+}
+
+export function renderToNodeStream(
+  vnode: VNode,
+  nodeResponse: any,
+  options?: {
+    earlyHints?: { link: string[] }
+    compress?: 'gzip' | 'brotli' | false
+    headers?: Record<string, string>
+  },
+): void {
+  const hints = options?.earlyHints?.link ?? []
+  if (hints.length > 0 && typeof nodeResponse.writeEarlyHints === 'function') {
+    nodeResponse.writeEarlyHints({ link: hints })
+  }
+  setNodeStreamHeaders(nodeResponse, options)
+  nodeResponse.flushHeaders()
+  compressHtml(renderToString(vnode), options?.compress)
+    .then((buf) => {
+      nodeResponse.write(buf)
+      nodeResponse.end()
+    })
+    .catch(() => {
+      nodeResponse.statusCode = 500
+      nodeResponse.end('Internal Server Error')
+    })
+}
+
+export async function streamWithEarlyHints(
+  vnode: VNode,
+  nodeResponse: any,
+  hints: { link: string[] },
+  options?: {
+    compress?: 'gzip' | 'brotli' | false
+    headers?: Record<string, string>
+  },
+): Promise<void> {
+  if (typeof nodeResponse.writeEarlyHints === 'function') {
+    nodeResponse.writeEarlyHints({ link: hints.link })
+  }
+  nodeResponse.setHeader('x-speexjs-stream', '1')
+  setNodeStreamHeaders(nodeResponse, options)
+  nodeResponse.flushHeaders()
+  try {
+    const buf = await compressHtml(renderToString(vnode), options?.compress)
+    nodeResponse.write(buf)
+    nodeResponse.end()
+  } catch {
+    nodeResponse.statusCode = 500
+    nodeResponse.end('Internal Server Error')
+  }
 }

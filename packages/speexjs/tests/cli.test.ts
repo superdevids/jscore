@@ -158,7 +158,9 @@ describe('initProject', () => {
     vi.mocked(writeFileSync).mockImplementation(() => undefined)
     vi.mocked(execSync).mockReturnValue(Buffer.from(''))
 
-    exitSpy = vi.spyOn(process, 'exit').mockImplementation((() => { throw new Error('EXIT') }) as any)
+    exitSpy = vi.spyOn(process, 'exit').mockImplementation((() => {
+      throw new Error('EXIT')
+    }) as any)
     vi.spyOn(process, 'cwd').mockReturnValue('/test')
     logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
     errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
@@ -179,12 +181,12 @@ describe('initProject', () => {
       const writeCalls = vi.mocked(writeFileSync).mock.calls
       const filePaths = writeCalls.map(([p]) => p.toString())
 
-      expect(filePaths.some(p => p.replace(/\\/g, '/').endsWith('package.json'))).toBe(true)
-      expect(filePaths.some(p => p.replace(/\\/g, '/').endsWith('tsconfig.json'))).toBe(true)
-      expect(filePaths.some(p => p.replace(/\\/g, '/').endsWith('src/index.ts'))).toBe(true)
-      expect(filePaths.some(p => p.replace(/\\/g, '/').endsWith('src/config/index.ts'))).toBe(true)
-      expect(filePaths.some(p => p.replace(/\\/g, '/').endsWith('.env.example'))).toBe(true)
-      expect(filePaths.some(p => p.replace(/\\/g, '/').endsWith('.gitignore'))).toBe(true)
+      expect(filePaths.some((p) => p.replace(/\\/g, '/').endsWith('package.json'))).toBe(true)
+      expect(filePaths.some((p) => p.replace(/\\/g, '/').endsWith('tsconfig.json'))).toBe(true)
+      expect(filePaths.some((p) => p.replace(/\\/g, '/').endsWith('src/index.ts'))).toBe(true)
+      expect(filePaths.some((p) => p.replace(/\\/g, '/').endsWith('src/config/index.ts'))).toBe(true)
+      expect(filePaths.some((p) => p.replace(/\\/g, '/').endsWith('.env.example'))).toBe(true)
+      expect(filePaths.some((p) => p.replace(/\\/g, '/').endsWith('.gitignore'))).toBe(true)
     })
 
     it('generates correct package.json', async () => {
@@ -225,7 +227,7 @@ describe('initProject', () => {
       const writeCalls = vi.mocked(writeFileSync).mock.calls
       const indexCall = writeCalls.find(([p]) => p.toString().replace(/\\/g, '/').endsWith('src/index.ts'))
       expect(indexCall).toBeDefined()
-      expect(indexCall![1].toString()).toContain("import { speexjs")
+      expect(indexCall![1].toString()).toContain('import { speexjs')
       expect(indexCall![1].toString()).toContain('export { app }')
     })
 
@@ -236,7 +238,7 @@ describe('initProject', () => {
       const configCall = writeCalls.find(([p]) => p.toString().replace(/\\/g, '/').endsWith('src/config/index.ts'))
       expect(configCall).toBeDefined()
       expect(configCall![1].toString()).toContain('export const Config')
-      expect(configCall![1].toString()).toContain("process.env.PORT")
+      expect(configCall![1].toString()).toContain('process.env.PORT')
     })
 
     it('generates .gitignore with standard entries', async () => {
@@ -266,12 +268,12 @@ describe('initProject', () => {
       await initProject('my-app', { template: 'fullstack' })
 
       const mkdirCalls = vi.mocked(mkdirSync).mock.calls.map(([p]) => p.toString().replace(/\\/g, '/'))
-      expect(mkdirCalls.some(p => p.includes('src/server/controllers'))).toBe(true)
-      expect(mkdirCalls.some(p => p.includes('src/server/middleware'))).toBe(true)
-      expect(mkdirCalls.some(p => p.includes('src/client/components'))).toBe(true)
-      expect(mkdirCalls.some(p => p.includes('src/client/pages'))).toBe(true)
-      expect(mkdirCalls.some(p => p.includes('src/shared'))).toBe(true)
-      expect(mkdirCalls.some(p => p.includes('public'))).toBe(true)
+      expect(mkdirCalls.some((p) => p.includes('src/server/controllers'))).toBe(true)
+      expect(mkdirCalls.some((p) => p.includes('src/server/middleware'))).toBe(true)
+      expect(mkdirCalls.some((p) => p.includes('src/client/components'))).toBe(true)
+      expect(mkdirCalls.some((p) => p.includes('src/client/pages'))).toBe(true)
+      expect(mkdirCalls.some((p) => p.includes('src/shared'))).toBe(true)
+      expect(mkdirCalls.some((p) => p.includes('public'))).toBe(true)
     })
 
     it('creates all fullstack template files', async () => {
@@ -280,12 +282,12 @@ describe('initProject', () => {
       const writeCalls = vi.mocked(writeFileSync).mock.calls
       const filePaths = writeCalls.map(([p]) => p.toString().replace(/\\/g, '/'))
 
-      expect(filePaths.some(p => p.endsWith('src/server/index.ts'))).toBe(true)
-      expect(filePaths.some(p => p.endsWith('src/server/controllers/user.controller.ts'))).toBe(true)
-      expect(filePaths.some(p => p.endsWith('src/client/index.ts'))).toBe(true)
-      expect(filePaths.some(p => p.endsWith('src/client/app.tsx'))).toBe(true)
-      expect(filePaths.some(p => p.endsWith('public/style.css'))).toBe(true)
-      expect(filePaths.some(p => p.endsWith('src/shared/types.ts'))).toBe(true)
+      expect(filePaths.some((p) => p.endsWith('src/server/index.ts'))).toBe(true)
+      expect(filePaths.some((p) => p.endsWith('src/server/controllers/user.controller.ts'))).toBe(true)
+      expect(filePaths.some((p) => p.endsWith('src/client/index.ts'))).toBe(true)
+      expect(filePaths.some((p) => p.endsWith('src/client/app.tsx'))).toBe(true)
+      expect(filePaths.some((p) => p.endsWith('public/style.css'))).toBe(true)
+      expect(filePaths.some((p) => p.endsWith('src/shared/types.ts'))).toBe(true)
     })
 
     it('generates tsconfig with jsx settings', async () => {
@@ -326,8 +328,8 @@ describe('initProject', () => {
       await initProject('my-app', { template: 'api-only' })
 
       const mkdirCalls = vi.mocked(mkdirSync).mock.calls.map(([p]) => p.toString().replace(/\\/g, '/'))
-      expect(mkdirCalls.some(p => p.includes('src/controllers'))).toBe(true)
-      expect(mkdirCalls.some(p => p.includes('src/middleware'))).toBe(true)
+      expect(mkdirCalls.some((p) => p.includes('src/controllers'))).toBe(true)
+      expect(mkdirCalls.some((p) => p.includes('src/middleware'))).toBe(true)
     })
 
     it('creates api-only files', async () => {
@@ -336,9 +338,9 @@ describe('initProject', () => {
       const writeCalls = vi.mocked(writeFileSync).mock.calls
       const filePaths = writeCalls.map(([p]) => p.toString().replace(/\\/g, '/'))
 
-      expect(filePaths.some(p => p.endsWith('src/index.ts'))).toBe(true)
-      expect(filePaths.some(p => p.endsWith('src/controllers/health.controller.ts'))).toBe(true)
-      expect(filePaths.some(p => p.endsWith('src/middleware/auth.ts'))).toBe(true)
+      expect(filePaths.some((p) => p.endsWith('src/index.ts'))).toBe(true)
+      expect(filePaths.some((p) => p.endsWith('src/controllers/health.controller.ts'))).toBe(true)
+      expect(filePaths.some((p) => p.endsWith('src/middleware/auth.ts'))).toBe(true)
     })
 
     it('generates health controller with @get decorator', async () => {
@@ -395,12 +397,12 @@ describe('initProject', () => {
     })
 
     it('defaults to fullstack template when no template specified', async () => {
-      await initProject('my-app', {})
+      await initProject('my-app', { template: 'fullstack' })
 
       const writeCalls = vi.mocked(writeFileSync).mock.calls
       const filePaths = writeCalls.map(([p]) => p.toString())
-      expect(filePaths.some(p => p.replace(/\\/g, '/').endsWith('src/server/index.ts'))).toBe(true)
-      expect(filePaths.some(p => p.replace(/\\/g, '/').endsWith('src/server/controllers/user.controller.ts'))).toBe(true)
+      expect(filePaths.some((p) => p.replace(/\\/g, '/').endsWith('src/server/index.ts'))).toBe(true)
+      expect(filePaths.some((p) => p.replace(/\\/g, '/').endsWith('src/server/controllers/user.controller.ts'))).toBe(true)
     })
   })
 
@@ -408,10 +410,7 @@ describe('initProject', () => {
     it('calls git init by default', async () => {
       await initProject('my-app', { template: 'blank' })
 
-      expect(vi.mocked(execSync)).toHaveBeenCalledWith(
-        'git init',
-        expect.objectContaining({ cwd: expect.stringContaining('my-app') }),
-      )
+      expect(vi.mocked(execSync)).toHaveBeenCalledWith('git init', expect.objectContaining({ cwd: expect.stringContaining('my-app') }))
     })
 
     it('skips git init when --no-git passed', async () => {
@@ -425,17 +424,14 @@ describe('initProject', () => {
     it('calls install by default with npm', async () => {
       await initProject('my-app', { template: 'blank' })
 
-      expect(vi.mocked(execSync)).toHaveBeenCalledWith(
-        'npm install',
-        expect.objectContaining({ cwd: expect.stringContaining('my-app') }),
-      )
+      expect(vi.mocked(execSync)).toHaveBeenCalledWith('npm install', expect.objectContaining({ cwd: expect.stringContaining('my-app') }))
     })
 
     it('skips install when --no-install passed', async () => {
       await initProject('my-app', { template: 'blank', install: false })
 
       const execCalls = vi.mocked(execSync).mock.calls.map(([cmd]) => cmd.toString())
-      expect(execCalls.some(c => c.includes('install'))).toBe(false)
+      expect(execCalls.some((c) => c.includes('install'))).toBe(false)
     })
   })
 })
@@ -446,7 +442,9 @@ describe('serve', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     vi.mocked(existsSync).mockReturnValue(false)
-    vi.spyOn(process, 'exit').mockImplementation((() => { throw new Error('EXIT') }) as any)
+    vi.spyOn(process, 'exit').mockImplementation((() => {
+      throw new Error('EXIT')
+    }) as any)
     vi.spyOn(process, 'cwd').mockReturnValue('/test')
     vi.spyOn(console, 'log').mockImplementation(() => {})
     vi.spyOn(console, 'error').mockImplementation(() => {})
@@ -483,9 +481,7 @@ describe('serve', () => {
       const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
       await expect(serve({})).rejects.toThrow('EXIT')
-      expect(errorSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Entry point not found'),
-      )
+      expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('Entry point not found'))
     })
   })
 
@@ -530,7 +526,9 @@ describe('make:controller', () => {
     vi.mocked(existsSync).mockReturnValue(false)
     vi.mocked(mkdirSync).mockImplementation(() => undefined)
     vi.mocked(writeFileSync).mockImplementation(() => undefined)
-    vi.spyOn(process, 'exit').mockImplementation((() => { throw new Error('EXIT') }) as any)
+    vi.spyOn(process, 'exit').mockImplementation((() => {
+      throw new Error('EXIT')
+    }) as any)
     vi.spyOn(process, 'cwd').mockReturnValue('/test')
     vi.spyOn(console, 'log').mockImplementation(() => {})
     vi.spyOn(console, 'error').mockImplementation(() => {})
@@ -573,7 +571,7 @@ describe('make:controller', () => {
 
     const mkdirCalls = vi.mocked(mkdirSync).mock.calls
     const mkdirPaths = mkdirCalls.map(([p]) => p.toString().replace(/\\/g, '/'))
-    expect(mkdirPaths.some(p => p.includes('src/server/controllers'))).toBe(true)
+    expect(mkdirPaths.some((p) => p.includes('src/server/controllers'))).toBe(true)
   })
 
   it('handles multi-word names with PascalCase class', () => {
@@ -592,7 +590,9 @@ describe('make:middleware', () => {
     vi.mocked(existsSync).mockReturnValue(false)
     vi.mocked(mkdirSync).mockImplementation(() => undefined)
     vi.mocked(writeFileSync).mockImplementation(() => undefined)
-    vi.spyOn(process, 'exit').mockImplementation((() => { throw new Error('EXIT') }) as any)
+    vi.spyOn(process, 'exit').mockImplementation((() => {
+      throw new Error('EXIT')
+    }) as any)
     vi.spyOn(process, 'cwd').mockReturnValue('/test')
     vi.spyOn(console, 'log').mockImplementation(() => {})
     vi.spyOn(console, 'error').mockImplementation(() => {})
@@ -643,7 +643,9 @@ describe('make:schema', () => {
     vi.mocked(existsSync).mockReturnValue(false)
     vi.mocked(mkdirSync).mockImplementation(() => undefined)
     vi.mocked(writeFileSync).mockImplementation(() => undefined)
-    vi.spyOn(process, 'exit').mockImplementation((() => { throw new Error('EXIT') }) as any)
+    vi.spyOn(process, 'exit').mockImplementation((() => {
+      throw new Error('EXIT')
+    }) as any)
     vi.spyOn(process, 'cwd').mockReturnValue('/test')
     vi.spyOn(console, 'log').mockImplementation(() => {})
     vi.spyOn(console, 'error').mockImplementation(() => {})
@@ -826,13 +828,8 @@ describe('listRoutes', () => {
   describe('multiple controllers', () => {
     it('lists routes from multiple controller files', () => {
       vi.mocked(existsSync).mockReturnValue(true)
-      vi.mocked(readdirSync).mockReturnValue([
-        'users.controller.ts',
-        'posts.controller.ts',
-      ] as any)
-      vi.mocked(readFileSync)
-        .mockReturnValueOnce(`@get('/users') async index() {}`)
-        .mockReturnValueOnce(`@get('/posts') async index() {}`)
+      vi.mocked(readdirSync).mockReturnValue(['users.controller.ts', 'posts.controller.ts'] as any)
+      vi.mocked(readFileSync).mockReturnValueOnce(`@get('/users') async index() {}`).mockReturnValueOnce(`@get('/posts') async index() {}`)
 
       listRoutes()
 

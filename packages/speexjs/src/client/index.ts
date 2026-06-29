@@ -3,7 +3,19 @@ export { Signal, Computed, Effect } from './signals/index.js'
 export { isSignal, isComputed, toSignal, mergeSignals } from './signals/index.js'
 export type { Subscribable } from './signals/index.js'
 
-export { h, fragment, text, createComponent, render, patch, hydrate, renderToString, renderToStream } from './vdom/index.js'
+export {
+  h,
+  fragment,
+  text,
+  createComponent,
+  render,
+  patch,
+  hydrate,
+  renderToString,
+  renderToStream,
+  renderToNodeStream,
+  streamWithEarlyHints,
+} from './vdom/index.js'
 export type { VNode, VElement, VText, VFragment, VComponent, VSignalNode, Component, ComponentContext } from './vdom/index.js'
 export { normalizeChild } from './vdom/index.js'
 

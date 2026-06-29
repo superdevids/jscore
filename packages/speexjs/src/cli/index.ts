@@ -13,7 +13,10 @@ import { makeModel } from './commands/make-model.js'
 import { makeCrud } from './commands/make-crud.js'
 import { makeResource } from './commands/make-resource.js'
 import { makeSchema } from './commands/make-schema.js'
+import { makeAgent } from './commands/make-agent.js'
 import { generateSdk } from './commands/generate-sdk.js'
+import { openapiGenerate } from './commands/openapi-generate.js'
+import { pluginInstall, pluginList } from './commands/plugin.js'
 import { serve } from './commands/serve.js'
 
 function showHelp(): void {
@@ -33,11 +36,15 @@ function showHelp(): void {
   console.log('  speexjs make:resource <name>               Generate resource (controller + model + migration)')
   console.log('  speexjs make:schema <name>                 Generate schema')
   console.log('  speexjs make:crud                          Generate complete CRUD (interactive)')
+  console.log('  speexjs make:agent <name>                  Generate AI agent')
   console.log('  speexjs migrate                            Run migrations')
   console.log('  speexjs db:seed                            Seed the database')
   console.log('  speexjs list-routes                        View all routes')
   console.log('  speexjs serve [options]                    Run server')
   console.log('  speexjs generate:sdk [options]             Generate TypeScript SDK from OpenAPI spec')
+  console.log('  speexjs openapi:generate [options]         Generate OpenAPI 3.1 spec from routes')
+  console.log('  speexjs plugin:install <name> [options]     Install a plugin')
+  console.log('  speexjs plugin:list                        List installed plugins')
   console.log('  speexjs deploy [options]                   Deploy application (docker/vercel)')
   console.log('  speexjs --help                             Show help')
   console.log()
@@ -132,6 +139,19 @@ async function main(): Promise<void> {
       })
       break
     }
+    case 'plugin:install': {
+      if (!parsed.args[0]) {
+        console.error(colors.red('Plugin name required'))
+        console.log(`  ${colors.cyan('speexjs plugin:install <name> [--source npm:<pkg>|github:<repo>]')}`)
+        process.exit(1)
+      }
+      await pluginInstall(parsed.args[0], parsed.options)
+      break
+    }
+    case 'plugin:list': {
+      await pluginList()
+      break
+    }
     case 'deploy': {
       await deploy({
         docker: parsed.options.docker === true,
@@ -156,12 +176,30 @@ async function main(): Promise<void> {
       await buildCommand({
         ssg: parsed.options.ssg === true,
         outDir: (parsed.options.outDir as string) ?? 'dist',
+        isr: parsed.options.isr === true,
+        revalidate: parsed.options.revalidate ? Number(parsed.options.revalidate) : undefined,
+      })
+      break
+    }
+    case 'openapi:generate': {
+      await openapiGenerate({
+        output: parsed.options.output as string | undefined,
+        pretty: parsed.options.pretty !== false,
       })
       break
     }
     case 'bench':
     case 'benchmark': {
       await runBenchmarks()
+      break
+    }
+    case 'make:agent': {
+      if (!parsed.args[0]) {
+        console.error(colors.red('Agent name required'))
+        console.log(`  ${colors.cyan('speexjs make:agent <name>')}`)
+        process.exit(1)
+      }
+      await makeAgent(parsed.args[0])
       break
     }
     case 'make:crud':

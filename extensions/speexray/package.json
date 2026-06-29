@@ -2,7 +2,7 @@
   "name": "speexray",
   "displayName": "speexray",
   "description": "Dependency health scanner — detect bloat, security issues, and suggest replacements",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "publisher": "speexjs",
   "license": "MIT",
   "repository": {
@@ -18,16 +18,22 @@
     "Other"
   ],
   "keywords": [
+    "speexjs",
+    "framework",
+    "scaffolding",
     "dependencies",
-    "npm",
-    "package.json",
-    "bloat",
-    "security",
-    "scanner"
+    "migrations",
+    "routes"
   ],
   "activationEvents": [
     "onLanguage:json",
-    "onCommand:speexray.scan"
+    "onLanguage:typescript",
+    "onCommand:speexray.scan",
+    "onCommand:speexjs.createController",
+    "onCommand:speexjs.createModel",
+    "onCommand:speexjs.showRoutes",
+    "onCommand:speexjs.runMigrations",
+    "workspaceContains:**/speexjs.config.*"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -44,6 +50,30 @@
         "command": "speexray.applyReplacement",
         "title": "speexray: Apply Replacement",
         "icon": "$(lightbulb)"
+      },
+      {
+        "command": "speexjs.createController",
+        "title": "SpeexJS: New Controller"
+      },
+      {
+        "command": "speexjs.createModel",
+        "title": "SpeexJS: New Model"
+      },
+      {
+        "command": "speexjs.createMiddleware",
+        "title": "SpeexJS: New Middleware"
+      },
+      {
+        "command": "speexjs.createRoute",
+        "title": "SpeexJS: New Route"
+      },
+      {
+        "command": "speexjs.showRoutes",
+        "title": "SpeexJS: Show All Routes"
+      },
+      {
+        "command": "speexjs.runMigrations",
+        "title": "SpeexJS: Migration Runner"
       }
     ],
     "configuration": {
@@ -73,6 +103,28 @@
           "command": "speexray.scan",
           "group": "navigation"
         }
+      ],
+      "explorer/context": [
+        {
+          "when": "explorerResourceIsFolder && resourceFilename =~ /controllers/",
+          "command": "speexjs.createController",
+          "group": "speexjs@1"
+        },
+        {
+          "when": "explorerResourceIsFolder && resourceFilename =~ /models/",
+          "command": "speexjs.createModel",
+          "group": "speexjs@1"
+        },
+        {
+          "when": "explorerResourceIsFolder && resourceFilename =~ /middleware/",
+          "command": "speexjs.createMiddleware",
+          "group": "speexjs@1"
+        },
+        {
+          "when": "explorerResourceIsFolder && resourceFilename =~ /routes/",
+          "command": "speexjs.createRoute",
+          "group": "speexjs@1"
+        }
       ]
     },
     "views": {
@@ -80,9 +132,39 @@
         {
           "id": "speexrayResults",
           "name": "speexray Results"
+        },
+        {
+          "id": "speexjsRoutes",
+          "name": "SpeexJS Routes"
+        },
+        {
+          "id": "speexjsMigrations",
+          "name": "SpeexJS Migrations"
         }
       ]
-    }
+    },
+    "languages": [
+      {
+        "id": "speexjs-template",
+        "aliases": [
+          "SpeexJS Template",
+          "speexjs-template"
+        ],
+        "extensions": [
+          ".speex.html",
+          ".speex.view",
+          ".view.html"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "speexjs-template",
+        "scopeName": "source.speexjs-template",
+        "path": "./syntaxes/speexjs-template.tmLanguage.json"
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
