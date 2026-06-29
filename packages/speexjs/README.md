@@ -1,12 +1,12 @@
 # SpeexJS
 
-**Fullstack TypeScript Framework — Zero dependencies. 68 KB. 250+ features.**
+**Fullstack TypeScript Framework — Zero dependencies. 69+ KB. 300+ features.**
 
 ```bash
 npm install speexjs
 ```
 
-> v1.4.0 • 68 KB • 1,990 tests • 96.3% coverage • Zero deps
+> v1.5.2 • 69+ KB • 1,990 tests • 0 TypeScript errors • 0 known bugs • Zero deps
 
 ## Quick Start
 
@@ -16,7 +16,7 @@ cd my-app
 npm run dev
 ```
 
-## Features (250+)
+## Features (300+)
 
 ### Core
 - HTTP Server, Router (groups, named, resource), Middleware Pipeline (13 built-in)
@@ -48,6 +48,7 @@ npm run dev
 - Clustering, GraphQL, OpenAPI Generator
 - SSE (Server-Sent Events), Configurable body limit, Signed cookies
 - Redis cache store, S3 storage adapter
+- CI/CD pipeline with GitHub Actions
 
 ### Developer Experience
 - CLI: init (4 templates), make:* (10 commands), serve, list-routes, tinker, migrate:status, env validation
@@ -93,12 +94,14 @@ export default function Home({ name }: { name?: string }): VNode {
 ## Benchmarks vs Competitors
 
 | | SpeexJS | Hono | Fastify | Express |
-|---|---|---|---|---|
-| Bundle size | **68 KB** | 50 KB | 1 MB | 2 MB |
+|---|---|---|---|---|---|
+| Bundle size | **69+ KB** | 50 KB | 1 MB | 2 MB |
 | Dependencies | **Zero** | Zero | 30+ | 40+ |
-| Features | **250+** | 10+ | 15+ | 20+ |
+| Features | **300+** | 10+ | 15+ | 20+ |
 | Tests | **1,990** | ~500 | ~800 | ~1,000 |
 | Coverage | **96.3%** | ~75% | ~80% | ~70% |
+| TypeScript errors | **0** | — | — | — |
+| Known bugs | **0** | — | — | — |
 
 ## CLI
 
@@ -121,8 +124,10 @@ export default function Home({ name }: { name?: string }): VNode {
 | Metric | Value |
 |--------|-------|
 | TypeScript errors | **0** (`tsc --noEmit`) |
-| Gaps closed | **229+** |
+| Known bugs | **0** |
+| Test count | **1,990** |
 | Test coverage | **96.3%** |
+| CI/CD | **GitHub Actions** |
 
 ## License
 

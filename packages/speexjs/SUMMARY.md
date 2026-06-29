@@ -6,6 +6,8 @@ SpeexJS — Fullstack TypeScript framework.
 |---------|-----|
 | `speexjs` | Main barrel (schema, server, client, rpc) |
 | `speexjs/server` | SuperApp, Router, Middleware, Controller, Container, Engine |
+| `speexjs/server/actions` | Server Actions |
+| `speexjs/server/analytics` | Request analytics |
 | `speexjs/server/http` | SuperRequest, SuperResponse, Headers, Cookies, Status |
 | `speexjs/server/router` | Route groups, resource routes, named routes |
 | `speexjs/server/router/signed-url` | Signed URL generation and verification |
@@ -36,8 +38,11 @@ SpeexJS — Fullstack TypeScript framework.
 | `speexjs/server/schedule` | Task scheduler (cron) |
 | `speexjs/server/tasks/runner` | Task runner |
 | `speexjs/server/notifications` | Database notification system |
+| `speexjs/server/search` | Full-text search |
 | `speexjs/server/plugin` | Plugin system with lifecycle |
 | `speexjs/server/testing` | HTTP testing helpers |
+| `speexjs/server/testing/auth` | actingAs mock auth |
+| `speexjs/server/testing/clock` | Time travel |
 | `speexjs/server/cluster` | Multi-core clustering |
 | `speexjs/server/i18n` | Internationalization |
 | `speexjs/server/openapi` | OpenAPI spec generator |
@@ -46,10 +51,12 @@ SpeexJS — Fullstack TypeScript framework.
 | `speexjs/server/view` | TSX View Engine |
 | `speexjs/server/debug/toolbar` | Debug toolbar |
 | `speexjs/server/flags` | Feature flags |
+| `speexjs/server/experiments` | A/B testing |
 | `speexjs/server/billing` | Cashier billing |
 | `speexjs/server/graphql` | GraphQL support |
 | `speexjs/server/edge` | Edge runtime support |
 | `speexjs/server/http/cache-control` | Cache control headers |
+| `speexjs/server/health` | Health check with DB ping |
 | `speexjs/docs` | Documentation |
 | `speexjs/server/cache/redis-store` | Redis cache store |
 | `speexjs/server/storage/s3` | S3 storage adapter |

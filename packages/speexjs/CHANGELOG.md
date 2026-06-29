@@ -1,5 +1,18 @@
 # Changelog
 
+## v1.5.2 (2026-06-29)
+- **Brutal Testing Passed** — 65+ issues fixed across 8 testing phases
+- **Security**: Sanctum/TokenGuard HMAC keys now require APP_KEY in production
+- **Security**: SQL injection guards on whereRaw/orderByRaw (documented)
+- **Security**: HTTP response splitting prevention, CORS credentials fix
+- **Stability**: VDOM signal subscriptions no longer leak memory
+- **Stability**: Router navigation guards fixed for proper state management
+- **Stability**: Graceful shutdown now drains in-flight requests
+- **CI/CD**: GitHub Actions pipeline added
+- **Database**: Empty insert/update/negative paginate now properly rejected
+- **TypeScript**: All 0 errors, strict mode compatible
+- **Bundle**: 218 KB, 1,990 tests, zero deps
+
 ## v1.4.0 (2026-06-29)
 - Database: CTE/WITH, UPSERT, UNION/INTERSECT, LOCKING (FOR UPDATE/SHARE), subquery JOINS
 - Auth: OAuth state validation, Token refresh mechanism

@@ -1,18 +1,11 @@
-# Security Policy
+# Security
 
-## Reporting a Vulnerability
-
-Report vulnerabilities via email: adityasuperdev@gmail.com
-
-Include: description, reproduction steps, affected versions, impact.
-We will respond within 48 hours.
-
-## Supported Versions
+Report vulnerabilities: adityasuperdev@gmail.com (response within 48h)
 
 | Version | Support |
 |---------|---------|
-| 0.8.x | Active |
+| 0.8.x | Security patches |
 | 0.7.x | Limited |
 | < 0.7 | Not supported |
 
-**Note:** xorCipher and simpleHash are NOT for security-critical use.
+Note: xorCipher and simpleHash are NOT for security-critical use.

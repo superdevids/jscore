@@ -1,24 +1,21 @@
 # Roadmap
 
-## ✅ v0.8.x — Current
+## v1.4.x — Current
 
-- NDArray with broadcasting, slicing, matmul, axis reductions, concatenation
-- Functional toolkit: curry, pipe, memoization, ifElse, when, converge
-- 21 validators (IP, UUID, password, credit card, slug, port)
-- ML module: StandardScaler, LinearRegression, KMeans, KNN, PCA
+- NDArray with broadcasting, slicing, matmul, axis reductions
+- ML module: StandardScaler, LinearRegression, KMeans, metrics
 - Stats module: normalPDF, ttestInd, pearsonCorrelation, skewness
 - Viz-data module: histogram, kde, boxPlotData, ecdf, colorMap
-- 19 modules, 400+ exports, 1,477 tests
+- 19 modules, 400+ exports, 1,477 tests, zero deps
 
-## 🔜 v0.9.0 — Planned
+## v1.5.0 — Planned
+
+- KNN and PCA implementations
+- Logistic Regression
+- Test coverage for ML/Stats/Viz modules
+
+## v1.6.0 — Planned
 
 - Reactive signals (signal/computed/effect)
-- AES-GCM encrypt/decrypt
 - Streaming CSV/JSONL parser
-
-## 🔜 v1.0.0 — Planned
-
-- API freeze — no breaking changes
-- TypeDoc API documentation
-- Benchmark suite vs lodash, date-fns, dayjs
-- VS Code extension
+- AES-GCM encrypt/decrypt

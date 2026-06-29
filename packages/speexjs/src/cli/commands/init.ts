@@ -119,12 +119,12 @@ export default function About(): VNode {
 }
 `,
       'src/config/index.ts': `export const Config = {
-  port: Number(process.env.PORT) || 3000,
-  env: process.env.NODE_ENV || 'development',
-  isDev: process.env.NODE_ENV !== 'production',
+  port: Number(process.env.PORT ?? '3000'),
+  env: process.env.NODE_ENV ?? 'development',
+  isDev: (process.env.NODE_ENV ?? 'development') !== 'production',
   isProd: process.env.NODE_ENV === 'production',
-  appKey: process.env.APP_KEY || '',
-} as const
+  appKey: process.env.APP_KEY ?? '',
+}
 `,
       'src/controllers/health.controller.ts': `import { Controller, get } from 'speexjs/server'
 
@@ -362,12 +362,12 @@ export { app }
 `,
       'src/config/index.ts': `export const Config = {
   port: Number(process.env.PORT) || 3000,
-  host: process.env.HOST || 'localhost',
-  env: process.env.NODE_ENV || 'development',
-  appKey: process.env.APP_KEY || '',
-  isDev: process.env.NODE_ENV !== 'production',
+  host: process.env.HOST ?? 'localhost',
+  env: process.env.NODE_ENV ?? 'development',
+  appKey: process.env.APP_KEY ?? '',
+  isDev: (process.env.NODE_ENV ?? 'development') !== 'production',
   isProd: process.env.NODE_ENV === 'production',
-} as const
+}
 `,
       'src/controllers/health.controller.ts': `import { Controller, get } from 'speexjs/server'
 import { schema } from 'speexjs/schema'
@@ -430,11 +430,11 @@ app.get('/api/health', async ({ response }) => {
 export { app }
 `,
       'src/config/index.ts': `export const Config = {
-  port: Number(process.env.PORT) || 3000,
-  env: process.env.NODE_ENV || 'development',
+  port: Number(process.env.PORT ?? '3000'),
+  env: process.env.NODE_ENV ?? 'development',
   isProd: process.env.NODE_ENV === 'production',
-  appKey: process.env.APP_KEY || '',
-} as const
+  appKey: process.env.APP_KEY ?? '',
+}
 `,
       '.env.example': 'PORT=3000\nNODE_ENV=development\nAPP_KEY=\n',
       '.gitignore': GITIGNORE,
@@ -461,7 +461,7 @@ app.get('/blog/:slug', async ({ response, params }) => response.setViewEngine(vi
 
 export { app }
 `,
-      'src/config/index.ts': `export const Config = { port: Number(process.env.PORT) || 3000, env: process.env.NODE_ENV || 'development' } as const`,
+      'src/config/index.ts': `export const Config = { port: Number(process.env.PORT ?? '3000'), env: process.env.NODE_ENV ?? 'development' }`,
       'src/pages/home.tsx': `import type { VNode } from 'speexjs/client/vdom'
 interface Props { title?: string }
 export default function Home({ title }: Props): VNode {
