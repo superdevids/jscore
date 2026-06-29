@@ -1,146 +1,131 @@
-﻿<div align="center">
+﻿# speexkit
 
-# ⚡ speexkit
-
-**The JavaScript/TypeScript Utility Toolkit** — Zero dependencies · 19 modules · 400+ functions
-
-[![npm version](https://img.shields.io/npm/v/speexkit?color=blue&logo=npm)](https://www.npmjs.com/package/speexkit)
-[![npm downloads](https://img.shields.io/npm/dm/speexkit?color=blue)](https://www.npmjs.com/package/speexkit)
-[![license](https://img.shields.io/npm/l/speexkit?color=blue)](LICENSE)
-[![bundle size](https://img.shields.io/badge/bundle-358%20kB-blue)](https://www.npmjs.com/package/speexkit)
-[![dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)](https://www.npmjs.com/package/speexkit)
+**JavaScript/TypeScript utility toolkit** — 400+ functions, 19 modules, **zero dependencies**.
 
 ```bash
 npm install speexkit
 ```
 
-</div>
+---
+
+## Features
+
+- **NDArray** — NumPy-style arrays: broadcasting, slicing, matmul, axis reductions
+- **ML** 🆕 — StandardScaler, LinearRegression, KMeans, KNN, PCA
+- **Stats** 🆕 — normalPDF, ttestInd, skewness, pearsonCorrelation, kurtosis
+- **Viz** 🆕 — histogram, kde, boxPlotData, ecdf, colorMap (viridis, plasma, etc.)
+- **Functional** — curry, pipe, ifElse, when, unless, converge, memoizeSync
+- **Validation** — isEmail, isIP, isUUID, isCreditCard, isStrongPassword (21 validators)
+- **Date** — formatDate, timeAgo, addBusinessDays, parseDuration, timezone
+- **Async** — Queue, Semaphore, RateLimiter, Mutex, debounceAsync
+- **Collection** — groupBy, topoSort, deepGet, pickBy, mapValues, diff
+- **Math** — safe float arithmetic, median, stddev, percentile, correlation, factorial
+- **String** — slugify, uuid, nanoid, levenshtein, fuzzyMatch, escapeHtml
+- **28 type guards** — isString, isNil, isPlainObject, isTypedArray, getType
 
 ---
 
-## 🚀 Quick Start
+## Quick Examples
 
 ```typescript
 import { NDArray } from 'speexkit/nlarray'
-import { StandardScaler, LinearRegression } from 'speexkit/ml'
+import { StandardScaler } from 'speexkit/ml'
 import { normalPDF, ttestInd } from 'speexkit/stats'
+import { histogram, colorMap } from 'speexkit/viz-data'
 import { curry, pipe } from 'speexkit/nlfunction'
 import { formatDate, timeAgo } from 'speexkit/date'
 import { isEmail, isStrongPassword } from 'speexkit/validation'
-```
 
-### NDArray — NumPy-style multi-dimensional arrays
-
-```typescript
+// NDArray — NumPy-style arrays
 const arr = NDArray.arange(12).reshape([3, 4])
-// [[0, 1, 2, 3], [4, 5, 6, 7], [8, 9, 10, 11]]
+arr.sum(1) // [6, 22, 38]
 
-arr.sum(1)            // [6, 22, 38]
-arr.mean(0)           // [4, 5, 6, 7]
-arr.matmul(arr.T)     // matrix multiplication
-```
+// Broadcasting
+NDArray.arange(3).reshape([1, 3]).add(NDArray.arange(3).reshape([3, 1]))
 
-### ML — scikit-learn style
+// Matrix multiplication
+NDArray.from([[1,2],[3,4]]).matmul(NDArray.from([[5,6],[7,8]]))
 
-```typescript
-// StandardScaler
+// ML — StandardScaler
 const scaler = new StandardScaler()
 scaler.fit([[1, 2], [3, 4], [5, 6]])
-const X = scaler.transform([[1, 2]]) // [[-1.22, -1.22]]
+scaler.transform([[1, 2]]) // scaled values
 
-// LinearRegression
-const model = new LinearRegression()
-model.fit([[1], [2], [3]], [2, 4, 6])
-model.predict([[4]]) // ~8
+// Stats — t-test and PDF
+ttestInd([1, 2, 3], [4, 5, 6])
+normalPDF(0) // ~0.3989
 
-// Train/Test Split
-const [Xtr, Xte, ytr, yte] = trainTestSplit(X, y, { testSize: 0.25 })
-```
+// Functional
+const add = curry((a: number, b: number) => a + b)
+add(1)(2) // 3
+pipe((x: number) => x + 1, (x: number) => x * 2)(5) // 12
 
-### Stats — SciPy style
+// Viz data preparation
+histogram([1, 1, 2, 2, 3, 3], { bins: 3 })
+colorMap('viridis', 256) // hex color array
 
-```typescript
-normalPDF(0)                // ~0.3989 (standard normal PDF)
-ttestInd([1, 2, 3], [4, 5, 6]) // { statistic: -3, pValue: ~0.095 }
-skewness([1, 2, 3, 4, 5])  // 0
-```
-
-### Viz — Matplotlib/Seaborn data preparation
-
-```typescript
-histogram([1, 1, 2, 2, 3, 3, 4, 4], { bins: 4 })
-kde([1, 2, 3, 4, 5])           // kernel density estimation
-colorMap('viridis', 256)        // hex color array
+// Date & validation
+timeAgo(new Date(Date.now() - 5000)) // "5 seconds ago"
+isEmail('user@example.com') // true
+isStrongPassword('P@ssw0rd!') // true
 ```
 
 ---
 
-## 📦 Modules
+## Modules
 
-| Module | Description | Key Functions |
-|--------|-------------|---------------|
-| **core** | Core utilities | `deepClone`, `deepMerge`, `pipe`, `compose`, `debounce`, `throttle`, `memoize` |
-| **math** | Math & statistics | `add`(safe float), `median`, `stddev`, `percentile`, `correlation`, `factorial` |
-| **date** | Date/time | `formatDate`, `timeAgo`, `addDays`, `parseDuration`, `isBusinessDay` |
-| **string** | String utilities | `slugify`, `uuid`, `nanoid`, `camelCase`, `levenshtein`, `fuzzyMatch` |
-| **async** | Async concurrency | `Queue`, `Semaphore`, `RateLimiter`, `Mutex`, `retryAsync`, `debounceAsync` |
-| **validation** | Input validation | `isEmail`, `isIP`, `isUUID`, `isCreditCard`, `isStrongPassword`, `matches` |
-| **collection** | Object/array ops | `groupBy`, `topoSort`, `deepGet`, `pickBy`, `mapValues`, `diff`, `mergeWith` |
-| **nlarray** | NumPy-like arrays | `NDArray` class + broadcasting, slicing, matmul, ufuncs |
-| **nlfunction** | Functional tools | `curry`, `pipe`, `ifElse`, `when`, `memoizeSync`, `converge`, `flip` |
-| **color** | Color utilities | `hexToRgb`, `lighten`, `contrastRatio`, `meetsWCAG`, `mix` |
-| **crypto** | Security | `generateToken`, `base64`, `randomHex`, `constantTimeEqual` |
-| **error** | Error handling | `TypedError`, `MultiError`, `createError` |
-| **logger** | Logging | Structured logger with console, JSON, file, buffered transports |
-| **io** | I/O utilities | `parseCsv`, `safeJsonParse`, `env`, `envInt` |
-| **path** | File paths | `join`, `resolve`, `basename`, `dirname` (cross-platform) |
-| **type** | Type guards | `isString`, `isNil`, `isPlainObject`, `isTypedArray`, `getType` (28 guards) |
-| **ml** 🆕 | Machine Learning | `StandardScaler`, `LinearRegression`, `KMeans`, `KNN`, `PCA` |
-| **stats** 🆕 | Statistics | `normalPDF`, `ttestInd`, `skewness`, `pearsonCorrelation` |
-| **viz-data** 🆕 | Viz prep | `histogram`, `kde`, `boxPlotData`, `colorMap` |
-| **dep-exray** | Dep scanner | `scanProject`, `generateReport` — CLI: `npx dep-exray .` |
+| Subpath | Key Contents |
+|---------|-------------|
+| `speexkit` / `speexkit/core` | deepClone, deepMerge, pipe, memoize, debounce, throttle |
+| `speexkit/math` | Safe float math, median, stddev, percentile, correlation, factorial |
+| `speexkit/date` | formatDate, timeAgo, addDays, business days, timezone, parseDuration |
+| `speexkit/string` | slugify, uuid, nanoid, camelCase, levenshtein, fuzzyMatch |
+| `speexkit/async` | Queue, Semaphore, RateLimiter, Mutex, retryAsync, debounceAsync |
+| `speexkit/validation` | isEmail, isPhone, isURL, isIP, isUUID, isCreditCard, isStrongPassword |
+| `speexkit/collection` | groupBy, sortBy, topoSort, deepGet, pickBy, mapValues, diff |
+| `speexkit/crypto` | generateToken, generateOTP, base64, randomHex |
+| `speexkit/path` | join, resolve, basename, dirname, extname (cross-platform) |
+| `speexkit/color` | hexToRgb, hexToHsl, lighten, darken, contrastRatio, meetsWCAG |
+| `speexkit/error` | createError, TypedError, MultiError |
+| `speexkit/logger` | Structured logger with console/JSON/file transports |
+| `speexkit/io` | parseCsv, safeJsonParse, safeJsonStringify, env helpers |
+| `speexkit/type` | 28 type guards: isString, isNil, isPlainObject, getType |
+| `speexkit/nlarray` | NDArray class + ufuncs (sin, cos, exp, log, sqrt) |
+| `speexkit/nlfunction` | curry, pipe, tap, memoizeSync, combinators |
+| `speexkit/ml` 🆕 | StandardScaler, LinearRegression, KMeans, KNN, PCA |
+| `speexkit/stats` 🆕 | normalPDF, ttestInd, skewness, pearsonCorrelation |
+| `speexkit/viz-data` 🆕 | histogram, kde, boxPlotData, ecdf, colorMap |
+| `speexkit/dep-exray` | Dependency scanner (CLI: `npx dep-exray .`) |
 
 ---
 
-## ✨ Why speexkit?
+## Why speexkit?
 
 | Feature | speexkit | lodash | mathjs | date-fns |
 |---------|----------|--------|--------|----------|
-| **Zero dependencies** | ✅ | ❌ | ❌ | ✅ |
-| **NDArray (NumPy-like)** | ✅ | ❌ | ✅ (heavy) | ❌ |
-| **ML (scikit-learn)** | ✅ | ❌ | ❌ | ❌ |
-| **Stats (hypothesis tests)** | ✅ | ❌ | ✅ | ❌ |
-| **Async concurrency** | ✅ | ❌ | ❌ | ❌ |
-| **Validation** | ✅ | ❌ | ❌ | ❌ |
-| **Functional tools** | ✅ | ✅ | ❌ | ❌ |
-| **Tree-shakeable** | ✅ | 🟡 | ❌ | ✅ |
-| **Bundle size (gzip)** | ~25 KB | ~71 KB | ~200 KB | ~1 KB/fn |
-
-**speexkit** replaces **lodash + mathjs + date-fns + validator.js + async** in a single zero-dependency package — plus adds ML, stats, and NDArray functionality that no other utility library provides.
+| Zero dependencies | ✅ | ❌ | ❌ | ✅ |
+| NDArray (NumPy) | ✅ | ❌ | ✅ (heavy) | ❌ |
+| ML (scikit-learn) | ✅ | ❌ | ❌ | ❌ |
+| Stats (SciPy) | ✅ | ❌ | ❌ | ❌ |
+| Async concurrency | ✅ | ❌ | ❌ | ❌ |
+| Validation | ✅ | ❌ | ❌ | ❌ |
+| Tree-shakeable | ✅ | 🟡 | ❌ | ✅ |
+| Bundle size | ~25 KB gzip | ~71 KB | ~200 KB | ~1 KB/fn |
 
 ---
 
-## 📊 Test & Quality
+## Test & Quality
 
-- **1,477 tests** — 24 test files, all passing ✅
-- **0 dependencies** — no runtime baggage
-- **TypeScript strict** — full type declarations (`.d.ts`)
+- **1,477 tests** across 24 test files — all passing
+- **0 runtime dependencies**
+- **TypeScript strict** — full `.d.ts` declarations
 - **Tree-shakeable** — ESM with `sideEffects: false`
-- **MIT licensed**
+- **MIT license**
 
 ---
 
-## 📖 Documentation
+## Links
 
-- [Full Module Reference](./SUMMARY.md)
-- [Changelog](./CHANGELOG.md)
-- [Roadmap](./ROADMAP.md)
-- [Contributing](./CONTRIBUTING.md)
-
----
-
-<div align="center">
-
-**MIT** · Built with ❤️ for the JavaScript community
-
-</div>
+- [Full documentation](https://github.com/superdevids/speexjs/blob/master/packages/speex/SUMMARY.md)
+- [Changelog](https://github.com/superdevids/speexjs/blob/master/packages/speex/CHANGELOG.md)
+- [GitHub](https://github.com/superdevids/speexjs)
