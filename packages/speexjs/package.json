@@ -1,6 +1,6 @@
 {
     "name": "speexjs",
-    "version": "0.6.1",
+    "version": "0.6.2",
     "description": "Fullstack JavaScript/TypeScript framework — Server, Client, RPC, Schema, CLI, Database, Auth, Cache, Storage. Zero dependencies.",
     "type": "module",
     "main": "./dist/index.js",
@@ -136,8 +136,5 @@
     "engines": {
         "node": ">=18.0.0"
     },
-    "optionalDependencies": {
-        "better-sqlite3": "^12.11.1",
-        "ws": "^8.18.0"
-    }
+    "optionalDependencies": {}
 }
