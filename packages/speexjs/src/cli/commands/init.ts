@@ -88,7 +88,7 @@ export default function Home({ name }: Props): VNode {
         <h1>SpeexJS</h1>
         <p>Hello {name ?? 'World'}!</p>
         <p style="color: #666; margin-top: 2rem;">
-          Server running — <a href="/about">About</a>
+          Server running - <a href="/about">About</a>
         </p>
       </body>
     </html>
