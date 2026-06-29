@@ -24,8 +24,11 @@ export {
 } from "./middleware";
 import type { ControllerClass } from "./router";
 import { type RouteContext, type RouteHandler, Router } from "./router";
+import type { ViewEngine } from "./view/index.js";
 
 export { Cache, type CacheConfig, cacheResponse } from "./cache";
+export { PageView } from "./view/index.js";
+export type { ViewEngine } from "./view/index.js";
 export * from "./database/index.js";
 export { createEvent, Event, type EventConfig, event } from "./events";
 export { registerMacro, responseMacros, URLBuilder, url } from "./helpers";
@@ -55,13 +58,6 @@ export {
 export { Controller, controller, get, post, put, del } from "./controller";
 // `patch` decorator not re-exported here to avoid conflict with client VDOM `patch`
 export { patch as patchDecorator } from "./controller";
-
-export interface ViewEngine {
-	render(
-		template: string,
-		data: Record<string, unknown>,
-	): string | Promise<string>;
-}
 
 export interface AppOptions {
 	engine?: ServerEngine;
@@ -199,8 +195,9 @@ export class SuperApp {
 		return this;
 	}
 
-	view(_engine: ViewEngine): this {
-		return this;
+	view(engine: ViewEngine): this {
+		this.container.instance('view', engine)
+		return this
 	}
 
 	onError(handler: (err: Error, ctx: RouteContext) => void | Promise<void>): this {

@@ -42,30 +42,28 @@ const GITIGNORE = 'node_modules/\ndist/\n.env\n*.log\n'
 
 const TEMPLATES: Record<string, TemplateContent> = {
   blank: {
-    dirs: ['src', 'src/config', 'src/controllers', 'src/middleware', 'src/models'],
+    dirs: ['src', 'src/config', 'src/controllers', 'src/middleware', 'src/models', 'src/pages'],
     files: {
       'package.json': (name: string) => pkg(name, { dev: 'speexjs serve', build: 'speexjs build', start: 'node dist/index.js', lint: 'tsc --noEmit' }),
-      'tsconfig.json': tsconfig(),
-      'src/index.ts': `import { speexjs, cors, bodyParser } from 'speexjs/server'
+      'tsconfig.json': tsconfig({ jsx: 'react-jsx', jsxImportSource: '@speexjs/vdom' }, { include: ['src/**/*.ts', 'src/**/*.tsx'] }),
+      'src/index.ts': `import { speexjs, cors, bodyParser, PageView } from 'speexjs/server'
 import { Config } from './config/index.js'
 import { HealthController } from './controllers/health.controller.js'
 
 const app = speexjs()
+const view = new PageView()
 
 app.use(cors())
 app.use(bodyParser())
 
 app.controller(HealthController)
 
-app.get('/', ({ response }) => {
-  return response.html(\`
-    <!DOCTYPE html>
-    <html lang="en">
-    <head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-    <title>SpeexJS</title></head>
-    <body><h1>SpeexJS</h1><p>Server running on port \${Config.port}</p></body>
-    </html>
-  \`)
+app.get('/', async ({ response }) => {
+  return response.setViewEngine(view).page('home', { name: 'SpeexJS' })
+})
+
+app.get('/about', async ({ response }) => {
+  return response.setViewEngine(view).page('about')
 })
 
 app.listen(Config.port, () => {
@@ -73,6 +71,56 @@ app.listen(Config.port, () => {
 })
 
 export { app }
+`,
+      'src/pages/home.tsx': `import type { VNode } from 'speexjs/client/vdom'
+
+interface Props { name?: string }
+
+export default function Home({ name }: Props): VNode {
+  return (
+    <html lang="en">
+      <head>
+        <meta charSet="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <title>SpeexJS App</title>
+      </head>
+      <body style="font-family: sans-serif; padding: 2rem; text-align: center;">
+        <h1>SpeexJS</h1>
+        <p>Hello {name ?? 'World'}!</p>
+        <p style="color: #666; margin-top: 2rem;">
+          Server running — <a href="/about">About</a>
+        </p>
+      </body>
+    </html>
+  )
+}
+`,
+      'src/pages/about.tsx': `import type { VNode } from 'speexjs/client/vdom'
+
+export default function About(): VNode {
+  return (
+    <html lang="en">
+      <head>
+        <meta charSet="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <title>About - SpeexJS</title>
+      </head>
+      <body style="font-family: sans-serif; padding: 2rem;">
+        <h1>About SpeexJS</h1>
+        <p>Fullstack TypeScript framework with zero dependencies.</p>
+        <ul>
+          <li>Server with HTTP, Router, Middleware</li>
+          <li>Database ORM with MySQL/PostgreSQL/SQLite</li>
+          <li>Auth with SessionGuard and TokenGuard</li>
+          <li>Validation with 25+ schema types</li>
+          <li>WebSocket broadcasting</li>
+          <li>Queue, Mail, Scheduling</li>
+        </ul>
+        <a href="/" style="color: #0066cc;">Back to Home</a>
+      </body>
+    </html>
+  )
+}
 `,
       'src/config/index.ts': `export const Config = {
   port: Number(process.env.PORT) || 3000,

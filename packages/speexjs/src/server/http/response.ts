@@ -3,7 +3,9 @@ import type { ServerResponse } from "node:http";
 import { basename, extname, resolve } from "node:path";
 import type { Readable } from "node:stream";
 import { promisify } from "node:util";
-import { type CookieOptions, clearCookie, serializeCookie } from "./cookie";
+import type { ViewEngine } from "../view/index.js";
+import type { CookieOptions } from "./cookie";
+import { clearCookie, serializeCookie } from "./cookie";
 import { HeadersMap } from "./headers";
 import { HttpStatus } from "./status";
 
@@ -54,6 +56,7 @@ export class SuperResponse {
 	private _body: string | Buffer | null = null;
 	private _sent = false;
 	private _contentTypeSet = false;
+	private _viewEngine: ViewEngine | null = null;
 
 	constructor(raw: ServerResponse) {
 		this.raw = raw;
@@ -109,6 +112,19 @@ export class SuperResponse {
 
 	html(html: string, status?: number): this {
 		return this.send(html, status, "text/html; charset=utf-8");
+	}
+
+	setViewEngine(engine: ViewEngine): this {
+		this._viewEngine = engine;
+		return this;
+	}
+
+	async page(page: string, props?: Record<string, unknown>): Promise<this> {
+		if (this._viewEngine === null) {
+			throw new Error("View engine not set. Call setViewEngine() first.");
+		}
+		const html = await this._viewEngine.render(page, props ?? {});
+		return this.html(html);
 	}
 
 	redirect(
