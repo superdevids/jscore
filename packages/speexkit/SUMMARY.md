@@ -2,7 +2,8 @@
 
 v1.4.12 | 400+ exports | 19 modules | 0 deps | 1,477 tests
 
-> 📋 [PRD.md](./PRD.md) — Product roadmap & feature priorities (v1.4.x → v3.0)
+> 📋 **[ARCHITECTURE.md](./ARCHITECTURE.md)** — Module architecture, NDArray internals, build & design
+> 📋 **[PRD.md](./PRD.md)** — Product roadmap & feature priorities (v1.4.x → v3.0)
 
 ## Modules
 

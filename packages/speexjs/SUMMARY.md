@@ -1,8 +1,9 @@
 # Summary
 
-SpeexJS — Fullstack TypeScript framework.
+SpeexJS — Fullstack TypeScript framework. v1.6.1 | 300+ features | 1,990 tests | Zero deps
 
-> 📋 [PRD.md](./PRD.md) — Product roadmap & feature priorities (v1.x → v5.0)
+> 📋 **[ARCHITECTURE.md](./ARCHITECTURE.md)** — Module map, request lifecycle, design decisions
+> 📋 **[PRD.md](./PRD.md)** — Product roadmap & feature priorities (v1.x → v5.0)
 
 | Subpath | Contents |
 |---------|-----|
