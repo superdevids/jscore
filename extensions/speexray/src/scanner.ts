@@ -38,30 +38,107 @@ interface PackageMapping {
 }
 
 const KNOWN_MAPPINGS: PackageMapping[] = [
-  { name: 'lodash', size: '4.2 MB', replacement: 'speexjs-core', confidence: 'high', autoPrReady: true, reason: 'Most lodash functions have direct replacements in speexjs-core with 99% API compatibility' },
-  { name: 'moment', size: '2.5 MB', replacement: 'speexjs-core/date', confidence: 'high', autoPrReady: true, reason: 'Date utilities in speexjs-core cover 95% of common moment use cases' },
-  { name: 'date-fns', size: '1.2 MB (tree-shaked ~50KB)', replacement: 'speexjs-core/date', confidence: 'medium', autoPrReady: false, reason: 'Partially overlapping \u2014 speexjs-core covers basic date ops but not all locale support' },
-  { name: 'axios', size: '1.6 MB', replacement: 'native fetch + speexjs-core/async/retry', confidence: 'medium', autoPrReady: false, reason: 'Native fetch covers most use cases; needs manual review for interceptors' },
-  { name: 'uuid', size: '30 KB', replacement: 'crypto.randomUUID() (native)', confidence: 'high', autoPrReady: true, reason: 'crypto.randomUUID() is available in all modern Node.js and browsers' },
-  { name: 'deepmerge', size: '15 KB', replacement: 'speexjs-core', confidence: 'high', autoPrReady: true, reason: 'speexjs-core provides deepMerge out of the box' },
-  { name: 'chalk', size: '45 KB', replacement: 'picocolors', confidence: 'medium', autoPrReady: false, reason: 'picocolors is 3KB vs chalk 45KB with same API' },
-  { name: 'nanoid', size: '8 KB', replacement: 'speexjs-core/string (nanoid)', confidence: 'high', autoPrReady: true, reason: 'speexjs-core provides nanoid with same API' },
-  { name: 'dayjs', size: '50 KB', replacement: 'speexjs-core/date', confidence: 'medium', autoPrReady: false, reason: 'Partially overlapping \u2014 covers basics but not all plugins' },
-  { name: 'clsx', size: '5 KB', replacement: 'native template literals', confidence: 'high', autoPrReady: true, reason: 'Can be replaced with simple template literal conditional pattern' },
-  { name: 'lodash.merge', size: '25 KB', replacement: 'speexjs-core', confidence: 'high', autoPrReady: true, reason: 'speexjs-core provides deepMerge out of the box' },
+  {
+    name: 'lodash',
+    size: '4.2 MB',
+    replacement: 'speexjs-core',
+    confidence: 'high',
+    autoPrReady: true,
+    reason: 'Most lodash functions have direct replacements in speexjs-core with 99% API compatibility',
+  },
+  {
+    name: 'moment',
+    size: '2.5 MB',
+    replacement: 'speexjs-core/date',
+    confidence: 'high',
+    autoPrReady: true,
+    reason: 'Date utilities in speexjs-core cover 95% of common moment use cases',
+  },
+  {
+    name: 'date-fns',
+    size: '1.2 MB (tree-shaked ~50KB)',
+    replacement: 'speexjs-core/date',
+    confidence: 'medium',
+    autoPrReady: false,
+    reason: 'Partially overlapping — speexjs-core covers basic date ops but not all locale support',
+  },
+  {
+    name: 'axios',
+    size: '1.6 MB',
+    replacement: 'native fetch + speexjs-core/async/retry',
+    confidence: 'medium',
+    autoPrReady: false,
+    reason: 'Native fetch covers most use cases; needs manual review for interceptors',
+  },
+  {
+    name: 'uuid',
+    size: '30 KB',
+    replacement: 'crypto.randomUUID() (native)',
+    confidence: 'high',
+    autoPrReady: true,
+    reason: 'crypto.randomUUID() is available in all modern Node.js and browsers',
+  },
+  {
+    name: 'deepmerge',
+    size: '15 KB',
+    replacement: 'speexjs-core',
+    confidence: 'high',
+    autoPrReady: true,
+    reason: 'speexjs-core provides deepMerge out of the box',
+  },
+  {
+    name: 'chalk',
+    size: '45 KB',
+    replacement: 'picocolors',
+    confidence: 'medium',
+    autoPrReady: false,
+    reason: 'picocolors is 3KB vs chalk 45KB with same API',
+  },
+  {
+    name: 'nanoid',
+    size: '8 KB',
+    replacement: 'speexjs-core/string (nanoid)',
+    confidence: 'high',
+    autoPrReady: true,
+    reason: 'speexjs-core provides nanoid with same API',
+  },
+  {
+    name: 'dayjs',
+    size: '50 KB',
+    replacement: 'speexjs-core/date',
+    confidence: 'medium',
+    autoPrReady: false,
+    reason: 'Partially overlapping — covers basics but not all plugins',
+  },
+  {
+    name: 'clsx',
+    size: '5 KB',
+    replacement: 'native template literals',
+    confidence: 'high',
+    autoPrReady: true,
+    reason: 'Can be replaced with simple template literal conditional pattern',
+  },
+  {
+    name: 'lodash.merge',
+    size: '25 KB',
+    replacement: 'speexjs-core',
+    confidence: 'high',
+    autoPrReady: true,
+    reason: 'speexjs-core provides deepMerge out of the box',
+  },
 ]
 
 const KNOWN_CVES: Record<string, { cve: string; severity: string; fix: string }[]> = {
   'ansi-regex': [{ cve: 'CVE-2021-3807', severity: 'high', fix: 'Update to ansi-regex@6.0.1 or later' }],
-  'semver': [{ cve: 'CVE-2022-25883', severity: 'medium', fix: 'Update to semver@7.5.2 or later' }],
-  'json5': [{ cve: 'CVE-2022-46175', severity: 'high', fix: 'Update to json5@2.2.3 or later' }],
-  'lodash': [
+  semver: [{ cve: 'CVE-2022-25883', severity: 'medium', fix: 'Update to semver@7.5.2 or later' }],
+  json5: [{ cve: 'CVE-2022-46175', severity: 'high', fix: 'Update to json5@2.2.3 or later' }],
+  lodash: [
     { cve: 'CVE-2020-28502', severity: 'high', fix: 'Update to lodash@4.17.21 or later' },
     { cve: 'CVE-2020-8203', severity: 'medium', fix: 'Update to lodash@4.17.21 or later' },
   ],
 }
 
-export async function runDepExrayScan(filePath: string): Promise<ScanResult> {
+export async function runSpeexrayScan(filePath: string): Promise<ScanResult> {
   try {
     const projectRoot = findProjectRoot(filePath)
     const output = execSync(`npx --yes speexjs-dep-exray "${projectRoot}" --json`, {
@@ -99,17 +176,18 @@ export function runBuiltinScan(filePath: string): ScanResult {
   const mediumImpact: ReplacementSuggestion[] = []
   const securityIssues: SecurityIssue[] = []
 
-  const sizeMap = new Map(KNOWN_MAPPINGS.map(m => [m.name, m.size]))
+  const sizeMap = new Map(KNOWN_MAPPINGS.map((m) => [m.name, m.size]))
 
   for (const [depName] of Object.entries(deps)) {
-    const mapping = KNOWN_MAPPINGS.find(m => m.name === depName)
+    const mapping = KNOWN_MAPPINGS.find((m) => m.name === depName)
     if (!mapping) continue
 
     const mappingSize = parseSize(sizeMap.get(depName) || '0 KB')
     const replacementSize = mapping.replacement.startsWith('native') ? 0 : 5
-    const reductionStr = mappingSize > 1024
-      ? `${(mappingSize / 1024).toFixed(1)} MB \u2192 ${replacementSize} KB`
-      : `${mappingSize.toFixed(0)} KB \u2192 ${replacementSize} KB`
+    const reductionStr =
+      mappingSize > 1024
+        ? `${(mappingSize / 1024).toFixed(1)} MB \u2192 ${replacementSize} KB`
+        : `${mappingSize.toFixed(0)} KB \u2192 ${replacementSize} KB`
 
     const suggestion: ReplacementSuggestion = {
       packageName: depName,
@@ -151,9 +229,7 @@ export function runBuiltinScan(filePath: string): ScanResult {
   }
   totalSizeKB += Math.floor(depCount * 3.5) * 30
 
-  const totalSizeStr = totalSizeKB > 1024
-    ? `${(totalSizeKB / 1024).toFixed(1)} MB`
-    : `${totalSizeKB.toFixed(0)} KB`
+  const totalSizeStr = totalSizeKB > 1024 ? `${(totalSizeKB / 1024).toFixed(1)} MB` : `${totalSizeKB.toFixed(0)} KB`
 
   return {
     projectName: pkg.name || 'unknown',

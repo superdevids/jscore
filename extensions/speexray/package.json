@@ -1,6 +1,6 @@
 {
   "name": "speexray",
-  "displayName": "dep-exray",
+  "displayName": "speexray",
   "description": "Dependency health scanner — detect bloat, security issues, and suggest replacements",
   "version": "0.1.0",
   "publisher": "speexjs",
@@ -27,39 +27,39 @@
   ],
   "activationEvents": [
     "onLanguage:json",
-    "onCommand:dep-exray.scan"
+    "onCommand:speexray.scan"
   ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "dep-exray.scan",
-        "title": "dep-exray: Scan Dependencies"
+        "command": "speexray.scan",
+        "title": "speexray: Scan Dependencies"
       },
       {
-        "command": "dep-exray.scanWorkspace",
-        "title": "dep-exray: Scan Workspace Dependencies"
+        "command": "speexray.scanWorkspace",
+        "title": "speexray: Scan Workspace Dependencies"
       },
       {
-        "command": "dep-exray.applyReplacement",
-        "title": "dep-exray: Apply Replacement",
+        "command": "speexray.applyReplacement",
+        "title": "speexray: Apply Replacement",
         "icon": "$(lightbulb)"
       }
     ],
     "configuration": {
-      "title": "dep-exray",
+      "title": "speexray",
       "properties": {
-        "dep-exray.enable": {
+        "speexray.enable": {
           "type": "boolean",
           "default": true,
-          "description": "Enable/disable dep-exray diagnostics"
+          "description": "Enable/disable speexray diagnostics"
         },
-        "dep-exray.showReplacementHints": {
+        "speexray.showReplacementHints": {
           "type": "boolean",
           "default": true,
           "description": "Show replacement suggestions as hints"
         },
-        "dep-exray.scanOnOpen": {
+        "speexray.scanOnOpen": {
           "type": "boolean",
           "default": true,
           "description": "Auto-scan when opening package.json"
@@ -70,7 +70,7 @@
       "editor/title/context": [
         {
           "when": "resourceFilename == 'package.json'",
-          "command": "dep-exray.scan",
+          "command": "speexray.scan",
           "group": "navigation"
         }
       ]
@@ -78,8 +78,8 @@
     "views": {
       "explorer": [
         {
-          "id": "depExrayResults",
-          "name": "dep-exray Results"
+          "id": "speexrayResults",
+          "name": "speexray Results"
         }
       ]
     }

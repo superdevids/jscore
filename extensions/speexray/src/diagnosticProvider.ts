@@ -5,7 +5,7 @@ export class DiagnosticProvider {
   private diagnosticCollection: vscode.DiagnosticCollection
 
   constructor() {
-    this.diagnosticCollection = vscode.languages.createDiagnosticCollection('dep-exray')
+    this.diagnosticCollection = vscode.languages.createDiagnosticCollection('speexray')
   }
 
   updateDiagnostics(document: vscode.TextDocument, scanResult?: ScanResult) {
@@ -25,14 +25,14 @@ export class DiagnosticProvider {
             if (lines[i].includes(`"${rep.packageName}"`)) {
               const range = new vscode.Range(
                 new vscode.Position(i, lines[i].indexOf(`"${rep.packageName}"`)),
-                new vscode.Position(i, lines[i].length)
+                new vscode.Position(i, lines[i].length),
               )
               const diagnostic = new vscode.Diagnostic(
                 range,
                 `${rep.packageName} \u2192 ${rep.replacement}: ${rep.estimatedSizeReduction}`,
-                vscode.DiagnosticSeverity.Hint
+                vscode.DiagnosticSeverity.Hint,
               )
-              diagnostic.code = 'dep-exray-replacement'
+              diagnostic.code = 'speexray-replacement'
               diagnostics.push(diagnostic)
             }
           }
@@ -46,14 +46,14 @@ export class DiagnosticProvider {
             if (lines[i].includes(`"${rep.packageName}"`)) {
               const range = new vscode.Range(
                 new vscode.Position(i, lines[i].indexOf(`"${rep.packageName}"`)),
-                new vscode.Position(i, lines[i].length)
+                new vscode.Position(i, lines[i].length),
               )
               const diagnostic = new vscode.Diagnostic(
                 range,
                 `${rep.packageName} \u2192 ${rep.replacement}: ${rep.estimatedSizeReduction}`,
-                vscode.DiagnosticSeverity.Information
+                vscode.DiagnosticSeverity.Information,
               )
-              diagnostic.code = 'dep-exray-replacement'
+              diagnostic.code = 'speexray-replacement'
               diagnostics.push(diagnostic)
             }
           }
@@ -65,16 +65,13 @@ export class DiagnosticProvider {
           const lines = text.split('\n')
           for (let i = 0; i < lines.length; i++) {
             if (lines[i].includes(`"${issue.packageName}"`)) {
-              const range = new vscode.Range(
-                new vscode.Position(i, 0),
-                new vscode.Position(i, lines[i].length)
-              )
+              const range = new vscode.Range(new vscode.Position(i, 0), new vscode.Position(i, lines[i].length))
               const diagnostic = new vscode.Diagnostic(
                 range,
                 `${issue.cveId} (${issue.severity}): ${issue.fix}`,
-                vscode.DiagnosticSeverity.Error
+                vscode.DiagnosticSeverity.Error,
               )
-              diagnostic.code = 'dep-exray-security'
+              diagnostic.code = 'speexray-security'
               diagnostics.push(diagnostic)
             }
           }
