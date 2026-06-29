@@ -1,6 +1,6 @@
 {
 	"name": "speexjs",
-	"version": "1.4.4",
+	"version": "1.4.5",
 	"description": "Fullstack JavaScript/TypeScript framework — Server, Client, RPC, Schema, CLI, Database, Auth, Cache, Storage. Zero dependencies.",
 	"type": "module",
 	"main": "./dist/index.js",
@@ -88,6 +88,7 @@
 		}
 	},
 	"sideEffects": false,
+	"preferUnplugged": true,
 	"files": [
 		"dist"
 	],
@@ -127,6 +128,10 @@
 	],
 	"publishConfig": {
 		"access": "public"
+	},
+	"homepage": "https://github.com/superdevids/speexjs#readme",
+	"bugs": {
+		"url": "https://github.com/superdevids/speexjs/issues"
 	},
 	"repository": {
 		"type": "git",

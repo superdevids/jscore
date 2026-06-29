@@ -1,0 +1,14 @@
+src/
+tests/
+docs/
+node_modules/
+.git/
+.github/
+.editorconfig
+.gitattributes
+.gitignore
+.npmrc
+biome.json
+tsconfig.json
+tsup.config.ts
+vitest.config.ts
