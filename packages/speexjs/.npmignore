@@ -12,3 +12,5 @@ biome.json
 tsconfig.json
 tsup.config.ts
 vitest.config.ts
+*.map
+**/*.map
