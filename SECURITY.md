@@ -1,3 +1,5 @@
-﻿# Security - speexjs Monorepo
+# Security - speexjs Monorepo
 
-See [speexkit SECURITY](./packages/speex/SECURITY.md) for security policy.
+Report vulnerabilities: adityasuperdev@gmail.com (response within 48h)
+
+See packages/speex/SECURITY.md for more details.

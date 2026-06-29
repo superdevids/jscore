@@ -2,6 +2,7 @@ export class SqliteQueueDriver {
   private db: any = null
 
   async connect(dbPath: string): Promise<void> {
+    // @ts-expect-error - better-sqlite3 is optional
     const { default: Database } = await import('better-sqlite3')
     this.db = new Database(dbPath)
     this.db.exec('CREATE TABLE IF NOT EXISTS jobs (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, payload TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)')

@@ -5,7 +5,7 @@ export class S3Disk {
     const url = `https://${this.config.bucket}.s3.${this.config.region}.amazonaws.com/${filePath}`
     await fetch(url, {
       method: 'PUT',
-      body: content,
+      body: content as any,
       headers: { 'x-amz-acl': 'public-read' }
     })
     return filePath

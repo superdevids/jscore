@@ -1,3 +1,3 @@
-﻿# Roadmap - speexjs Monorepo
+# Roadmap - speexjs Monorepo
 
-See [speexkit ROADMAP](./packages/speex/ROADMAP.md) for the project roadmap.
+See packages/speex/ROADMAP.md for the speexkit roadmap.

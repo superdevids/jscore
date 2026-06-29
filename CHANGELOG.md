@@ -1,3 +1,3 @@
-﻿# Changelog - speexjs Monorepo
+# Changelog - speexjs Monorepo
 
-See [speexkit CHANGELOG](./packages/speex/CHANGELOG.md) for detailed version history.
+See packages/speex/CHANGELOG.md for detailed version history.

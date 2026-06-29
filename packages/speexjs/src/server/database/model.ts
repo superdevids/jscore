@@ -216,7 +216,7 @@ export class Model {
     }
   }
 
-  async load(...relations: string[]): Promise<void> {
+  async load(..._relations: string[]): Promise<void> {
     const ModelClass = this.constructor as typeof Model
     const id = this.id
     if (id === undefined) return

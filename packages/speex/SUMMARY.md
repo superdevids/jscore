@@ -1,10 +1,12 @@
-# speexkit — Module Reference
+# speexkit - Module Reference
 
-> v0.8.0 · 383 exports · 16 modules · 0 deps · 1477 tests
+v0.8.4 | 400+ exports | 19 modules | 0 deps | 1,477 tests
+
+npm install speexkit
 
 ## Modules
 
-### speexkit (barrel)
+### core
 deepClone, deepMerge, deepEqual, pipe, compose, debounce, throttle, memoize, retry, noop, identity, once
 
 ### math
@@ -47,10 +49,19 @@ parseCsv, stringifyCsv, safeJsonParse, safeJsonStringify, env, envInt, envBool, 
 isString, isNumber, isBoolean, isObject, isArray, isFunction, isDate, isRegExp, isMap, isSet, isPromise, isNull, isUndefined, isNil, isEmpty, assertDefined, assertType, ensureArray, castArray, isPlainObject, isError, isSymbol, isWeakMap, isWeakSet, isTypedArray, isDataView, isArguments, getType
 
 ### nlarray
-NDArray class with: zeros, ones, full, eye, identity, arange, linspace, logspace, random, randn, from, reshape, flatten, ravel, transpose, slice, squeeze, repeat, add, sub, mul, div, pow, mod, abs, neg, clip, round, floor, ceil, sum, mean, var, std, min, max, argmin, argmax, cumsum, cumprod, all, any, nonzero, dot, matmul, norm, diagonal, trace, pad, where, map, apply, copy, equals, toArray, toList, toString, get, set, fill + static ufuncs: sin, cos, tan, exp, log, log2, log10, sqrt, abs, round, floor, ceil, clip, concatenate, stack, hstack, vstack
+NDArray class: zeros, ones, full, eye, identity, arange, linspace, logspace, random, randn, from, reshape, flatten, ravel, transpose, slice, squeeze, repeat, add, sub, mul, div, pow, mod, abs, neg, clip, round, floor, ceil, sum, mean, var, std, min, max, argmin, argmax, cumsum, cumprod, all, any, nonzero, dot, matmul, norm, diagonal, trace, pad, where, map, apply, copy, equals, toArray, toList, toString, get, set, fill. Ufuncs: sin, cos, tan, exp, log, log2, log10, sqrt, abs, round, floor, ceil, clip, concatenate, stack, hstack, vstack
 
 ### nlfunction
-curry, curryRight, partial, partialRight, tap, trace, memoizeSync, memoizeLast, negate, before, after, id, constant, over, apply, comparing, wrapArray, flow, tryCatch, attempt, property, converge, flip, ifElse, when, unless, debounce (re-export), throttle (re-export), once (re-export)
+curry, curryRight, partial, partialRight, tap, trace, memoizeSync, memoizeLast, negate, before, after, id, constant, over, apply, comparing, wrapArray, flow, tryCatch, attempt, property, converge, flip, ifElse, when, unless, debounce, throttle, once
+
+### ml
+StandardScaler, MinMaxScaler, LinearRegression, KMeans, KNN, PCA, trainTestSplit, confusionMatrix, accuracyScore, r2Score, meanSquaredError, meanAbsoluteError, euclideanDistance, manhattanDistance, cosineSimilarity
+
+### stats
+gammaLn, erf, normalPDF, normalCDF, binomialPMF, poissonPMF, skewness, kurtosis, quantile, iqr, covariance, entropy, ttestInd, pearsonCorrelation, spearmanCorrelation
+
+### viz-data
+sturgesBins, freedmanDiaconisBins, histogram, kde, boxPlotData, ecdf, colorMap
 
 ### dep-exray
 scanProject, generateReport, analyzeUsage, KNOWN_MAPPINGS, KNOWN_CVES. CLI: npx dep-exray .
