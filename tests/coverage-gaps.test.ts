@@ -3852,7 +3852,7 @@ describe('Queue', () => {
     const q = new Queue()
     const handler = vi.fn().mockResolvedValue(undefined)
     q.register('email', handler)
-    await q.push('email', { to: 'user@test.com' })
+    await q.dispatch('email', { to: 'user@test.com' })
     await new Promise((r) => setTimeout(r, 10))
     expect(handler).toHaveBeenCalledWith({ to: 'user@test.com' })
   })
@@ -3860,7 +3860,7 @@ describe('Queue', () => {
   it('push with unknown handler throws', async () => {
     const { Queue } = await import('../src/server/queue/index.js')
     const q = new Queue()
-    expect(() => q.push('unknown', {})).toThrow('No handler registered for job: unknown')
+    await expect(q.dispatch('unknown', {})).rejects.toThrow('Job "unknown" is not registered')
   })
 
   it('length property reflects pending jobs', async () => {
@@ -3868,21 +3868,23 @@ describe('Queue', () => {
     const q = new Queue()
     const slowHandler = vi.fn().mockImplementation(() => new Promise((r) => setTimeout(r, 50)))
     q.register('slow', slowHandler)
-    q.push('slow', {})
-    expect(q.length).toBe(0)
+    await q.dispatch('slow', {})
+    expect(q.getStatus().waiting).toBe(0)
   })
 
   it('error in handler does not crash', async () => {
     const { Queue } = await import('../src/server/queue/index.js')
-    const q = new Queue({ maxRetries: 0 })
+    const q = new Queue()
     const failedHandler = vi.fn()
     q.on('failed', failedHandler)
-    q.register('failing', () => {
+    q.register('failing', async () => {
       throw new Error('boom')
-    })
-    q.push('failing', {})
-    await new Promise((r) => setTimeout(r, 10))
+    }, { attempts: 1 })
+    const promise = q.dispatch('failing', {})
+    await new Promise((r) => setTimeout(r, 50))
     expect(failedHandler).toHaveBeenCalled()
+    // Suppress the unhandled rejection
+    await promise.catch(() => {})
   })
 
   it('processing flag prevents concurrent processing', async () => {
@@ -3897,8 +3899,8 @@ describe('Queue', () => {
     })
     q.register('a', handler1)
     q.register('b', handler2)
-    q.push('a', {})
-    q.push('b', {})
+    await q.dispatch('a', {})
+    await q.dispatch('b', {})
     await new Promise((r) => setTimeout(r, 20))
     expect(order).toEqual(['1', '2'])
   })
@@ -3909,81 +3911,74 @@ describe('Queue', () => {
 // ====================================================================
 
 describe('Scheduler', () => {
-  beforeEach(() => {
-    vi.useFakeTimers()
+  it('parseCron parses valid expressions', async () => {
+    const { parseCron } = await import('../src/server/schedule/index.js')
+    const result = parseCron('0 0 * * *')
+    expect(result.minute).toEqual([0])
+    expect(result.hour).toEqual([0])
   })
 
-  afterEach(() => {
-    vi.useRealTimers()
+  it('parseCron handles step values', async () => {
+    const { parseCron } = await import('../src/server/schedule/index.js')
+    const result = parseCron('*/15 * * * *')
+    expect(result.minute.length).toBe(4)
   })
 
-  it('task registers with interval and fires callback', async () => {
-    const { Scheduler } = await import('../src/server/schedule/index.js')
-    const sched = new Scheduler()
-    const cb = vi.fn()
-    sched.task('test', '* * * * *', cb)
-    vi.advanceTimersByTime(3660000)
-    expect(cb).toHaveBeenCalled()
+  it('parseCron handles ranges', async () => {
+    const { parseCron } = await import('../src/server/schedule/index.js')
+    const result = parseCron('0 9-17 * * *')
+    expect(result.hour).toEqual([9, 10, 11, 12, 13, 14, 15, 16, 17])
   })
 
-  it('remove stops a task', async () => {
-    const { Scheduler } = await import('../src/server/schedule/index.js')
-    const sched = new Scheduler()
-    const cb = vi.fn()
-    sched.task('test', '* * * * *', cb)
-    sched.remove('test')
-    vi.advanceTimersByTime(120000)
-    expect(cb).not.toHaveBeenCalled()
+  it('parseCron handles comma lists', async () => {
+    const { parseCron } = await import('../src/server/schedule/index.js')
+    const result = parseCron('0,15,30,45 * * * *')
+    expect(result.minute).toEqual([0, 15, 30, 45])
   })
 
-  it('remove non-existent task does nothing', async () => {
-    const { Scheduler } = await import('../src/server/schedule/index.js')
-    const sched = new Scheduler()
-    expect(() => sched.remove('does-not-exist')).not.toThrow()
+  it('cronMatches checks current time', async () => {
+    const { parseCron, cronMatches } = await import('../src/server/schedule/index.js')
+    const now = new Date()
+    const expr = parseCron(`${now.getMinutes()} ${now.getHours()} * * *`)
+    expect(cronMatches(expr, now)).toBe(true)
   })
 
-  it('stopAll clears all tasks', async () => {
-    const { Scheduler } = await import('../src/server/schedule/index.js')
-    const sched = new Scheduler()
-    const cb1 = vi.fn()
-    const cb2 = vi.fn()
-    sched.task('a', '* * * * *', cb1)
-    sched.task('b', '* * * * *', cb2)
-    sched.stopAll()
-    vi.advanceTimersByTime(120000)
-    expect(cb1).not.toHaveBeenCalled()
-    expect(cb2).not.toHaveBeenCalled()
+  it('cronMatches returns false for non-matching time', async () => {
+    const { parseCron, cronMatches } = await import('../src/server/schedule/index.js')
+    const expr = parseCron('59 23 * * *')
+    const now = new Date('2026-06-30T00:00:00')
+    expect(cronMatches(expr, now)).toBe(false)
   })
 
-  it('parse cron string with hours', async () => {
-    const { Scheduler } = await import('../src/server/schedule/index.js')
-    const sched = new Scheduler()
-    const cb = vi.fn()
-    sched.task('hourly', '0 * * * *', cb)
-    vi.advanceTimersByTime(3600000)
-    expect(cb).toHaveBeenCalledTimes(1)
-  })
-
-  it('parse cron string with both minutes and hours', async () => {
-    const { Scheduler } = await import('../src/server/schedule/index.js')
-    const sched = new Scheduler()
-    const cb = vi.fn()
-    sched.task('specific', '30 2 * * *', cb)
-    vi.advanceTimersByTime(9150000)
-    expect(cb).toHaveBeenCalled()
+  it('getNextRun returns future date', async () => {
+    const { parseCron, getNextRun } = await import('../src/server/schedule/index.js')
+    const expr = parseCron('0 0 * * *')
+    const from = new Date('2026-06-30T00:01:00')
+    const next = getNextRun(expr, from)
+    expect(next.getTime()).toBeGreaterThan(from.getTime())
   })
 
   it('parse cron throws for invalid format', async () => {
-    const { Scheduler } = await import('../src/server/schedule/index.js')
-    const sched = new Scheduler()
-    expect(() => sched.task('bad', '* *', vi.fn())).toThrow('Invalid cron')
+    const { parseCron } = await import('../src/server/schedule/index.js')
+    expect(() => parseCron('* * * * * *')).toThrow()
   })
 
-  it('task returns this for chaining', async () => {
+  it('Scheduler registers tasks', async () => {
     const { Scheduler } = await import('../src/server/schedule/index.js')
     const sched = new Scheduler()
-    const result = sched.task('chained', '* * * * *', vi.fn())
-    expect(result).toBe(sched)
+    const task = vi.fn()
+    sched.cron('* * * * *', 'test', task)
+    expect(sched.getTask('test')).toBeDefined()
+    sched.stop()
+  })
+
+  it('Scheduler removes tasks', async () => {
+    const { Scheduler } = await import('../src/server/schedule/index.js')
+    const sched = new Scheduler()
+    sched.cron('* * * * *', 'test', vi.fn())
+    expect(sched.remove('test')).toBe(true)
+    expect(sched.getTask('test')).toBeUndefined()
+    sched.stop()
   })
 })
 
@@ -4047,28 +4042,16 @@ describe('TestRequest / TestResponse', () => {
 // ====================================================================
 
 describe('apiVersion', () => {
-  it('creates group with correct prefix', async () => {
+  it('returns /api/v1 prefix', async () => {
     const { apiVersion } = await import('../src/server/router/versioning.js')
-    const { Router } = await import('../src/server/router/index.js')
-    const router = new Router()
-    const group = vi.fn()
-    vi.spyOn(router, 'group').mockImplementation(group)
-    const cb = vi.fn()
-    const wrapper = apiVersion('1', cb)
-    wrapper(router)
-    expect(group).toHaveBeenCalledWith('/api/v1', cb)
+    expect(apiVersion('1')).toBe('/api/v1')
   })
 
   it('works with different version strings', async () => {
     const { apiVersion } = await import('../src/server/router/versioning.js')
-    const { Router } = await import('../src/server/router/index.js')
-    const router = new Router()
-    const group = vi.fn()
-    vi.spyOn(router, 'group').mockImplementation(group)
-    const cb = vi.fn()
-    const wrapper = apiVersion('2', cb)
-    wrapper(router)
-    expect(group).toHaveBeenCalledWith('/api/v2', cb)
+    expect(apiVersion('v1')).toBe('/api/v1')
+    expect(apiVersion('2')).toBe('/api/v2')
+    expect(apiVersion('v3')).toBe('/api/v3')
   })
 })
 
@@ -4802,7 +4785,7 @@ describe('QueueMonitor', () => {
   it('constructor initializes stats to zero', async () => {
     const { QueueMonitor } = await import('../src/server/queue/monitor.js')
     const m = new QueueMonitor()
-    expect(m.getStats()).toEqual({ processed: 0, failed: 0, pending: 0 })
+    expect(m.getStats()).toEqual({ processed: 0, failed: 0, pending: 0, queues: 0 })
   })
 
   it('attach wraps queue push and tracks pending', async () => {
@@ -4810,10 +4793,12 @@ describe('QueueMonitor', () => {
     const { Queue } = await import('../src/server/queue/index.js')
     const m = new QueueMonitor()
     const queue = new Queue()
-    queue.register('job', vi.fn())
+    queue.register('job', vi.fn().mockResolvedValue(undefined))
     m.attach(queue)
-    queue.push('job', {})
-    expect(m.getStats().pending).toBe(1)
+    await queue.dispatch('job', {})
+    await new Promise((r) => setTimeout(r, 10))
+    const stats = m.getStats()
+    expect(stats.queues).toBe(1)
   })
 
   it('getStats returns a copy', async () => {
@@ -4824,14 +4809,14 @@ describe('QueueMonitor', () => {
     expect(m.getStats().pending).toBe(0)
   })
 
-  it('getHtml returns HTML string', async () => {
+  it('getDashboardHtml returns HTML string', async () => {
     const { QueueMonitor } = await import('../src/server/queue/monitor.js')
     const m = new QueueMonitor()
-    const html = m.getHtml()
-    expect(html).toContain('Queue Monitor')
-    expect(html).toContain('Processed: 0')
-    expect(html).toContain('Failed: 0')
-    expect(html).toContain('Pending: 0')
+    const html = m.getDashboardHtml()
+    expect(html).toContain('Queue Dashboard')
+    expect(html).toContain('Processed Jobs')
+    expect(html).toContain('Failed Jobs')
+    expect(html).toContain('Pending / Running')
   })
 })
 

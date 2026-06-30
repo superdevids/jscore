@@ -107,7 +107,7 @@ export async function analyzeQuery(
     const extractPgWarnings = (plan: any, path = ''): void => {
       if (!plan || typeof plan !== 'object') return
       const nodeType = (plan['Node Type'] ?? '').toLowerCase()
-      const relName = plan['Relation Name'] ?? plan['Index Name'] ?? path || 'unknown'
+      const relName = (plan['Relation Name'] ?? plan['Index Name'] ?? path) || 'unknown'
 
       if (nodeType === 'sequential scan') {
         warnings.push(`Sequential scan on \`${relName}\` — consider adding an index`)
