@@ -1,7 +1,7 @@
 # Product Requirements Document — SpeexJS
 
 > **Version:** 3.0.0 (PRD)
-> **Status:** ✅ All features implemented in v3.0.0
+> **Status:** ✅ All features implemented in v2.1.1
 > **Last Updated:** 2026-06-29
 > **Document Owner:** SpeexJS Core Team
 

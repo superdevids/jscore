@@ -1,7 +1,7 @@
 # Product Requirements Document — SpeexJS: No-Effort Framework Vision
 
 > **Version:** 3.0.0 (PRD)
-> **Status:** ✅ All features implemented in v3.0.0
+> **Status:** ✅ All features implemented in v2.1.1
 > **Last Updated:** 2026-06-29
 > **Author:** Independent Analysis (based on speexjs v1.6.1)
 > **Scope:** Framework DX Features — "Zero Effort, Maximum Output"

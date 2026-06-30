@@ -952,7 +952,7 @@ await sessions.revokeAllForUser(userId)
 
 ## Query Builder 2.0 (`speexjs/server/database/query-v2`)
 
-Advanced database query operations available in v3.0.0.
+Advanced database query operations available in v2.1.1.
 
 ```typescript
 import { rawQuery, streamQuery, analyzeQuery, batchInsert, batchUpdate } from 'speexjs/server/database/query-v2'

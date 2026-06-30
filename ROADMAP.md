@@ -2,7 +2,7 @@
 
 > 📋 For the full product roadmap with feature priorities (P0-P4), see [PRD01.md](./docs/PRD01.md).
 
-## ✅ v3.0.0 — Developer Maturity (Current — Released 2026-06-30)
+## ✅ v2.1.1 — Developer Maturity (Current — Released 2026-06-30)
 - PRD-01: DevTools Dashboard (`/_speex/devtools`)
 - PRD-02: True HMR 2.0 (Selective Reload)
 - PRD-03: CLI Gen 2 — Better Generators (schema CRUD, test gen, relations)
@@ -13,13 +13,21 @@
 - PRD-08: Full-Text Search Engine (TF-IDF, fuzzy, highlight)
 - PRD-09: Performance & Bundle Analyzer
 - PRD-10: API Versioning & SDK Evolution (deprecation, SDK diff, OpenAPI 3.1)
-- 550+ features, 35+ CLI commands, 55+ subpath exports
+- 550+ features, 33 CLI commands, 52 subpath exports
 - ALL 5 PRDs 100% aligned ✅
+- npm published: `speexjs@2.1.1`
 
-## 🔜 v3.x — AI-Native (Q2 2027)
+## 🔜 v3.x — AI-Native (H2 2026 / Q1 2027)
+### ✅ Already Implemented (foundation)
+- **AI Agent SDK** (`src/server/ai/agent.ts`) — Tool registration, built-in tools (web search, fetch, code run), rate limiting
+- **Natural Language Query** (`src/server/ai/nlquery.ts`) — Translate English to DB queries
+- **Vector Search** (`src/server/search/vector.ts`) — Cosine similarity, text chunking, VectorStore
+- **RAG Pipeline** (`src/server/search/rag.ts`) — Document ingestion, retrieval, context building
+
+### 🚧 Planned
 - Prompt Management with versioning
 - Embedding Providers (OpenAI, Anthropic, Cohere, Ollama)
-- LLM Provider SDK (unified API)
+- LLM Provider SDK (unified API with streaming, structured output)
 - Semantic Caching
 - AI-Powered Admin Panel
 - Content Moderation

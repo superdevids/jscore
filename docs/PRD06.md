@@ -1,8 +1,8 @@
-# Product Requirements Document — SpeexJS v3.x
+# Product Requirements Document — SpeexJS v2.x
 ## Volume 5 — AI-Native Developer Platform
 
-> **Version:** 3.0.0
-> **Status:** 🔜 Planned — Q2 2027
+> **Version:** 2.1.1
+> **Status:** 🚧 In Progress — Foundation Implemented, Full features H2 2026 / Q1 2027
 > **Last Updated:** 2026-06-30
 > **Filosofi:** "Framework yang tidak hanya mengeksekusi kode, tapi memahami intent developer."
 
@@ -10,7 +10,7 @@
 
 ## 1. Executive Summary
 
-PRD01-PRD05 telah membangun SpeexJS menjadi framework fullstack TypeScript terlengkap dengan **550+ fitur, 35+ CLI commands, 2,357+ tests, 0 TypeScript errors, zero dependencies**. Semua PRD sebelumnya sudah 100% terimplementasi di v3.0.0.
+PRD01-PRD05 telah membangun SpeexJS menjadi framework fullstack TypeScript terlengkap dengan **550+ fitur, 33 CLI commands, ~2,400 tests, 0 TypeScript errors, zero dependencies**. Semua PRD sebelumnya sudah 100% terimplementasi di v2.1.1.
 
 PRD06 ini mendefinisikan **era AI-Native** SpeexJS — di mana framework tidak hanya menjadi alat, tapi menjadi **partner developer** yang memahami konteks, intent, dan codebase.
 
@@ -20,19 +20,58 @@ PRD06 ini mendefinisikan **era AI-Native** SpeexJS — di mana framework tidak h
 ### Target Rilis
 | Target | Version | Timeline |
 |--------|---------|----------|
-| AI Integration | v3.1 | Q2 2027 |
-| Agent Platform | v3.2 | Q3 2027 |
+| AI Integration | v2.2 | Q2 2027 |
+| Agent Platform | v2.3 | Q3 2027 |
 | Full AI-Native | v4.0 | Q1 2028 |
 
 ---
 
-## 2. Feature Proposals
+## 2. Already Implemented Foundation
+
+AI features already built in `v2.1.1` (foundation for PRD06):
+
+### AI Agent SDK (`speexjs/server/ai/agent.ts`)
+- Tool registration with typed parameters
+- Built-in tools: web search (via `searchWeb`), URL fetch (`fetchURL`), code execution (`runCode`)
+- Rate limiting per agent session
+- Message history tracking
+- `AIAgent` class with `run()`, `addSystemMessage()`, `addUserMessage()`, tool dispatch
+
+### Natural Language Query (`speexjs/server/ai/nlquery.ts`)
+- Parse English sentences into database queries
+- Supports SELECT, WHERE, ORDER BY, LIMIT operations
+- Field mapping, stop word filtering, join detection
+- `NaturalLanguageQuery` class with `parse()`, `toSQL()`, `execute()` methods
+
+### Vector Search (`speexjs/server/search/vector.ts`)
+- Cosine similarity computation
+- Text chunking with overlap support
+- `VectorStore` with `addDocument()`, `similaritySearch()`, vector persistence
+
+### RAG Pipeline (`speexjs/server/search/rag.ts`)
+- Document ingestion and chunking
+- Retrieval-augmented generation context building
+- `RAGPipeline` class with `addDocument()`, `query()`, `buildContext()` methods
+
+### Search Engine (`speexjs/server/search/index.ts`)
+- Full-text search via TF-IDF indexing
+- Fuzzy search with Levenshtein distance (typo tolerance ≤ 1)
+- Relevance scoring with TF-IDF
+- Result highlighting with `<mark>` tags
+- PostgreSQL tsvector/tsquery helpers
+- `SearchEngine`, `TfIdfIndex`, `SearchQueryBuilder` classes
+
+**Next step:** F1 (Prompt Management) and F2 (Embedding Providers) — these are the highest-impact additions to unlock the full AI-Native vision.
+
+---
+
+## 3. Feature Proposals
 
 ### F1 — Prompt Management System
 
 **Priority:** P1
 **Effort:** M
-**Target:** v3.1
+**Target:** v2.2
 
 #### Problem
 Developer menggunakan AI (ChatGPT, Claude, Copilot) secara terpisah dari framework. Tidak ada integrasi, tidak ada versioning prompt, tidak ada template yang konsisten.
@@ -70,10 +109,10 @@ export default defineConfig({
 
 **Priority:** P1
 **Effort:** M
-**Target:** v3.1
+**Target:** v2.2
 
 #### Problem
-Vector search (TF-IDF) sudah ada di v3.0, tapi belum ada integrasi dengan embedding providers modern untuk semantic search.
+Vector search (TF-IDF) sudah ada di v2.1, tapi belum ada integrasi dengan embedding providers modern untuk semantic search.
 
 #### Solution
 Integrasi dengan multiple embedding providers:
@@ -108,7 +147,7 @@ const results = await store.similaritySearch('TypeScript framework')
 
 **Priority:** P2
 **Effort:** L
-**Target:** v3.1
+**Target:** v2.2
 
 #### Problem
 Tidak ada unified API untuk berbagai LLM provider. Developer harus implement sendiri integrasi dengan OpenAI, Anthropic, Google, local models.
@@ -156,7 +195,7 @@ const result = await llm.generateStructured({
 
 **Priority:** P2
 **Effort:** L
-**Target:** v3.2
+**Target:** v2.3
 
 #### Problem
 LLM responses are expensive and slow. Caching exact matches doesn't help for semantically similar queries.
@@ -196,7 +235,7 @@ const response = await cache.getOrCompute(
 
 **Priority:** P1
 **Effort:** XL
-**Target:** v3.2
+**Target:** v2.3
 
 #### Problem
 `speexjs generate:app` sudah ada tapi menggunakan template-based generation. Belum ada AI-powered generation yang paham konteks project.
@@ -237,7 +276,7 @@ speexjs ai:test src/controllers/
 
 **Priority:** P2
 **Effort:** M
-**Target:** v3.2
+**Target:** v2.3
 
 #### Problem
 User-generated content perlu moderasi untuk toxicity, PII, spam. Saat ini developer harus integrasi sendiri dengan third-party services.
@@ -279,7 +318,7 @@ const result = await mod.check('Contact me at admin@example.com')
 
 **Priority:** P2
 **Effort:** XL
-**Target:** v3.3
+**Target:** v2.4
 
 #### Problem
 `speexjs make:agent` sudah ada tapi agent framework masih basic. Belum ada tool calling, memory, multi-agent orchestration, atau persistent state.
@@ -422,7 +461,7 @@ const result = await loop.run()
 
 **Priority:** P2
 **Effort:** M
-**Target:** v3.3
+**Target:** v2.4
 
 #### Problem
 Developer harus tahu command speexjs yang mana untuk task apa. Tidak ada "AI assistant" yang bisa membantu di terminal.
@@ -455,24 +494,45 @@ speexjs ai --interactive
 
 ---
 
-## 3. Priority Matrix
+### Implementation Status
 
-| Feature | Priority | Effort | Nilai | Target |
-|---------|----------|--------|-------|--------|
-| F1 — Prompt Management | P1 | M | ⭐⭐⭐⭐ | v3.1 |
-| F2 — Embedding Providers | P1 | M | ⭐⭐⭐⭐ | v3.1 |
-| F3 — LLM Provider SDK | P2 | L | ⭐⭐⭐⭐⭐ | v3.1 |
-| F4 — Semantic Caching | P2 | L | ⭐⭐⭐⭐ | v3.2 |
-| F5 — AI Code Generation | P1 | XL | ⭐⭐⭐⭐⭐ | v3.2 |
-| F6 — Content Moderation | P2 | M | ⭐⭐⭐ | v3.2 |
-| F7 — AI Agent Platform | P2 | XL | ⭐⭐⭐⭐⭐ | v3.3 |
-| F8 — AI Admin Panel | P3 | XL | ⭐⭐⭐⭐ | v4.0 |
-| F9 — Autonomous Loop | P3 | XL | ⭐⭐⭐⭐⭐ | v4.0 |
-| F10 — AI CLI Assistant | P2 | M | ⭐⭐⭐⭐ | v3.3 |
+| Feature | Priority | Status | Notes |
+|---------|----------|--------|-------|
+| AI Agent SDK | 🟢 Implemented | `agent.ts` — tool calling, rate limiting, built-in tools |
+| NL Query Engine | 🟢 Implemented | `nlquery.ts` — English-to-DB-query parser |
+| Vector Search | 🟢 Implemented | `vector.ts` — cosine similarity, VectorStore |
+| RAG Pipeline | 🟢 Implemented | `rag.ts` — ingestion, retrieval, context building |
+| F1 — Prompt Management | 🔴 Not Started | Next priority |
+| F2 — Embedding Providers | 🟡 Partially | VectorStore exists, but no external provider integration |
+| F3 — LLM Provider SDK | 🔴 Not Started | Agent.ts has generic `llm()` pattern, no provider abstraction |
+| F4 — Semantic Caching | 🔴 Not Started | |
+| F5 — AI Code Generation | 🔴 Not Started | |
+| F6 — Content Moderation | 🔴 Not Started | |
+| F7 — AI Agent Platform | 🟡 Partially | Basic agent exists, needs memory, multi-agent, monitoring |
+| F8 — AI Admin Panel | 🔴 Not Started | |
+| F9 — Autonomous Loop | 🔴 Not Started | |
+| F10 — AI CLI Assistant | 🔴 Not Started | |
 
 ---
 
-## 4. Dependencies
+## 4. Priority Matrix
+
+| Feature | Priority | Effort | Nilai | Target |
+|---------|----------|--------|-------|--------|
+| F1 — Prompt Management | P1 | M | ⭐⭐⭐⭐ | v2.2 |
+| F2 — Embedding Providers | P1 | M | ⭐⭐⭐⭐ | v2.2 |
+| F3 — LLM Provider SDK | P2 | L | ⭐⭐⭐⭐⭐ | v2.2 |
+| F4 — Semantic Caching | P2 | L | ⭐⭐⭐⭐ | v2.3 |
+| F5 — AI Code Generation | P1 | XL | ⭐⭐⭐⭐⭐ | v2.3 |
+| F6 — Content Moderation | P2 | M | ⭐⭐⭐ | v2.3 |
+| F7 — AI Agent Platform | P2 | XL | ⭐⭐⭐⭐⭐ | v2.4 |
+| F8 — AI Admin Panel | P3 | XL | ⭐⭐⭐⭐ | v4.0 |
+| F9 — Autonomous Loop | P3 | XL | ⭐⭐⭐⭐⭐ | v4.0 |
+| F10 — AI CLI Assistant | P2 | M | ⭐⭐⭐⭐ | v2.4 |
+
+---
+
+## 5. Dependencies
 
 ```
 F1 (Prompts) ──────► F3 (LLM SDK)
@@ -490,7 +550,7 @@ F7 (Agent Platform) ─► F9 (Autonomous Loop)
 
 ---
 
-## 5. Success Metrics
+## 6. Success Metrics
 
 | Metric | Target |
 |--------|--------|

@@ -63,7 +63,7 @@ const result = await db.transaction(async (trx) => {
 const result = await db.raw('SELECT * FROM users WHERE active = ?', [true])
 ```
 
-### Raw SQL (v3.0.0 Type-safe Queries)
+### Raw SQL (v2.1.1 Type-safe Queries)
 
 ```typescript
 import { rawQuery, streamQuery, analyzeQuery, batchInsert, batchUpdate } from 'speexjs/server/database/query-v2'
@@ -73,7 +73,7 @@ const users = await rawQuery<User>('SELECT * FROM users WHERE age > ?', [18])
 // users: User[]
 ```
 
-### Streaming (v3.0.0)
+### Streaming (v2.1.1)
 
 Stream large result sets without loading everything into memory:
 
@@ -84,7 +84,7 @@ for await (const row of streamQuery('SELECT * FROM large_table WHERE processed =
 // Memory-efficient — rows are yielded one at a time
 ```
 
-### Query Analysis (v3.0.0)
+### Query Analysis (v2.1.1)
 
 Run EXPLAIN to analyze query performance:
 
@@ -97,7 +97,7 @@ console.log(plan)
 // { query: '...', plan: [...], warnings: [...], suggestions: [...] }
 ```
 
-### Batch Insert (v3.0.0)
+### Batch Insert (v2.1.1)
 
 Insert many rows efficiently with automatic chunking:
 
@@ -110,7 +110,7 @@ await batchInsert('users', [
 ], { chunkSize: 500 }) // 500 rows per INSERT statement
 ```
 
-### Batch Update (v3.0.0)
+### Batch Update (v2.1.1)
 
 Update many rows by key field in a single operation:
 

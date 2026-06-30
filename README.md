@@ -6,7 +6,7 @@
 npm install speexjs
 ```
 
-> v3.0.0 • 550+ features • 3,000+ tests • 0 TypeScript errors • 0 known bugs • Zero deps
+> v2.1.1 • 550+ features • ~2,400 tests • 0 TypeScript errors • 0 known bugs • Zero deps
 
 ---
 
@@ -34,7 +34,7 @@ Open `http://localhost:3000` — you're running.
 
 ## Features (550+)
 
-### 🖥️ DevTools Dashboard (NEW in v3.0)
+### 🖥️ DevTools Dashboard
 | Feature | Description |
 |---|---|
 | **Unified Dashboard** | Consolidated developer dashboard at `/_speex/devtools` |
@@ -46,7 +46,7 @@ Open `http://localhost:3000` — you're running.
 | **Queue Monitor** | Job counts, retry, payload viewer, error stack |
 | **Env Viewer** | All env vars (secrets masked), validation status |
 
-### ⚡ HMR 2.0 — True Hot Module Replacement (NEW in v3.0)
+### ⚡ HMR 2.0 — True Hot Module Replacement
 | Feature | Description |
 |---|---|
 | **Selective Reload** | Route changes → reload registry only; Controller → invalidate cache |
@@ -54,7 +54,7 @@ Open `http://localhost:3000` — you're running.
 | **Debounced Watching** | 300ms debounce, skips node_modules, graceful process management |
 | **HMR Stats** | Track total/selective/full reload counts with timing |
 
-### 💾 Storage 2.0 (NEW in v3.0)
+### 💾 Storage 2.0
 | Feature | Description |
 |---|---|
 | **File Validation** | MIME type checking, size validation (B/KB/MB/GB/TB) |
@@ -62,7 +62,7 @@ Open `http://localhost:3000` — you're running.
 | **Signed URLs** | HMAC-SHA256 signed URLs with TTL, method/IP restriction |
 | **Streaming** | Upload/download streams with backpressure handling |
 
-### 🔍 Search Engine (NEW in v3.0)
+### 🔍 Search Engine
 | Feature | Description |
 |---|---|
 | **TF-IDF Search** | Full-text search with term frequency-inverse document frequency |
@@ -71,7 +71,7 @@ Open `http://localhost:3000` — you're running.
 | **Fluent Query** | `.where().fuzzy().highlight().limit().offset().get()` |
 | **PostgreSQL Support** | tsvector/tsquery helpers for native full-text search |
 
-### 📊 Performance Analyzer (NEW in v3.0)
+### 📊 Performance Analyzer
 | Feature | Description |
 |---|---|
 | **Route Latency** | `speexjs metrics:report --routes` — p50/p95/p99 per route |
@@ -79,7 +79,7 @@ Open `http://localhost:3000` — you're running.
 | **Query Performance** | `speexjs metrics:queries` — slow query detection |
 | **Memory Profile** | `speexjs metrics:memory` — heap usage with visual bar chart |
 
-### 🔄 API Versioning & SDK Evolution (NEW in v3.0)
+### 🔄 API Versioning & SDK Evolution
 | Feature | Description |
 |---|---|
 | **Version Registry** | `registerVersion()`, `getVersionedHandler()` with fallback |
@@ -87,7 +87,7 @@ Open `http://localhost:3000` — you're running.
 | **SDK Diff** | `speexjs sdk:diff` — detect breaking changes between SDK versions |
 | **OpenAPI 3.1** | oneOf (discriminated unions), allOf (intersections), examples |
 
-### 🔐 Auth 2.0 — SSO & Enterprise (NEW in v3.0)
+### 🔐 Auth 2.0 — SSO & Enterprise
 | Feature | Description |
 |---|---|
 | **SAML2 Guard** | AuthnRequest generation, Response parsing, RSA-SHA256 signature verification |
@@ -97,7 +97,7 @@ Open `http://localhost:3000` — you're running.
 | **Session Manager** | List, revoke, bulk revoke sessions |
 | **Login Lockout** | Configurable rate limiting with exponential backoff |
 
-### 📨 Queue 2.0 (NEW in v3.0)
+### 📨 Queue 2.0
 | Feature | Description |
 |---|---|
 | **Delayed Jobs** | Schedule jobs with '1h', '30m', or absolute ISO dates |
@@ -107,7 +107,7 @@ Open `http://localhost:3000` — you're running.
 | **Dead Letter Queue** | Retry all failed, clear, inspect payload |
 | **Priority Queue** | Sort by priority (1 highest - 10 lowest), singleton dedup |
 
-### 🗄️ Query Builder 2.0 (NEW in v3.0)
+### 🗄️ Query Builder 2.0
 | Feature | Description |
 |---|---|
 | **Type-Safe Raw Queries** | `db.raw<T>('SELECT ...', params)` with generic return type |
@@ -116,7 +116,7 @@ Open `http://localhost:3000` — you're running.
 | **Batch Insert** | Chunked multi-row INSERT (default 500) with progress callback |
 | **Batch Update** | Key-field based batch UPDATE with transaction support |
 
-### 🔧 CLI Gen 2 (NEW in v3.0)
+### 🔧 CLI Gen 2
 | Feature | Description |
 |---|---|
 | `make:resource --schema` | Schema-driven full CRUD with validation, routes, tests |
@@ -238,17 +238,17 @@ Open `http://localhost:3000` — you're running.
 
 ## Benchmarks
 
-| | SpeexJS v3.0 | Hono | Fastify | Express |
+| | SpeexJS v2.1.1 | Hono | Fastify | Express |
 |---|---|---|---|---|
 | Bundle size | **~218 KB** | 50 KB | 1 MB | 2 MB |
 | Dependencies | **Zero** | Zero | 30+ | 40+ |
 | Features | **550+** | 20+ | 30+ | 20+ |
-| Tests | **3,000+** | ~500 | ~800 | ~1,000 |
+| Tests | **~2,400** | ~500 | ~800 | ~1,000 |
 | Coverage | **97.1%** | ~75% | ~80% | ~70% |
 | TypeScript errors | **0** | — | — | — |
 | Known bugs | **0** | — | — | — |
-| Subpath exports | **55+** | 5+ | 10+ | 3+ |
-| CLI commands | **35+** | — | — | — |
+| Subpath exports | **52** | 5+ | 10+ | 3+ |
+| CLI commands | **33** | — | — | — |
 
 ---
 

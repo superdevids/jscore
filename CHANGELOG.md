@@ -1,6 +1,18 @@
 # Changelog
 
-## v3.0.0 (2026-06-30) — "Developer Maturity"
+## v2.1.1 (2026-06-30) — "Build Fix & npm Release"
+
+### 🐛 Fixes
+- **Build error 1**: Added `'sharp'` to tsup externals to prevent bundling native module
+- **Build error 2**: Fixed bash template interpolation syntax in `deploy.ts` (`${2:-5}` → `${D}{2:-5}`)
+- **Build error 3**: Added non-null assertions for `noUncheckedIndexedAccess` in `search/index.ts`
+- **CI**: Successful build, npm publish, and GitHub push
+
+### 📦 Published
+- Package published to npm as **speexjs@2.1.1**
+- Git tag: `v2.1.1`
+
+## v3.0.0-alpha.14 (2026-06-30) — "Developer Maturity"
 
 ### 🚀 PRD05 — All 10 Next-Gen Features Implemented
 
@@ -92,9 +104,9 @@
 
 ### 📊 Stats
 - **550+ features** (500+ → 550+)
-- **3,000+ tests**
-- **35+ CLI commands**
-- **55+ subpath exports**
+- **~2,400 tests** (2,357+ passing)
+- **33 CLI commands** (29 wired, 4 stubs)
+- **52 subpath exports**
 - **0 TypeScript errors**
 - **0 known bugs**
 - **97.1%+ coverage**

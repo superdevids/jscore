@@ -2,7 +2,7 @@
 ## Volume 2 — Scale, Intelligence & Ecosystem
 
 > **Version:** 3.0.0
-> **Status:** ✅ All features implemented in v3.0.0
+> **Status:** ✅ All features implemented in v2.1.1
 > **Last Updated:** 2026-06-29
 > **Predecessor:** PRD v1.0 (F1–F15, target v2.0)
 > **Author:** Independent Analysis (based on speexjs v1.6.1 + PRD v1.0)

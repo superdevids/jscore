@@ -1,6 +1,6 @@
 # Getting Started with SpeexJS
 
-**Version:** 3.0.0 | **License:** MIT | **Runtime:** Node.js 18+ / Bun
+**Version:** 2.1.1 | **License:** MIT | **Runtime:** Node.js 20+ / Bun
 
 ## What is SpeexJS?
 
@@ -475,7 +475,7 @@ main()
 
 ## DevTools Dashboard
 
-SpeexJS v3.0.0 ships with a development-only DevTools Dashboard at `/_speex/devtools`. Launch your app in development mode and visit:
+SpeexJS v2.1.1 ships with a development-only DevTools Dashboard at `/_speex/devtools`. Launch your app in development mode and visit:
 
 ```
 http://localhost:3000/_speex/devtools

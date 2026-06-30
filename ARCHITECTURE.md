@@ -1,6 +1,6 @@
 # Architecture — SpeexJS Web Framework
 
-> **Package:** speexjs · **Version:** 3.0.0 · **Zero Dependencies**
+> **Package:** speexjs · **Version:** 2.1.1 · **Zero Dependencies**
 > **Last Updated:** 2026-06-30
 
 ---
@@ -388,7 +388,7 @@ const users = await db
 
 ### Query Builder 2.0
 
-Introduced in v3.0.0, the Query Builder 2.0 layer adds advanced query capabilities:
+Introduced in v2.1.1, the Query Builder 2.0 layer adds advanced query capabilities:
 
 - **Typed raw queries** — Execute raw SQL with type-safe parameter binding and result typing
 - **Streaming** — Stream large result sets row-by-row without loading into memory (Node.js async iteration)

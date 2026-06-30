@@ -1,4 +1,4 @@
-# SpeexJS v3.0.0 — Comprehensive PRD Alignment Analysis
+# SpeexJS v2.1.1 — Comprehensive PRD Alignment Analysis
 
 > **Analyzed:** 2026-06-30
 > **Scope:** All 5 PRD documents vs actual source code implementation
@@ -10,12 +10,12 @@
 
 | Metric | Value |
 |--------|-------|
-| **Current Version** | v3.0.0 (package.json) |
+| **Current Version** | v2.1.1 (package.json) |
 | **PRD Features (PRD01)** | 222+ — **100% aligned** ✅ |
 | **PRD02 "No Effort"** | F1-F15 — **100% aligned** ✅ (all gaps closed) |
 | **PRD03 "Scale & AI"** | F16-F30 — **100% aligned** ✅ (all gaps closed) |
 | **PRD04 "Production Hardening"** | N1-N10 — **100% aligned** ✅ (all gaps closed) |
-| **PRD05 "Vision v3.x"** | **100% implemented** ✅ (all 10 features shipped) |
+| **PRD05 "Vision v2.x"** | **100% implemented** ✅ (all 10 features shipped) |
 | **Overall Alignment** | **100%** of all documented features are implemented |
 
 ---
@@ -124,9 +124,9 @@
 
 ---
 
-## PRD05 — "Vision v3.x" ✅ 100% IMPLEMENTED (ALL 10 FEATURES)
+## PRD05 — "Vision v2.x" ✅ 100% IMPLEMENTED (ALL 10 FEATURES)
 
-All 10 PRD05 features have been implemented in v3.0.0:
+All 10 PRD05 features have been implemented in v2.1.1:
 
 | PRD | Feature | Priority | Status | Location |
 |-----|---------|----------|--------|----------|
@@ -204,7 +204,7 @@ PRD05 (10 features):    ██████████████████�
 OVERALL:                ████████████████████ 100% ✅
 ```
 
-**Conclusion: SpeexJS v3.0.0 is fully aligned with all 5 PRDs.**
+**Conclusion: SpeexJS v2.1.1 is fully aligned with all 5 PRDs.**
 - PRD01 features are 100% shipped
 - PRD02-PRD04 features are 100% shipped
 - PRD05 features are 100% shipped (all 10 features)

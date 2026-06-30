@@ -4,7 +4,7 @@ The `speexjs` CLI provides 30+ commands for project scaffolding, code generation
 
 ```bash
 speexjs --help
-speexjs -v            # → v3.0.0
+speexjs -v            # → v2.1.1
 ```
 
 ---
@@ -341,12 +341,12 @@ speexjs make:flag dark-mode
 
 ### `speexjs make:test`
 
-Generate a test file. In v3.0.0, can also generate tests by introspecting an existing controller.
+Generate a test file. In v2.1.1, can also generate tests by introspecting an existing controller.
 
 ```bash
 speexjs make:test UserController
 speexjs make:test AuthLogin
-speexjs make:test UserController --from-controller   # v3.0.0: auto-generates tests from controller routes
+speexjs make:test UserController --from-controller   # v2.1.1: auto-generates tests from controller routes
 ```
 
 **Output:** `tests/UserController.test.ts`
@@ -659,8 +659,8 @@ speexjs deploy --init             # Initialize deployment config
 | `--railway` | `boolean` | Deploy to Railway |
 | `--render` | `boolean` | Deploy to Render |
 | `--flyio` | `boolean` | Deploy to Fly.io |
-| `--blue-green` | `boolean` | Zero-downtime blue-green deployment (v3.0.0) |
-| `--rollback` | `boolean` | Rollback to previous deployment (v3.0.0) |
+| `--blue-green` | `boolean` | Zero-downtime blue-green deployment (v2.1.1) |
+| `--rollback` | `boolean` | Rollback to previous deployment (v2.1.1) |
 | `--init` | `boolean` | Generate deployment config only |
 
 ---
@@ -678,7 +678,7 @@ speexjs tinker
 Allows you to run database queries, test models, and interact with the app in real time.
 
 ```
-SpeexJS Tinker v3.0.0
+SpeexJS Tinker v2.1.1
 > await User.all()
 > await db.table('users').where('active', true).count()
 > const user = await User.find(1)
