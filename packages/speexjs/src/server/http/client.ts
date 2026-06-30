@@ -7,8 +7,14 @@ export class HttpClient {
     this.baseUrl = baseUrl.replace(/\/$/, '')
   }
 
-  setHeader(name: string, value: string): this { this.defaultHeaders[name] = value; return this }
-  setTimeout(ms: number): this { this.timeoutMs = ms; return this }
+  setHeader(name: string, value: string): this {
+    this.defaultHeaders[name] = value
+    return this
+  }
+  setTimeout(ms: number): this {
+    this.timeoutMs = ms
+    return this
+  }
 
   async get<T = unknown>(path: string): Promise<HttpResponse<T>> {
     return this.request<T>('GET', path)
@@ -31,13 +37,16 @@ export class HttpClient {
     const timer = setTimeout(() => controller.abort(), this.timeoutMs)
     try {
       const res = await fetch(`${this.baseUrl}${path}`, {
-        method, headers: { 'content-type': 'application/json', ...this.defaultHeaders },
+        method,
+        headers: { 'content-type': 'application/json', ...this.defaultHeaders },
         body: body ? JSON.stringify(body) : undefined,
         signal: controller.signal,
       })
-      const data = await res.json()
+      const data = res.status === 204 ? null : await res.json()
       return { status: res.status, ok: res.ok, data, headers: Object.fromEntries(res.headers) }
-    } finally { clearTimeout(timer) }
+    } finally {
+      clearTimeout(timer)
+    }
   }
 }
 

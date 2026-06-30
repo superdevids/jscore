@@ -14,14 +14,17 @@ interface RelationDefinition {
 
 export class Model {
   /** Primary key */
-  id?: number | string
+  id?: number | string;
   /** Dynamic properties from database */
   [key: string]: unknown
 
   static table: string = ''
   static connection: QueryRunner | null = null
   protected static queryRunner: QueryRunner | null = null
-  private static classStores = new WeakMap<typeof Model, { relationDefs: Map<string, RelationDefinition>; eagerLoads: Map<string, boolean> }>()
+  private static classStores = new WeakMap<
+    typeof Model,
+    { relationDefs: Map<string, RelationDefinition>; eagerLoads: Map<string, boolean> }
+  >()
 
   private static getStore(): { relationDefs: Map<string, RelationDefinition>; eagerLoads: Map<string, boolean> } {
     let store = this.classStores.get(this)
@@ -48,11 +51,7 @@ export class Model {
 
   // ─── Relations Definition ──────────────────────────────────
 
-  static hasOne(
-    relatedModel: typeof Model,
-    foreignKey?: string,
-    localKey?: string,
-  ): void {
+  static hasOne(relatedModel: typeof Model, foreignKey?: string, localKey?: string): void {
     const key = `hasOne:${relatedModel.table}`
     this.getStore().relationDefs.set(key, {
       type: 'hasOne',
@@ -62,11 +61,7 @@ export class Model {
     })
   }
 
-  static hasMany(
-    relatedModel: typeof Model,
-    foreignKey?: string,
-    localKey?: string,
-  ): void {
+  static hasMany(relatedModel: typeof Model, foreignKey?: string, localKey?: string): void {
     const key = `hasMany:${relatedModel.table}`
     this.getStore().relationDefs.set(key, {
       type: 'hasMany',
@@ -76,11 +71,7 @@ export class Model {
     })
   }
 
-  static belongsTo(
-    relatedModel: typeof Model,
-    foreignKey?: string,
-    ownerKey?: string,
-  ): void {
+  static belongsTo(relatedModel: typeof Model, foreignKey?: string, ownerKey?: string): void {
     const key = `belongsTo:${relatedModel.table}`
     this.getStore().relationDefs.set(key, {
       type: 'belongsTo',
@@ -90,12 +81,7 @@ export class Model {
     })
   }
 
-  static belongsToMany(
-    relatedModel: typeof Model,
-    pivotTable?: string,
-    foreignPivotKey?: string,
-    relatedPivotKey?: string,
-  ): void {
+  static belongsToMany(relatedModel: typeof Model, pivotTable?: string, foreignPivotKey?: string, relatedPivotKey?: string): void {
     const tables = [this.table, relatedModel.table].sort()
     const key = `belongsToMany:${relatedModel.table}`
     this.getStore().relationDefs.set(key, {
@@ -107,10 +93,7 @@ export class Model {
     })
   }
 
-  static morphMany(
-    relatedModel: typeof Model,
-    morphName: string,
-  ): void {
+  static morphMany(relatedModel: typeof Model, morphName: string): void {
     const key = `morphMany:${morphName}`
     this.getStore().relationDefs.set(key, {
       type: 'morphMany',
@@ -121,11 +104,7 @@ export class Model {
     })
   }
 
-  static morphOne(
-    relatedModel: typeof Model,
-    morphName: string,
-    foreignKey?: string,
-  ): void {
+  static morphOne(relatedModel: typeof Model, morphName: string, foreignKey?: string): void {
     const key = `morphOne:${morphName}`
     this.getStore().relationDefs.set(key, {
       type: 'morphOne',
@@ -173,6 +152,12 @@ export class Model {
     return instance as InstanceType<T>
   }
 
+  static async findOrFail<T extends typeof Model>(this: T, id: number | string): Promise<InstanceType<T>> {
+    const instance = await this.find(id)
+    if (!instance) throw new Error(`No record found for id ${id} in table ${this.table}`)
+    return instance as InstanceType<T>
+  }
+
   static async where<T extends typeof Model>(this: T, column: string, value: any): Promise<QueryBuilder> {
     return this.query().where(column, value)
   }
@@ -183,23 +168,58 @@ export class Model {
   }
 
   static async updateOrCreate<T extends typeof Model>(
-    this: T, attributes: Record<string, any>, values?: Record<string, any>,
+    this: T,
+    attributes: Record<string, any>,
+    values?: Record<string, any>,
   ): Promise<InstanceType<T>> {
     const qb = this.query()
     for (const [key, value] of Object.entries(attributes)) {
       qb.where(key, value)
     }
-	const existing = await qb.first()
-	if (existing) {
-		const mergeValues = values ?? attributes
-		const updateQb = new QueryBuilder(this.queryRunner!, this.table)
-		for (const [key, value] of Object.entries(attributes)) {
-			updateQb.where(key, value)
-		}
-		await updateQb.update(mergeValues)
-		return this.hydrate({ ...existing, ...mergeValues })
-	}
+    const existing = await qb.first()
+    if (existing) {
+      const mergeValues = values ?? attributes
+      const updateQb = new QueryBuilder(this.queryRunner!, this.table)
+      for (const [key, value] of Object.entries(attributes)) {
+        updateQb.where(key, value)
+      }
+      await updateQb.update(mergeValues)
+      return this.hydrate({ ...existing, ...mergeValues })
+    }
     return (await this.create({ ...attributes, ...values })) as InstanceType<T>
+  }
+
+  static async firstOrCreate<T extends typeof Model>(
+    this: T,
+    attributes: Record<string, any>,
+    values?: Record<string, any>,
+  ): Promise<InstanceType<T>> {
+    const qb = this.query()
+    for (const [key, val] of Object.entries(attributes)) {
+      qb.where(key, val)
+    }
+    const existing = await qb.first()
+    if (existing) return this.hydrate(existing) as InstanceType<T>
+    return this.create({ ...attributes, ...values }) as Promise<InstanceType<T>>
+  }
+
+  static async firstOrNew<T extends typeof Model>(
+    this: T,
+    attributes: Record<string, any>,
+    values?: Record<string, any>,
+  ): Promise<InstanceType<T>> {
+    const qb = this.query()
+    for (const [key, val] of Object.entries(attributes)) {
+      qb.where(key, val)
+    }
+    const existing = await qb.first()
+    if (existing) return this.hydrate(existing) as InstanceType<T>
+    const instance = new this() as InstanceType<T>
+    const merged = { ...attributes, ...values }
+    for (const [key, val] of Object.entries(merged)) {
+      ;(instance as any)[key] = val
+    }
+    return instance
   }
 
   // ─── Instance Methods ──────────────────────────────────────
@@ -220,6 +240,30 @@ export class Model {
     const id = this.id
     if (id !== undefined && id !== null) {
       await ModelClass.query().where('id', id).delete()
+    }
+  }
+
+  async fresh(): Promise<this | null> {
+    const ModelClass = this.constructor as typeof Model
+    if (this.id === undefined || this.id === null) return null
+    const row = await ModelClass.query().find(this.id)
+    if (!row) return null
+    const instance = new (ModelClass as any)() as this
+    for (const [key, value] of Object.entries(row)) {
+      instance[key as keyof this] = value as this[keyof this]
+    }
+    return instance
+  }
+
+  async refresh(): Promise<void> {
+    const ModelClass = this.constructor as typeof Model
+    if (this.id === undefined || this.id === null) return
+    const row = await ModelClass.query().find(this.id)
+    if (row) {
+      const self = this as Record<string, unknown>
+      for (const [key, value] of Object.entries(row)) {
+        if (!key.startsWith('_')) self[key] = value
+      }
     }
   }
 
@@ -244,7 +288,7 @@ export class Model {
   }
 
   async loadMissing(...relations: string[]): Promise<void> {
-    const missing = relations.filter(r => !this._relations[r])
+    const missing = relations.filter((r) => !this._relations[r])
     if (missing.length > 0) await this.load(...missing)
   }
 
@@ -294,20 +338,22 @@ export class Model {
           const related = await def.relatedModel.query().whereIn('id', relatedIds).get()
           for (const inst of instances) {
             const pivots = pivotRows.filter((p: any) => p[def.foreignKey] === inst[def.localKey])
-            inst._relations[key] = pivots
-              .map((p: any) => related.find((r: any) => r.id === p[def.localKey]))
-              .filter(Boolean)
+            inst._relations[key] = pivots.map((p: any) => related.find((r: any) => r.id === p[def.localKey])).filter(Boolean)
           }
         } else {
-          for (const inst of instances) { inst._relations[key] = [] }
+          for (const inst of instances) {
+            inst._relations[key] = []
+          }
         }
       }
 
       if (def.type === 'morphMany' && def.morphName) {
         if (!def.relatedModel.queryRunner) def.relatedModel.setConnection(this.queryRunner!)
-        const related = await def.relatedModel.query()
+        const related = await def.relatedModel
+          .query()
           .where(`${def.morphName}_type`, this.name)
-          .whereIn(`${def.morphName}_id`, localIds).get()
+          .whereIn(`${def.morphName}_id`, localIds)
+          .get()
         for (const inst of instances) {
           inst._relations[key] = related.filter((r: any) => r[`${def.morphName}_id`] === inst[def.localKey])
         }
@@ -315,9 +361,11 @@ export class Model {
 
       if (def.type === 'morphOne' && def.morphName) {
         if (!def.relatedModel.queryRunner) def.relatedModel.setConnection(this.queryRunner!)
-        const related = await def.relatedModel.query()
+        const related = await def.relatedModel
+          .query()
           .where(`${def.morphName}_type`, this.name)
-          .whereIn(`${def.morphName}_id`, localIds).get()
+          .whereIn(`${def.morphName}_id`, localIds)
+          .get()
         for (const inst of instances) {
           inst._relations[key] = related.find((r: any) => r[`${def.morphName}_id`] === inst[def.localKey]) ?? null
         }
@@ -326,9 +374,7 @@ export class Model {
       if (def.type === 'morphToMany' && def.morphName && def.pivotTable) {
         if (!def.relatedModel.queryRunner) def.relatedModel.setConnection(this.queryRunner!)
         const pivotQb = new QueryBuilder(this.queryRunner!, def.pivotTable)
-        const pivotRows = await pivotQb
-          .where(`${def.morphName}_type`, this.name)
-          .whereIn(`${def.morphName}_id`, localIds).get()
+        const pivotRows = await pivotQb.where(`${def.morphName}_type`, this.name).whereIn(`${def.morphName}_id`, localIds).get()
         const relatedIds = pivotRows.map((r: any) => r[`${def.relatedModel.table}_id`])
         if (relatedIds.length > 0) {
           const related = await def.relatedModel.query().whereIn('id', relatedIds).get()
@@ -339,7 +385,9 @@ export class Model {
               .filter(Boolean)
           }
         } else {
-          for (const inst of instances) { inst._relations[key] = [] }
+          for (const inst of instances) {
+            inst._relations[key] = []
+          }
         }
       }
     }
@@ -359,14 +407,8 @@ export class Model {
     const data: Record<string, any> = {}
     const instance = this as Record<string, any>
     const prototype = Object.getPrototypeOf(this)
-    const ownKeys = [
-      ...Object.getOwnPropertyNames(instance),
-      ...Object.keys(instance),
-    ]
-    const classKeys = new Set([
-      ...Object.getOwnPropertyNames(prototype),
-      'save', 'delete', 'getData',
-    ])
+    const ownKeys = [...Object.getOwnPropertyNames(instance), ...Object.keys(instance)]
+    const classKeys = new Set([...Object.getOwnPropertyNames(prototype), 'save', 'delete', 'getData'])
     for (const key of ownKeys) {
       if (typeof key === 'string' && !classKeys.has(key) && key !== 'constructor' && !key.startsWith('_')) {
         data[key] = instance[key]

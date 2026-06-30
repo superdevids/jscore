@@ -1,5 +1,17 @@
 import { createConnection } from 'node:net'
 
+// WARNING: This is a raw TCP implementation of the Redis protocol.
+// It is NOT production-ready. It lacks:
+//   - TLS/SSL support
+//   - Connection pooling
+//   - Reconnection with backoff
+//   - Pub/Sub support
+//   - Cluster/Sentinel support
+//   - Proper error handling for malformed replies
+//
+// For production use, replace with the `ioredis` package:
+//   import IORedis from 'ioredis'
+//   const client = new IORedis(process.env.REDIS_URL)
 export class RedisCacheStore {
   private client: any = null
 
@@ -18,7 +30,10 @@ export class RedisCacheStore {
       }
       this.client.on('data', onData)
       this.client.write(`GET ${key}\r\n`)
-      setTimeout(() => { this.client.removeListener('data', onData); resolve(null) }, 1000)
+      setTimeout(() => {
+        this.client.removeListener('data', onData)
+        resolve(null)
+      }, 1000)
     })
   }
 
@@ -37,5 +52,7 @@ export class RedisCacheStore {
     this.client.write('FLUSHDB\r\n')
   }
 
-  close(): void { this.client?.end() }
+  close(): void {
+    this.client?.end()
+  }
 }

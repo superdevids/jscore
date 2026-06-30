@@ -64,12 +64,16 @@ export class Tenant extends Model {
 }
 
 export function addTenantScope(queryRunner: QueryRunner, table: string): QueryRunner {
+  // Validate table name to prevent SQL injection
+  if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
+    throw new Error(`Invalid table name: ${table}`)
+  }
   const originalRaw = queryRunner.raw.bind(queryRunner)
   queryRunner.raw = async (sql: string, bindings?: any[]) => {
     const tenantId = TenantContext.getCurrent()
     if (tenantId && table && !sql.includes('tenant_id')) {
       const hasWhere = /WHERE/i.test(sql)
-      const whereClause = hasWhere ? ` AND \`${table}\`.\`tenant_id\` = ?` : ` WHERE \`${table}\`.\`tenant_id\` = ?`
+      const whereClause = hasWhere ? ` AND ${table}.tenant_id = ?` : ` WHERE ${table}.tenant_id = ?`
       sql = sql + whereClause
       bindings = [...(bindings ?? []), tenantId]
     }

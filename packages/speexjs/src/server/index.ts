@@ -21,12 +21,24 @@ import type { ControllerClass } from './router'
 import { type RouteContext, type RouteHandler, Router } from './router'
 import type { ViewEngine } from './view/index.js'
 import { generateDashboardHtml, trackQuery, getRecentQueries } from './debug/dashboard.js'
+
 import { DatabaseConnection } from './database/connection.js'
+import { FlagManager, generateFlagsDashboardHtml } from './flags/dashboard.js'
+import { generateDatabaseGuiHtml, setGuiState } from './admin/database-gui.js'
 
 export { Cache, type CacheConfig, cacheResponse } from './cache'
 export { PageView } from './view/index.js'
 export type { ViewEngine } from './view/index.js'
 export * from './database/index.js'
+export { DatabaseMesh } from './database-mesh/index.js'
+export type {
+  DataSourceConfig,
+  DataSourceType,
+  UnifiedQuery,
+  DataSourceAdapter,
+  QueryResult as MeshQueryResult,
+  TableInfo as MeshTableInfo,
+} from './database-mesh/index.js'
 export { loadConfig, defineConfig } from './config/manager'
 export type { SpeexConfig } from './config/manager'
 export { env, requireEnv, validateEnv, generateEnvExample } from './env'
@@ -68,6 +80,8 @@ export { PubSub, SubscriptionServer } from './graphql/subscriptions.js'
 export { generateOpenApiSpec } from './openapi/index.js'
 export { serveSwaggerUI } from './openapi/ui.js'
 export { createRevalidateHandler, staleWhileRevalidateMiddleware } from './isr/index.js'
+export { PageBuilder, AdminPanel } from './admin/index.js'
+export type { PageComponent, AdminResource } from './admin/index.js'
 
 export interface AppOptions {
   engine?: ServerEngine
@@ -234,6 +248,7 @@ export class SuperApp {
     })
 
     this.setupDebugMode()
+    this.setupAdminMode()
 
     const listenPort = port ?? 3000
     const listenHost = host ?? '0.0.0.0'
@@ -347,6 +362,130 @@ export class SuperApp {
         trackQuery(sql, Date.now() - start, bindings)
       }
     }
+
+    this.router.get('/_speexjs/flags', async (ctx) => {
+      const html = generateFlagsDashboardHtml()
+      ctx.response.html(html)
+    })
+
+    this.router.post('/_speexjs/flags/toggle', async (ctx) => {
+      const body = (await ctx.request.json()) as { name: string; enabled: boolean }
+      if (body?.name) {
+        FlagManager.instance.update(body.name, { enabled: body.enabled })
+        ctx.response.json({ ok: true })
+      } else {
+        ctx.response.status(400).json({ error: 'Missing name' })
+      }
+    })
+
+    this.router.post('/_speexjs/flags/update', async (ctx) => {
+      const body = (await ctx.request.json()) as { name: string; rollout?: number }
+      if (body?.name) {
+        FlagManager.instance.update(body.name, { rollout: body.rollout })
+        ctx.response.json({ ok: true })
+      } else {
+        ctx.response.status(400).json({ error: 'Missing name' })
+      }
+    })
+  }
+
+  private setupAdminMode(): void {
+    if (process.env.SPEEXJS_ADMIN !== 'true') return
+
+    this.router.get('/_speexjs/admin/db', async (ctx) => {
+      const params = ctx.request.query as Record<string, string>
+      const action = params.table ? 'table' : params.query !== undefined ? 'query' : 'browse'
+
+      let db: DatabaseConnection | null = null
+      try {
+        db = this.container.resolve<DatabaseConnection>('db')
+      } catch {
+        ctx.response.html(
+          `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Database GUI – SpeexJS</title><style>body{font-family:sans-serif;background:#0d1117;color:#c9d1d9;padding:2rem}</style></head><body><h1>Database GUI</h1><p style="color:#f85149">No database connection registered in the container.</p><p style="color:#8b949e">Register a DatabaseConnection with the name 'db' to use the GUI.</p></body></html>`,
+        )
+        return
+      }
+
+      const html = await generateDatabaseGuiHtml(db, action, params)
+      ctx.response.html(html)
+    })
+
+    this.router.post('/_speexjs/admin/db/query', async (ctx) => {
+      let db: DatabaseConnection | null = null
+      try {
+        db = this.container.resolve<DatabaseConnection>('db')
+      } catch {
+        ctx.response.json({ error: 'No database connection' })
+        return
+      }
+
+      const form = await ctx.request.formData()
+      const sql = (form.sql ?? '').trim()
+
+      if (!sql) {
+        setGuiState({ message: 'SQL query is empty.', messageType: 'error' })
+        ctx.response.redirect('/_speexjs/admin/db?query=1')
+        return
+      }
+
+      const trimmed = sql.trim().toUpperCase()
+      if (!trimmed.startsWith('SELECT') && !trimmed.startsWith('PRAGMA') && !trimmed.startsWith('EXPLAIN') && !trimmed.startsWith('WITH')) {
+        setGuiState({ message: 'Only SELECT queries are allowed in safe mode.', messageType: 'error' })
+        ctx.response.redirect('/_speexjs/admin/db?query=1')
+        return
+      }
+
+      try {
+        const result = await db.raw(sql)
+        setGuiState({
+          message: `Query executed successfully (${result.rows.length} rows).`,
+          messageType: 'success',
+          lastQuery: sql,
+          lastResult: result,
+        })
+      } catch (err: unknown) {
+        setGuiState({
+          message: `Error: ${err instanceof Error ? err.message : String(err)}`,
+          messageType: 'error',
+          lastQuery: sql,
+          lastResult: null,
+        })
+      }
+
+      ctx.response.redirect('/_speexjs/admin/db?query=1')
+    })
+
+    this.router.get('/_speexjs/admin/db/export', async (ctx) => {
+      const format = (ctx.request.query.format as string) || 'json'
+      const state = (await import('./admin/database-gui.js')).getGuiState()
+      if (!state.lastResult || state.lastResult.rows.length === 0) {
+        ctx.response.status(400).json({ error: 'No results to export' })
+        return
+      }
+
+      const columns =
+        state.lastResult.fields && state.lastResult.fields.length > 0
+          ? (state.lastResult.fields as any[]).map((f: any) => (typeof f === 'object' ? (f.name ?? f.orgName ?? '?') : String(f)))
+          : Object.keys(state.lastResult.rows[0] ?? {})
+
+      if (format === 'csv') {
+        const header = columns.map((c: string) => `"${c.replace(/"/g, '""')}"`).join(',')
+        const rows = state.lastResult.rows.map((row: any) =>
+          columns
+            .map((col: string) => {
+              const v = row[col]
+              if (v === null || v === undefined) return ''
+              return `"${String(v).replace(/"/g, '""')}"`
+            })
+            .join(','),
+        )
+        const csv = [header, ...rows].join('\n')
+        ctx.response.type('text/csv').header('content-disposition', 'attachment; filename="export.csv"').send(csv)
+      } else {
+        const json = JSON.stringify(state.lastResult.rows, null, 2)
+        ctx.response.type('application/json').header('content-disposition', 'attachment; filename="export.json"').send(json)
+      }
+    })
   }
 
   private async handleRequest(req: SuperRequest, res: SuperResponse): Promise<void> {

@@ -4,15 +4,22 @@ export class QueueMonitor {
   private stats = { processed: 0, failed: 0, pending: 0 }
 
   attach(queue: Queue): void {
-    // Wrap queue's push to track stats
-    const originalPush = (queue as any).push.bind(queue)
-    ;(queue as any).push = (name: string, payload: unknown) => {
+    queue.on('pending', () => {
       this.stats.pending++
-      originalPush(name, payload)
-    }
+    })
+    queue.on('processed', () => {
+      this.stats.pending = Math.max(0, this.stats.pending - 1)
+      this.stats.processed++
+    })
+    queue.on('failed', () => {
+      this.stats.pending = Math.max(0, this.stats.pending - 1)
+      this.stats.failed++
+    })
   }
 
-  getStats() { return { ...this.stats } }
+  getStats() {
+    return { ...this.stats }
+  }
 
   getHtml(): string {
     return `<html><body><h1>Queue Monitor</h1>

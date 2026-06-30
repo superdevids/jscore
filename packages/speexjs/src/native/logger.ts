@@ -86,7 +86,20 @@ export class Logger {
     }
 
     if (meta && Object.keys(meta).length > 0) {
-      parts.push(JSON.stringify(meta))
+      try {
+        parts.push(JSON.stringify(meta))
+      } catch {
+        const seen = new Set<object>()
+        parts.push(
+          JSON.stringify(meta, (_key: string, value: unknown) => {
+            if (typeof value === 'object' && value !== null) {
+              if (seen.has(value)) return '[Circular]'
+              seen.add(value)
+            }
+            return value
+          }),
+        )
+      }
     }
 
     return parts.join(' ')

@@ -1,8 +1,8 @@
 import type { Dialect } from './dialect.js'
-import type { JoinType, OrderDirection, QueryRunner } from './types.js'
+import type { JoinType, OrderDirection, QueryResult, QueryRunner } from './types.js'
 
 interface WhereClause {
-  type: 'basic' | 'in' | 'notIn' | 'null' | 'notNull' | 'between' | 'notBetween' | 'like' | 'nested' | 'raw' | 'exists' | 'column'
+  type: 'basic' | 'in' | 'notIn' | 'null' | 'notNull' | 'between' | 'notBetween' | 'like' | 'nested' | 'raw' | 'exists' | 'column' | 'json'
   column?: string
   operator?: string
   value?: unknown
@@ -11,6 +11,14 @@ interface WhereClause {
   nested?: WhereClause[]
   bindings?: any[]
 }
+
+export interface RawValue {
+  __raw: true
+  value: string
+  bindings?: any[]
+}
+
+export type InsertValues = Record<string, any>
 
 interface JoinClause {
   table: string
@@ -196,8 +204,44 @@ export class QueryBuilder {
     return this
   }
 
+  whereJson(column: string, value: any): this {
+    this.wheres.push({ type: 'json', column, value, boolean: 'and' })
+    this.dirty()
+    return this
+  }
+
   orWhereLike(column: string, pattern: string): this {
     this.wheres.push({ type: 'like', column, value: pattern, boolean: 'or' })
+    this.dirty()
+    return this
+  }
+
+  orWhereIn(column: string, values: any[]): this {
+    this.wheres.push({ type: 'in', column, values, boolean: 'or' })
+    this.dirty()
+    return this
+  }
+
+  orWhereNotIn(column: string, values: any[]): this {
+    this.wheres.push({ type: 'notIn', column, values, boolean: 'or' })
+    this.dirty()
+    return this
+  }
+
+  orWhereNull(column: string): this {
+    this.wheres.push({ type: 'null', column, boolean: 'or' })
+    this.dirty()
+    return this
+  }
+
+  orWhereNotNull(column: string): this {
+    this.wheres.push({ type: 'notNull', column, boolean: 'or' })
+    this.dirty()
+    return this
+  }
+
+  orWhereBetween(column: string, range: [any, any]): this {
+    this.wheres.push({ type: 'between', column, values: range, boolean: 'or' })
     this.dirty()
     return this
   }
@@ -263,7 +307,9 @@ export class QueryBuilder {
   }
 
   inRandomOrder(): this {
-    this.orderBys.push({ column: 'RANDOM()', direction: 'asc' })
+    const driver = this.connection.getDriver()
+    const fn = driver === 'mysql' ? 'RAND()' : 'RANDOM()'
+    this.orderBys.push({ column: fn, direction: 'asc' })
     this.dirty()
     return this
   }
@@ -365,6 +411,7 @@ export class QueryBuilder {
   }
 
   async paginate(perPage = 15, page = 1): Promise<PaginatedResult<any>> {
+    if (page < 1) throw new Error('Page number must be >= 1')
     perPage = Math.max(1, Math.min(perPage, 1000))
     const total = await this.count()
     const lastPage = Math.max(1, Math.ceil(total / perPage))
@@ -442,6 +489,26 @@ export class QueryBuilder {
     const { sql, bindings } = this.compileInsert(data)
     const result = await this.connection.raw(this.connection.getDialect().compileInsertReturning(sql, bindings), bindings)
     return result.rows.length > 0 ? result.rows[0] : null
+  }
+
+  async insertOrIgnore(data: InsertValues | InsertValues[]): Promise<QueryResult> {
+    const dialect = this.connection.getDialect()
+    const isArray = Array.isArray(data)
+    const rows = isArray ? data : [data]
+    const { sql, bindings } = rows.length === 1 ? this.compileInsert(rows[0]) : this.compileInsertMulti(rows)
+    return this.connection.raw(dialect.compileInsertOrIgnore(sql), bindings)
+  }
+
+  raw(value: string, bindings?: any[]): RawValue {
+    return { __raw: true, value, bindings }
+  }
+
+  async increment(column: string, amount = 1): Promise<number> {
+    return this.update({ [column]: this.raw(`${this.wrap(column)} + ?`, [amount]) })
+  }
+
+  async decrement(column: string, amount = 1): Promise<number> {
+    return this.update({ [column]: this.raw(`${this.wrap(column)} - ?`, [amount]) })
   }
 
   async update(data: Record<string, any>): Promise<number> {
@@ -712,6 +779,10 @@ export class QueryBuilder {
         return `EXISTS (SELECT 1 FROM ${dialect.wrapIdentifier(this.tableName)} WHERE ${this.compileWhereArray(w.nested!, dialect, bindings)})`
       case 'column':
         return `${dialect.wrapIdentifier(w.column!)} ${w.operator} ${dialect.wrapIdentifier(w.value as string)}`
+      case 'json': {
+        bindings.push(w.value !== undefined ? JSON.stringify(w.value) : null)
+        return `${col} = ${dialect.makeParameter(bindings.length - 1)}`
+      }
       default:
         return null
     }
@@ -745,6 +816,22 @@ export class QueryBuilder {
     return { sql, bindings }
   }
 
+  private compileInsertMulti(rows: Record<string, any>[]): { sql: string; bindings: any[] } {
+    if (rows.length === 0) throw new Error('Cannot insert empty array')
+    const dialect = this.connection.getDialect()
+    const bindings: any[] = []
+    const cols = Object.keys(rows[0]!)
+    const placeholders = rows.map((row) => {
+      const vals = cols.map((col) => {
+        bindings.push(row[col])
+        return dialect.makeParameter(bindings.length - 1)
+      })
+      return `(${vals.join(', ')})`
+    })
+    const sql = `INSERT INTO ${dialect.wrapIdentifier(this.tableName)} (${cols.map((c) => dialect.wrapIdentifier(c)).join(', ')}) VALUES ${placeholders.join(', ')}`
+    return { sql, bindings }
+  }
+
   private compileOrderByLimit(dialect: Dialect, bindings: any[]): string {
     let sql = ''
     if (this.orderBys.length > 0) {
@@ -768,6 +855,11 @@ export class QueryBuilder {
     const bindings: any[] = []
 
     const sets = Object.entries(data).map(([key, value]) => {
+      if (typeof value === 'object' && value !== null && (value as RawValue).__raw) {
+        const rawVal = value as RawValue
+        if (rawVal.bindings) bindings.push(...rawVal.bindings)
+        return `${dialect.wrapIdentifier(key)} = ${rawVal.value}`
+      }
       bindings.push(value)
       return `${dialect.wrapIdentifier(key)} = ${dialect.makeParameter(bindings.length - 1)}`
     })

@@ -250,7 +250,17 @@ function getStatusFromError(err: Error): number {
   return 500
 }
 
+export interface SmartErrorHandlerOptions {
+  jsonOnly?: boolean
+}
+
 export class SmartErrorHandler {
+  private jsonOnly: boolean
+
+  constructor(options?: SmartErrorHandlerOptions) {
+    this.jsonOnly = options?.jsonOnly ?? false
+  }
+
   handle(): (err: Error, ctx: RouteContext) => Promise<void> {
     return async (err: Error, ctx: RouteContext) => {
       const hint = classifyError(err)
@@ -267,6 +277,20 @@ export class SmartErrorHandler {
       }
 
       const status = getStatusFromError(err)
+
+      console.error(`[SmartErrorHandler] ${status} ${hint.title}: ${err.message}`)
+      if (err.stack) {
+        console.error(err.stack)
+      }
+
+      if (this.jsonOnly) {
+        ctx.response.status(status).json({
+          error: hint.title,
+          message: hint.message,
+          ...(isDev() ? { suggestion: hint.suggestion, stack: err.stack } : {}),
+        })
+        return
+      }
 
       if (isDev()) {
         const html = renderDevErrorPage(err, hint)

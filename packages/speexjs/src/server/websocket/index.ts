@@ -9,47 +9,91 @@ interface Channel {
   subscribers: Set<WebSocket>
 }
 
+export interface WsBroadcasterOptions {
+  authenticate?: (req: IncomingMessage) => boolean | Promise<boolean>
+  authorizeChannel?: (socket: WebSocket, channel: string) => boolean | Promise<boolean>
+  maxPayload?: number
+  maxConnections?: number
+}
+
 export class WsBroadcaster {
   private wss: WebSocketServer | null = null
   private channels: Map<string, Channel> = new Map()
   private handlers: Map<string, WsEventHandler[]> = new Map()
+  private pingInterval: ReturnType<typeof setInterval> | null = null
+  private connectionCount = 0
+  private options: Required<WsBroadcasterOptions>
 
-  /**
-   * Attach WebSocket server to an existing HTTP server.
-   */
+  constructor(options?: WsBroadcasterOptions) {
+    this.options = {
+      authenticate: () => true,
+      authorizeChannel: () => true,
+      maxPayload: 1024 * 1024,
+      maxConnections: 1000,
+      ...options,
+    }
+  }
+
   attach(server: Server): void {
-    this.wss = new WebSocketServer({ server, path: '/ws' })
+    this.wss = new WebSocketServer({
+      server,
+      path: '/ws',
+      maxPayload: this.options.maxPayload,
+    })
 
-    this.wss.on('connection', (socket: WebSocket, req: IncomingMessage) => {
+    this.wss.on('connection', async (socket: WebSocket, req: IncomingMessage) => {
+      if (this.connectionCount >= this.options.maxConnections) {
+        socket.close(1013, 'Too many connections')
+        return
+      }
+
+      const authenticated = await this.options.authenticate(req)
+      if (!authenticated) {
+        socket.close(4001, 'Authentication failed')
+        return
+      }
+
+      this.connectionCount++
+
       const url = new URL(req.url ?? '/', 'http://localhost')
       const channels = url.searchParams.get('channels')?.split(',') ?? []
 
       for (const ch of channels) {
-        if (ch) this.subscribe(socket, ch)
+        if (ch) {
+          const authorized = await this.options.authorizeChannel(socket, ch)
+          if (authorized) {
+            this.subscribe(socket, ch)
+          }
+        }
       }
 
       socket.on('message', (raw: Buffer) => {
         let parsed: { event?: string; data?: unknown; channel?: string }
-        try { parsed = JSON.parse(raw.toString()) }
-        catch { return }
+        try {
+          parsed = JSON.parse(raw.toString())
+        } catch {
+          return
+        }
 
         const { event, data, channel } = parsed
         if (!event) return
 
         if (channel) {
-          // Emit to channel subscribers
           const ch = this.channels.get(channel)
           if (ch) {
             const msg = JSON.stringify({ event, data, channel })
             for (const sub of ch.subscribers) {
               if (sub.readyState === WebSocket.OPEN) {
-                sub.send(msg)
+                try {
+                  sub.send(msg)
+                } catch {
+                  ch.subscribers.delete(sub)
+                }
               }
             }
           }
         }
 
-        // Run handlers
         const handlers = this.handlers.get(event) ?? []
         for (const handler of handlers) {
           handler(data, socket)
@@ -57,17 +101,25 @@ export class WsBroadcaster {
       })
 
       socket.on('close', () => {
-        // Remove from all channels
+        this.connectionCount--
         for (const [, ch] of this.channels) {
           ch.subscribers.delete(socket)
         }
       })
     })
+
+    this.pingInterval = setInterval(() => {
+      for (const client of this.wss?.clients ?? []) {
+        if (client.readyState === WebSocket.OPEN) {
+          client.ping()
+        }
+      }
+    }, 30000)
+    if (this.pingInterval.unref) {
+      this.pingInterval.unref()
+    }
   }
 
-  /**
-   * Subscribe a socket to a channel.
-   */
   subscribe(socket: WebSocket, channel: string): void {
     if (!this.channels.has(channel)) {
       this.channels.set(channel, { name: channel, subscribers: new Set() })
@@ -75,32 +127,31 @@ export class WsBroadcaster {
     this.channels.get(channel)!.subscribers.add(socket)
   }
 
-  /**
-   * Broadcast an event to all subscribers of a channel.
-   */
   broadcast(channel: string, event: string, data: unknown): void {
     const ch = this.channels.get(channel)
     if (!ch) return
     const msg = JSON.stringify({ event, data, channel })
     for (const sub of ch.subscribers) {
       if (sub.readyState === WebSocket.OPEN) {
-        sub.send(msg)
+        try {
+          sub.send(msg)
+        } catch {
+          ch.subscribers.delete(sub)
+        }
       }
     }
   }
 
-  /**
-   * Emit an event to a specific socket.
-   */
   emit(socket: WebSocket, event: string, data: unknown): void {
     if (socket.readyState === WebSocket.OPEN) {
-      socket.send(JSON.stringify({ event, data }))
+      try {
+        socket.send(JSON.stringify({ event, data }))
+      } catch {
+        // ignore
+      }
     }
   }
 
-  /**
-   * Listen for events from clients.
-   */
   on(event: string, handler: WsEventHandler): void {
     if (!this.handlers.has(event)) {
       this.handlers.set(event, [])
@@ -108,17 +159,15 @@ export class WsBroadcaster {
     this.handlers.get(event)!.push(handler)
   }
 
-  /**
-   * Get channel subscriber count.
-   */
   subscriberCount(channel: string): number {
     return this.channels.get(channel)?.subscribers.size ?? 0
   }
 
-  /**
-   * Close all connections.
-   */
   close(): void {
+    if (this.pingInterval !== null) {
+      clearInterval(this.pingInterval)
+      this.pingInterval = null
+    }
     this.wss?.close()
   }
 }

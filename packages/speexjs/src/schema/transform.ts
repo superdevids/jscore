@@ -18,8 +18,10 @@ export class CoerceNumberSchema extends Schema<number> {
     if (typeof value === 'string') {
       const trimmed = value.trim()
       if (trimmed.length === 0) throw new SchemaError(msg('coerce_number_fail'))
+      if (/^0[xXbBoO]/.test(trimmed)) throw new SchemaError(msg('coerce_number_fail'))
       const num = Number(trimmed)
       if (Number.isNaN(num)) throw new SchemaError(msg('coerce_number_fail'))
+      if (!Number.isFinite(num)) throw new SchemaError(msg('coerce_number_fail'))
       return num
     }
     if (typeof value === 'bigint') return Number(value)
@@ -39,7 +41,7 @@ export class CoerceBooleanSchema extends Schema<boolean> {
       if (lower === 'true' || lower === '1' || lower === 'yes' || lower === 'on') return true
       if (lower === 'false' || lower === '0' || lower === 'no' || lower === 'off') return false
     }
-    return Boolean(value)
+    throw new SchemaError(msg('coerce_boolean_fail'))
   }
 }
 

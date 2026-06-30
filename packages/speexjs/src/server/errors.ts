@@ -100,11 +100,12 @@ export type ExceptionHandler = (err: HttpException) => HttpException | Promise<H
 
 const exceptionHandlers: Map<new (...args: never[]) => HttpException, ExceptionHandler> = new Map()
 
-export function registerExceptionHandler(
-  exceptionType: new (...args: never[]) => HttpException,
-  handler: ExceptionHandler,
-): void {
+export function registerExceptionHandler(exceptionType: new (...args: never[]) => HttpException, handler: ExceptionHandler): void {
   exceptionHandlers.set(exceptionType, handler)
+}
+
+export function clearExceptionHandlers(): void {
+  exceptionHandlers.clear()
 }
 
 function getDefaultErrorName(status: number): string {

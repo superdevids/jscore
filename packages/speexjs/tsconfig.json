@@ -4,7 +4,8 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "jsx": "react-jsx",
-    "jsxImportSource": "@speexjs/vdom"
+    "jsxImportSource": "@speexjs/vdom",
+    "noUncheckedIndexedAccess": true
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"],
   "exclude": ["node_modules", "dist", "tests", "src/cli/templates"]

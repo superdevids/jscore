@@ -34,7 +34,13 @@ export class HeadersMap {
     const key = name.toLowerCase()
     const existing = this.data.get(key)
     if (existing !== undefined) {
-      existing.push(value)
+      if (key === 'set-cookie') {
+        if (!existing.includes(value)) {
+          existing.push(value)
+        }
+      } else {
+        existing.push(value)
+      }
     } else {
       this.data.set(key, [value])
     }

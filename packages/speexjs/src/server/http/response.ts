@@ -70,7 +70,7 @@ export class SuperResponse {
   }
 
   header(name: string, value: string): this {
-    const safeValue = value.replace(/[\r\n]/g, '').trim()
+    const safeValue = value.replace(/[\r\n\u000a\u000d\u0085\u2028\u2029]/g, '').trim()
     this._headers.set(name, safeValue)
     return this
   }
@@ -100,7 +100,14 @@ export class SuperResponse {
 
   json<T>(data: T, status?: number): this {
     if (status !== undefined) this._statusCode = status
-    const body = JSON.stringify(data)
+    let body: string
+    if (typeof data === 'string') {
+      body = data
+    } else if (data === null || data === undefined || typeof data === 'number' || typeof data === 'boolean') {
+      body = String(data)
+    } else {
+      body = JSON.stringify(data)
+    }
     return this.send(body, undefined, 'application/json')
   }
 
@@ -138,6 +145,9 @@ export class SuperResponse {
     if (status !== undefined) this._statusCode = status
     this._body = body
     if (contentType !== undefined && !this._contentTypeSet) {
+      if (contentType.startsWith('text/') && !contentType.includes('charset')) {
+        contentType += '; charset=utf-8'
+      }
       this._headers.set('content-type', contentType)
     }
     return this
@@ -201,7 +211,10 @@ export class SuperResponse {
       }
 
       const ext = extname(fullPath)
-      const mimeType = MIME_TYPES[ext] ?? 'application/octet-stream'
+      let mimeType = MIME_TYPES[ext] ?? 'application/octet-stream'
+      if (mimeType.startsWith('text/') && !mimeType.includes('charset')) {
+        mimeType += '; charset=utf-8'
+      }
 
       this._headers.set('content-type', mimeType)
       this._headers.set('content-length', String(stats.size))
@@ -251,7 +264,13 @@ export class SuperResponse {
   }
 
   cookie(name: string, value: string, options?: CookieOptions): this {
-    this._cookies.push(serializeCookie(name, value, options))
+    const serialized = serializeCookie(name, value, options)
+    const existingIdx = this._cookies.findIndex((c) => c.startsWith(`${name}=`))
+    if (existingIdx !== -1) {
+      this._cookies[existingIdx] = serialized
+    } else {
+      this._cookies.push(serialized)
+    }
     return this
   }
 

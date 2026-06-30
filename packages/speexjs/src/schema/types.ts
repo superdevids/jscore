@@ -3,6 +3,7 @@ import { msg } from './messages.js'
 // ─── SchemaError ────────────────────────────────────────────
 
 export class SchemaError extends Error {
+  override readonly name: string = 'SchemaError'
   readonly path: string
   readonly received: unknown
 
@@ -11,6 +12,8 @@ export class SchemaError extends Error {
     this.name = 'SchemaError'
     this.path = options?.path ?? ''
     this.received = options?.received
+    // Ensure instanceof works even with different realm/context
+    Object.setPrototypeOf(this, SchemaError.prototype)
   }
 
   toJSON(): { name: string; message: string; path: string; received: unknown } {
@@ -29,20 +32,60 @@ export abstract class Schema<T> {
 
   safeParse(value: unknown): { success: boolean; data?: T; error?: string } {
     try {
-      return { success: true, data: this._parse(value) }
+      const result = this._parse(value)
+      // Handle async schemas (PromiseSchema, async refine, etc.)
+      if (result instanceof Promise) {
+        // For synchronous callers, we need to handle this carefully
+        // Return a sync result; async callers should use safeParseAsync
+        return { success: false, error: 'Use safeParseAsync for async schemas' }
+      }
+      return { success: true, data: result as T }
     } catch (e) {
       if (e instanceof SchemaError) return { success: false, error: e.message }
+      if (e instanceof Error) return { success: false, error: e.message }
       return { success: false, error: 'Validation failed' }
     }
   }
 
-  optional(): Schema<T | undefined> { return new OptionalSchema(this) }
-  nullable(): Schema<T | null> { return new NullableSchema(this) }
-  default(defaultValue: T): Schema<T> { return new DefaultSchema(this, defaultValue) }
-  describe(_description: string): this { return this }
-  refine(fn: (val: T) => boolean, message: string): Schema<T> { return new RefineSchema(this, fn, message) }
-  brand<B extends string>(_brand?: B): Schema<T & { __brand: B }> { return this as any }
-  transform<U>(fn: (val: T) => U): Schema<U> { return new TransformSchema(this, fn) }
+  async safeParseAsync(value: unknown): Promise<{ success: boolean; data?: T; error?: string }> {
+    try {
+      const result = this._parse(value)
+      const data = result instanceof Promise ? await result : result
+      return { success: true, data: data as T }
+    } catch (e) {
+      if (e instanceof SchemaError) return { success: false, error: e.message }
+      if (e instanceof Error) return { success: false, error: e.message }
+      return { success: false, error: 'Validation failed' }
+    }
+  }
+
+  optional(): Schema<T | undefined> {
+    return new OptionalSchema(this)
+  }
+  nullable(): Schema<T | null> {
+    return new NullableSchema(this)
+  }
+  default(defaultValue: T): Schema<T> {
+    return new DefaultSchema(this, defaultValue)
+  }
+  describe(_description: string): this {
+    return this
+  }
+  refine(fn: (val: T) => boolean, message: string): Schema<T> {
+    return new RefineSchema(this, fn, message)
+  }
+  brand<B extends string>(_brand?: B): Schema<T & { __brand: B }> {
+    return this as any
+  }
+  transform<U>(fn: (val: T) => U): Schema<U> {
+    return new TransformSchema(this, fn)
+  }
+  catch<U>(fallback: U): Schema<T | U> {
+    return new CatchSchema(this, fallback)
+  }
+  readonly(): Schema<T> {
+    return this
+  }
 
   get _internal(): this {
     return this
@@ -117,6 +160,44 @@ class TransformSchema<T, U> extends Schema<U> {
     const result = this.inner._parse(value)
     return this.fn(result)
   }
+}
+
+class CatchSchema<T, U> extends Schema<T | U> {
+  constructor(
+    private readonly inner: Schema<T>,
+    private readonly fallback: U,
+  ) {
+    super()
+  }
+
+  _parse(value: unknown): T | U {
+    try {
+      return this.inner._parse(value)
+    } catch {
+      return this.fallback
+    }
+  }
+}
+
+export class LazySchema<T> extends Schema<T> {
+  private inner: Schema<T> | null = null
+  private readonly factory: () => Schema<T>
+
+  constructor(factory: () => Schema<T>) {
+    super()
+    this.factory = factory
+  }
+
+  _parse(value: unknown): T {
+    if (!this.inner) {
+      this.inner = this.factory()
+    }
+    return this.inner!._parse(value)
+  }
+}
+
+export function lazy<T>(factory: () => Schema<T>): Schema<T> {
+  return new LazySchema(factory)
 }
 
 export type Brand<T, B> = T & { __brand: B }

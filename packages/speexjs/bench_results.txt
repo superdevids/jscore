@@ -1,0 +1,71 @@
+﻿node.exe : [33mBenchmarking is an experimental feature.
+At C:\nvm4w\nodejs\npx.ps1:16 char:5
++     & "$basedir/node$exe"  "$basedir/node_modules/npm/bin/npx-cli.js" ...
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([33mBenchmarki...mental feature.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.[39m
+
+[1m[7m[34m DEV [39m[27m[22m [34mv2.1.9 [39m[90mC:/.data/PROJECT/VibeCoding/speexjs/packages/speexjs[39m
+
+[90mstdout[2m | Object.mitata (file:\C:\.data\PROJECT\VibeCoding\speexjs\packages\speexjs\node_modules\mitata\src\main.mjs:473:10)
+[22m[39m[90mclk: ~1.73 GHz[0m
+
+[90mstdout[2m | Object.mitata (file:\C:\.data\PROJECT\VibeCoding\speexjs\packages\speexjs\node_modules\mitata\src\main.mjs:476:10)
+[22m[39m[90mcpu: AMD Ryzen 5 5500U with Radeon Graphics         [0m
+
+[90mstdout[2m | Object.mitata (file:\C:\.data\PROJECT\VibeCoding\speexjs\packages\speexjs\node_modules\mitata\src\main.mjs:478:10)
+[22m[39m[90mruntime: node 25.9.0 (x64-win32)[0m
+
+[90mstdout[2m | Object.mitata (file:\C:\.data\PROJECT\VibeCoding\speexjs\packages\speexjs\node_modules\mitata\src\main.mjs:480:5)
+[22m[39m
+
+[90mstdout[2m | Object.mitata (file:\C:\.data\PROJECT\VibeCoding\speexjs\packages\speexjs\node_modules\mitata\src\main.mjs:481:5)
+[22m[39mbenchmark                   avg (min ΓÇª max) p75 / p99    (min ΓÇª top 1%)
+
+[90mstdout[2m | Object.mitata (file:\C:\.data\PROJECT\VibeCoding\speexjs\packages\speexjs\node_modules\mitata\src\main.mjs:481:95)
+[22m[39m------------------------------------------- -------------------------------
+
+[90mstdout[2m | Object.mitata (file:\C:\.data\PROJECT\VibeCoding\speexjs\packages\speexjs\node_modules\mitata\src\main.mjs:521:31)
+[22m[39m
+
+
+
+
+
+[90mstdout[2m | Object.mitata (file:\C:\.data\PROJECT\VibeCoding\speexjs\packages\speexjs\node_modules\mitata\src\main.mjs:578:17)
+[22m[39mRouter - static route        [1m[33m 74.07 ┬╡s[0m[1m/iter[0m [90m 51.50 ┬╡s[0m [36m Γûê[0m[33m [0m[35m                  [0m
+Router - dynamic param       [1m[33m 58.00 ┬╡s[0m[1m/iter[0m [90m 37.00 ┬╡s[0m [36mΓûåΓûê[0m[33m [0m[35m                  [0m
+Router - 404 not found       [1m[33m 33.09 ┬╡s[0m[1m/iter[0m [90m 29.30 ┬╡s[0m [36m Γûê[0m[33m [0m[35m                  [0m
+Schema - simple parse        [1m[33m134.82 ns[0m[1m/iter[0m [90m132.79 ns[0m [36m ΓûêΓûç[0m[33m [0m[35m                 [0m
+Schema - object parse        [1m[33m  3.74 ┬╡s[0m[1m/iter[0m [90m  2.60 ┬╡s[0m [36m   Γûê  [0m[33m [0m[35m              [0m
+Schema - parse error         [1m[33m 33.28 ┬╡s[0m[1m/iter[0m [90m 32.00 ┬╡s[0m [36m Γûê[0m[33m [0m[35m                  [0m
+
+[90mstdout[2m | Object.mitata (file:\C:\.data\PROJECT\VibeCoding\speexjs\packages\speexjs\node_modules\mitata\src\main.mjs:594:17)
+[22m[39m                       [90m([0m[36m21.00 ┬╡s[0m[90m ΓÇª [0m[35m8.33 ms[0m[90m)[0m [90m586.10 ┬╡s[0m [36m Γûê[0m[33m [0m[35m                  [0m
+                      [90m([0m[36m19.20 ┬╡s[0m[90m ΓÇª [0m[35m11.44 ms[0m[90m)[0m [90m432.10 ┬╡s[0m [36mΓûêΓûê[0m[33m [0m[35m                  [0m
+                       [90m([0m[36m14.20 ┬╡s[0m[90m ΓÇª [0m[35m4.17 ms[0m[90m)[0m [90m218.20 ┬╡s[0m [36m Γûê[0m[33m [0m[35m                  [0m
+                       [90m([0m[36m52.61 ns[0m[90m ΓÇª [0m[35m2.10 ┬╡s[0m[90m)[0m [90m698.14 ns[0m [36mΓûäΓûêΓûê[0m[33m [0m[35m                 [0m
+                       [90m([0m[36m1.50 ┬╡s[0m[90m ΓÇª [0m[35m18.44 ms[0m[90m)[0m [90m  8.60 ┬╡s[0m [36mΓûç ΓûçΓûê  [0m[33m [0m[35m              [0m
+                       [90m([0m[36m14.30 ┬╡s[0m[90m ΓÇª [0m[35m4.20 ms[0m[90m)[0m [90m185.50 ┬╡s[0m [36m Γûê[0m[33mΓûå[0m[35m                  [0m
+
+[90mstdout[2m | Object.mitata (file:\C:\.data\PROJECT\VibeCoding\speexjs\packages\speexjs\node_modules\mitata\src\main.mjs:640:19)
+[22m[39m                    [90m([0m[33m992.00  b[0m[90m ΓÇª [0m[33m  1.44 mb[0m[90m) [0m[33m 15.64 kb[0m [36mΓûçΓûê[0m[33mΓûä[0m[35mΓûéΓûéΓûüΓûüΓûüΓûüΓûüΓûüΓûüΓûüΓûüΓûüΓûüΓûüΓûüΓûüΓûüΓûü[0m
+                    [90m([0m[33m  2.39 kb[0m[90m ΓÇª [0m[33m589.41 kb[0m[90m) [0m[33m 13.73 kb[0m [36mΓûêΓûê[0m[33mΓûä[0m[35mΓûéΓûéΓûüΓûüΓûüΓûüΓûüΓûüΓûüΓûüΓûüΓûüΓûüΓûüΓûüΓûüΓûüΓûü[0m
+                    [90m([0m[33m464.00  b[0m[90m ΓÇª [0m[33m373.23 kb[0m[90m) [0m[33m  9.38 kb[0m [36mΓûêΓûê[0m[33mΓûê[0m[35mΓûéΓûéΓûüΓûüΓûüΓûüΓûüΓûüΓûüΓûüΓûüΓûüΓûüΓûüΓûüΓûüΓûüΓûü[0m
+                    [90m([0m[33m  0.11  b[0m[90m ΓÇª [0m[33m238.92  b[0m[90m) [0m[33m 48.79  b[0m [36mΓûêΓûêΓûê[0m[33mΓûê[0m[35mΓûàΓûâΓûéΓûéΓûüΓûéΓûüΓûüΓûüΓûüΓûüΓûüΓûüΓûüΓûüΓûüΓûü[0m
+                    [90m([0m[33m392.00  b[0m[90m ΓÇª [0m[33m250.94 kb[0m[90m) [0m[33m568.61  b[0m [36mΓûêΓûàΓûêΓûêΓûäΓûä[0m[33mΓûé[0m[35mΓûüΓûüΓûüΓûüΓûüΓûüΓûüΓûüΓûüΓûüΓûüΓûüΓûüΓûü[0m
+                    [90m([0m[33m  1.16 kb[0m[90m ΓÇª [0m[33m105.84 kb[0m[90m) [0m[33m  1.39 kb[0m [36mΓûéΓûê[0m[33mΓûê[0m[35mΓûâΓûüΓûüΓûüΓûüΓûüΓûüΓûüΓûüΓûüΓûüΓûüΓûüΓûüΓûüΓûüΓûüΓûü[0m
+
+
+[31mΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[1m[7m Failed Suites 1 [27m[22mΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[39m
+
+[31m[1m[7m FAIL [27m[22m[39m benchmarks/index.bench.ts[2m [ benchmarks/index.bench.ts ][22m
+[31m[1mError[22m: No test suite found in file C:/.data/PROJECT/VibeCoding/speexjs/packages/speexjs/benchmarks/index.bench.ts[39m
+[31m[2mΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[1/1]ΓÄ»[22m[39m
+
+[1m[7m[36m BENCH [39m[27m[22m [36mSummary
+[39m
+[1m[7m[31m FAIL [39m[27m[22m [31mTests failed. Watching for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m

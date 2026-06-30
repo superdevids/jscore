@@ -81,8 +81,9 @@ export class ObjectSchema<T extends Shape> extends Schema<{ [K in keyof T]: Infe
           result[key] = (schema as any)._parse(obj[key], depth + 1)
         } catch (e) {
           if (e instanceof SchemaError) {
-            throw new SchemaError(e.message, {
-              path: e.path ? `${key}.${e.path}` : key,
+            const resolvedPath = e.path ? `${key}.${e.path}` : key
+            throw new SchemaError(`"${resolvedPath}": ${e.message}`, {
+              path: resolvedPath,
               received: obj[key],
             })
           }
@@ -150,10 +151,11 @@ export class ArraySchema<T> extends Schema<T[]> {
 
   unique(): this {
     this.checks.push((val) => {
-      const seen = new Set<T>()
+      const seen = new Set<string>()
       for (const item of val) {
-        if (seen.has(item)) throw new SchemaError(msg('array_unique'))
-        seen.add(item)
+        const key = typeof item === 'object' && item !== null ? stableStringify(item) : String(item)
+        if (seen.has(key)) throw new SchemaError(msg('array_unique'))
+        seen.add(key)
       }
     })
     return this
@@ -167,8 +169,9 @@ export class ArraySchema<T> extends Schema<T[]> {
         result.push(this.itemSchema._parse(value[i]))
       } catch (e) {
         if (e instanceof SchemaError) {
-          throw new SchemaError(e.message, {
-            path: e.path ? `[${i}].${e.path}` : `[${i}]`,
+          const resolvedPath = e.path ? `[${i}].${e.path}` : `[${i}]`
+          throw new SchemaError(`"${resolvedPath}": ${e.message}`, {
+            path: resolvedPath,
             received: value[i],
           })
         }
@@ -202,8 +205,9 @@ export class TupleSchema<T extends Schema<unknown>[]> extends Schema<TupleSchema
         result.push(this.schemas[i]!._parse(value[i]))
       } catch (e) {
         if (e instanceof SchemaError) {
-          throw new SchemaError(e.message, {
-            path: e.path ? `[${i}].${e.path}` : `[${i}]`,
+          const resolvedPath = e.path ? `[${i}].${e.path}` : `[${i}]`
+          throw new SchemaError(`"${resolvedPath}": ${e.message}`, {
+            path: resolvedPath,
             received: value[i],
           })
         }
@@ -255,6 +259,41 @@ export class UnionSchema<T> extends Schema<T> {
   }
 }
 
+// ─── DiscriminatedUnionSchema ────────────────────────────────
+
+export class DiscriminatedUnionSchema<K extends string, U extends Record<string, Schema<unknown>>> extends Schema<
+  { [P in keyof U]: { [key in K]: P } & Infer<U[P]> }[keyof U]
+> {
+  constructor(
+    private readonly key: K,
+    private readonly schemasMap: U,
+  ) {
+    super()
+  }
+
+  _parse(value: unknown): any {
+    if (typeof value !== 'object' || value === null) {
+      throw new SchemaError(msg('type_object'))
+    }
+    const obj = value as Record<string, unknown>
+    const discriminator = obj[this.key]
+    if (discriminator === undefined || discriminator === null) {
+      throw new SchemaError(msg('discriminator_missing', { key: String(this.key) }))
+    }
+    const schema = this.schemasMap[String(discriminator)]
+    if (!schema) {
+      throw new SchemaError(
+        msg('discriminator_invalid', {
+          key: String(this.key),
+          value: String(discriminator),
+          expected: Object.keys(this.schemasMap).join(', '),
+        }),
+      )
+    }
+    return schema._parse(value)
+  }
+}
+
 // ─── IntersectionSchema ─────────────────────────────────────
 
 export class IntersectionSchema<A, B> extends Schema<A & B> {
@@ -268,18 +307,23 @@ export class IntersectionSchema<A, B> extends Schema<A & B> {
   _parse(value: unknown): A & B {
     const a = this.left._parse(value)
     const b = this.right._parse(value)
+
+    // Both objects: merge without overlapping keys
     if (typeof a === 'object' && a !== null && typeof b === 'object' && b !== null) {
-      const keysA = new Set(Object.keys(a))
-      for (const key of Object.keys(b)) {
+      const keysA = new Set(Object.keys(a as Record<string, unknown>))
+      for (const key of Object.keys(b as Record<string, unknown>)) {
         if (keysA.has(key)) {
           throw new SchemaError(msg('intersection_fail') + `: overlapping key "${key}"`)
         }
       }
-      return { ...a, ...b } as A & B
+      return { ...(a as object), ...(b as object) } as A & B
     }
-    if (typeof a !== 'object' || a === null || typeof b !== 'object' || b === null) {
-      if (a === (b as unknown)) return a as unknown as A & B
+
+    // Both non-objects (primitives): both schemas validated so they're compatible
+    if (typeof a !== 'object' && typeof b !== 'object') {
+      return a as unknown as A & B
     }
+
     throw new SchemaError(msg('intersection_fail'))
   }
 }
@@ -408,4 +452,11 @@ export class PromiseSchema<T> extends Schema<Promise<T>> {
       throw new SchemaError(String(e))
     }
   }
+}
+
+function stableStringify(obj: unknown): string {
+  if (typeof obj !== 'object' || obj === null) return String(obj)
+  if (Array.isArray(obj)) return '[' + obj.map(stableStringify).join(',') + ']'
+  const keys = Object.keys(obj as Record<string, unknown>).sort()
+  return '{' + keys.map((k) => JSON.stringify(k) + ':' + stableStringify((obj as Record<string, unknown>)[k])).join(',') + '}'
 }

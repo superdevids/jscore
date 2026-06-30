@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto'
+import { createHash } from 'node:crypto'
 import { createReadStream, existsSync, statSync } from 'node:fs'
 import { extname, join, resolve } from 'node:path'
 import { gzipSync } from 'node:zlib'
@@ -65,9 +66,11 @@ export function cors(options?: CorsOptions): Middleware {
       } else if (typeof opts.origin === 'string') {
         if (!opts.credentials || origin === opts.origin) {
           response.header('access-control-allow-origin', opts.origin)
+          response.header('vary', 'Origin')
         }
       } else if (opts.origin.includes(origin)) {
         response.header('access-control-allow-origin', origin)
+        response.header('vary', 'Origin')
       }
 
       if (opts.credentials) {
@@ -253,7 +256,7 @@ export function throttle(limitOrLimiter?: number | RouteRateLimiter, windowSecon
     if (trackEvent) trackEvent(ip, blocked, count, max)
   }
 
-  return (ctx: RouteContext, next: () => Promise<void>) => {
+  const middleware = (ctx: RouteContext, next: () => Promise<void>) => {
     const forwarded = ctx.request.headers.get('x-forwarded-for')
     const ip = (forwarded !== undefined ? forwarded.split(',')[0]?.trim() : undefined) || ctx.request.ip
     const key = normalizeIp(ip)
@@ -300,6 +303,9 @@ export function throttle(limitOrLimiter?: number | RouteRateLimiter, windowSecon
     void trackRateLimitEventAsync(key, false, hit.count, maxRequests)
     return next()
   }
+
+  middleware.cleanup = () => clearInterval(cleanup)
+  return middleware as Middleware & { cleanup?: () => void }
 }
 
 export function logger(): Middleware {
@@ -388,11 +394,40 @@ export function staticFiles(root: string, options?: StaticOptions): Middleware {
     const ext = extname(fullPath)
     const mimeType = MIME_TYPES[ext] ?? 'application/octet-stream'
 
+    const etag = `"${createHash('md5')
+      .update(fullPath + stats.mtimeMs)
+      .digest('hex')}"`
+
     response
       .header('content-type', mimeType)
       .header('content-length', String(stats.size))
       .header('cache-control', `public, max-age=${opts.maxAge}`)
       .header('last-modified', stats.mtime.toUTCString())
+      .header('accept-ranges', 'bytes')
+      .header('etag', etag)
+
+    const ifNoneMatch = ctx.request.headers.get('if-none-match')
+    if (ifNoneMatch === etag) {
+      response.rawResponse.statusCode = HttpStatus.NOT_MODIFIED
+      response.rawResponse.end()
+      return Promise.resolve()
+    }
+
+    const rangeHeader = ctx.request.headers.get('range')
+    if (rangeHeader !== undefined && rangeHeader.startsWith('bytes=')) {
+      const range = parseRange(rangeHeader, stats.size)
+      if (range !== null) {
+        const { start, end } = range
+        response.header('content-range', `bytes ${start}-${end}/${stats.size}`).header('content-length', String(end - start + 1))
+        response.rawResponse.statusCode = HttpStatus.PARTIAL_CONTENT
+        const readStream = createReadStream(fullPath, { start, end })
+        readStream.pipe(response.rawResponse)
+        return new Promise<void>((resolve, reject) => {
+          readStream.on('end', () => resolve())
+          readStream.on('error', (err: Error) => reject(err))
+        })
+      }
+    }
 
     response.rawResponse.statusCode = HttpStatus.OK
     const readStream = createReadStream(fullPath)
@@ -485,7 +520,15 @@ function compressWith(ctx: RouteContext, next: () => Promise<void>, _encoding: s
   })
 }
 
-export function helmet(): Middleware {
+export interface HelmetOptions {
+  contentSecurityPolicy?: string
+}
+
+export function helmet(options?: HelmetOptions): Middleware {
+  const csp =
+    options?.contentSecurityPolicy ??
+    "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data: https:; connect-src 'self'"
+
   return (ctx: RouteContext, next: () => Promise<void>) => {
     const { response } = ctx
 
@@ -494,7 +537,7 @@ export function helmet(): Middleware {
       .header('x-frame-options', 'SAMEORIGIN')
       .header('strict-transport-security', 'max-age=15552000; includeSubDomains')
       .header('referrer-policy', 'no-referrer-when-downgrade')
-      .header('content-security-policy', "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'")
+      .header('content-security-policy', csp)
       .header('permissions-policy', 'camera=(), microphone=(), geolocation=()')
 
     return next()
@@ -554,20 +597,19 @@ export class MiddlewarePipeline {
   }
 
   async run(ctx: RouteContext, final: () => Promise<void>): Promise<void> {
-    let index = 0
-
-    const next = async (): Promise<void> => {
-      if (index >= this.middlewares.length) {
-        await final()
-        return
-      }
-
-      const middleware = this.middlewares[index] as Middleware
-      index++
-      await middleware(ctx, next)
+    const mws = this.middlewares
+    const len = mws.length
+    if (len === 0) {
+      await final()
+      return
     }
-
-    await next()
+    const next = (idx: number): Promise<void> => {
+      if (idx >= len) return final()
+      const mw = mws[idx]
+      if (mw === undefined) return next(idx + 1)
+      return Promise.resolve(mw(ctx, () => next(idx + 1)))
+    }
+    await next(0)
   }
 
   getMiddlewares(): Middleware[] {
@@ -671,7 +713,7 @@ export function unless(condition: (ctx: RouteContext) => boolean, middleware: Mi
   }
 }
 
-export function throttleDynamic(getLimit: (ctx: RouteContext) => { max: number; window: number }): Middleware {
+export function throttleDynamic(getLimit: (ctx: RouteContext) => { max: number; window: number }): Middleware & { cleanup?: () => void } {
   const hits = new Map<string, { count: number; resetAt: number }>()
 
   const cleanup = setInterval(() => {
@@ -687,7 +729,7 @@ export function throttleDynamic(getLimit: (ctx: RouteContext) => { max: number; 
     cleanup.unref()
   }
 
-  return (ctx: RouteContext, next: () => Promise<void>) => {
+  const middleware = (ctx: RouteContext, next: () => Promise<void>) => {
     const { max: maxRequests, window: windowSeconds } = getLimit(ctx)
     const timeWindow = windowSeconds * 1000
 
@@ -724,6 +766,18 @@ export function throttleDynamic(getLimit: (ctx: RouteContext) => { max: number; 
 
     return next()
   }
+
+  middleware.cleanup = () => clearInterval(cleanup)
+  return middleware as Middleware & { cleanup?: () => void }
+}
+
+function parseRange(header: string, fileSize: number): { start: number; end: number } | null {
+  const match = header.slice(6).match(/^(\d*)-(\d*)$/)
+  if (!match) return null
+  const start = match[1] !== '' ? Number(match[1]) : 0
+  const end = match[2] !== '' ? Number(match[2]) : fileSize - 1
+  if (start >= fileSize || end >= fileSize || start > end) return null
+  return { start, end }
 }
 
 export { tenant } from './tenant.js'

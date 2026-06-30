@@ -1,4 +1,4 @@
-import { createHmac, randomBytes } from 'node:crypto'
+import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto'
 
 export class TOTP {
   generateSecret(): string {
@@ -25,8 +25,11 @@ export class TOTP {
       // and lock the account after exceeding maxAttempts within the window.
     }
     const counter = Math.floor(Date.now() / 30000)
+    const expectedBuf = Buffer.from(code, 'utf8')
     for (let i = -1; i <= 1; i++) {
-      if (this.generateCode(secret, counter + i) === code) return true
+      const candidate = this.generateCode(secret, counter + i)
+      const candidateBuf = Buffer.from(candidate, 'utf8')
+      if (candidateBuf.length === expectedBuf.length && timingSafeEqual(candidateBuf, expectedBuf)) return true
     }
     return false
   }

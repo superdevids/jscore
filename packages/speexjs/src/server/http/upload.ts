@@ -6,13 +6,26 @@ import { tmpdir } from 'node:os'
 
 const tempFiles: string[] = []
 let cleanupRegistered = false
+function cleanupTempFiles(): void {
+  for (const f of tempFiles) {
+    try {
+      unlinkSync(f)
+    } catch {
+      /* ignore */
+    }
+  }
+}
 function registerCleanup(): void {
   if (cleanupRegistered) return
   cleanupRegistered = true
-  process.on('exit', () => {
-    for (const f of tempFiles) {
-      try { unlinkSync(f) } catch { /* ignore */ }
-    }
+  process.on('exit', () => cleanupTempFiles())
+  process.on('SIGINT', () => {
+    cleanupTempFiles()
+    process.exit(130)
+  })
+  process.on('SIGTERM', () => {
+    cleanupTempFiles()
+    process.exit(0)
   })
 }
 
@@ -103,9 +116,7 @@ export class SuperUploadedFile implements UploadedFile {
 
   toBase64(): string {
     if (this.buffer === null) {
-      throw new Error(
-        'Buffer not loaded. Call toBuffer() first or read the file into memory.',
-      )
+      throw new Error('Buffer not loaded. Call toBuffer() first or read the file into memory.')
     }
     return this.buffer.toString('base64')
   }

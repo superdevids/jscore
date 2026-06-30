@@ -18,6 +18,7 @@ export interface Dialect {
   compileHasTable(tableName: string): string
   compileHasColumn(tableName: string, columnName: string): string
   compileInsert(sql: string): string
+  compileInsertOrIgnore(sql: string): string
 }
 
 export interface ColumnCompileOptions {
@@ -79,6 +80,10 @@ abstract class BaseDialect {
   compileInsert(sql: string): string {
     return sql
   }
+
+  compileInsertOrIgnore(sql: string): string {
+    return sql
+  }
 }
 
 export class MysqlDialect extends BaseDialect {
@@ -107,6 +112,10 @@ export class MysqlDialect extends BaseDialect {
 
   compileInsertReturning(sql: string, _bindings: any[], _idColumn?: string): string {
     return `${sql}; SELECT LAST_INSERT_ID() as id`
+  }
+
+  compileInsertOrIgnore(sql: string): string {
+    return sql.replace('INSERT ', 'INSERT IGNORE ')
   }
 
   compileTruncate(tableName: string): string {
@@ -170,6 +179,9 @@ export class MysqlDialect extends BaseDialect {
 
   compileColumn(options: ColumnCompileOptions): string {
     let sql = `${this.wrapIdentifier(options.name)} ${this.mapType(options.type, options)}`
+    if (options.type === 'enum' && options.values !== null && options.values.length > 0) {
+      sql = `${this.wrapIdentifier(options.name)} ENUM(${options.values.map((v) => `'${v.replace(/'/g, "''")}'`).join(', ')})`
+    }
     if (
       options.unsigned &&
       options.type !== 'id' &&
@@ -248,6 +260,10 @@ export class SqliteDialect extends BaseDialect {
 
   compileInsertReturning(sql: string, _bindings: any[], _idColumn?: string): string {
     return `${sql}; SELECT last_insert_rowid() as id`
+  }
+
+  compileInsertOrIgnore(sql: string): string {
+    return sql.replace('INSERT ', 'INSERT OR IGNORE ')
   }
 
   compileTruncate(tableName: string): string {
@@ -366,6 +382,10 @@ export class PostgresqlDialect extends BaseDialect {
 
   compileInsertReturning(sql: string, _bindings: any[], idColumn = 'id'): string {
     return `${sql} RETURNING ${this.wrapIdentifier(idColumn)}`
+  }
+
+  compileInsertOrIgnore(sql: string): string {
+    return `${sql} ON CONFLICT DO NOTHING`
   }
 
   compileTruncate(tableName: string): string {

@@ -1,0 +1,11 @@
+// SpeexJS Bun Runtime — Optimized for Bun
+export { speexjs, SuperApp } from '../index.js'
+export { Router } from '../router/index.js'
+export { MiddlewarePipeline } from '../middleware/index.js'
+export { Container } from '../container/index.js'
+export { Controller, controller, get, post, put, del, patch as patchDecorator } from '../controller/index.js'
+export { HttpStatus } from '../http/status.js'
+export type { RouteContext, RouteHandler, ControllerClass } from '../router/index.js'
+export type { Middleware } from '../middleware/index.js'
+export type { AppOptions } from '../index.js'
+export type { ServerEngine, ServerInstance } from '../engine/index.js'

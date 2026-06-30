@@ -434,7 +434,7 @@ function escapeHtml(str: string): string {
 function renderProps(props: Record<string, any>): string {
   let out = ''
   for (const [key, value] of Object.entries(props)) {
-    if (key === 'key' || key === 'children' || key === 'ref') continue
+    if (key === 'key' || key === 'children' || key === 'ref' || key === 'dangerouslySetInnerHTML') continue
     if (key.startsWith('on')) continue
     if (value === false || value === null || value === undefined) continue
     if (key === 'style' && typeof value === 'object') {
@@ -465,6 +465,13 @@ function renderProps(props: Record<string, any>): string {
 function renderVNodeToString(vnode: VNode): string {
   switch (vnode.type) {
     case 'element': {
+      const dangerousHTML = vnode.props.dangerouslySetInnerHTML
+      if (dangerousHTML && typeof dangerousHTML === 'object' && dangerousHTML.__html != null) {
+        const dProps = { ...vnode.props }
+        delete dProps.dangerouslySetInnerHTML
+        if (VOID_ELEMENTS.has(vnode.tag)) return '<' + vnode.tag + renderProps(dProps) + '>'
+        return '<' + vnode.tag + renderProps(dProps) + '>' + dangerousHTML.__html + '</' + vnode.tag + '>'
+      }
       const children = vnode.children.map(renderVNodeToString).join('')
       if (VOID_ELEMENTS.has(vnode.tag)) return '<' + vnode.tag + renderProps(vnode.props) + '>'
       return '<' + vnode.tag + renderProps(vnode.props) + '>' + children + '</' + vnode.tag + '>'

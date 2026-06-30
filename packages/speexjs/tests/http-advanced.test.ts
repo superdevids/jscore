@@ -462,7 +462,7 @@ describe('SuperResponse - advanced', () => {
         lastModified: true,
         headers: { 'x-custom': 'test-val' },
       })
-      expect(res.getHeader('content-type')).toBe('text/plain')
+      expect(res.getHeader('content-type')).toBe('text/plain; charset=utf-8')
       expect(res.getHeader('cache-control')).toBe('public, max-age=3600')
       expect(res.getHeader('last-modified')).toBeDefined()
       expect(res.getHeader('x-custom')).toBe('test-val')
@@ -505,7 +505,12 @@ describe('SuperResponse - advanced', () => {
           this.destroy(new Error('stream error'))
         },
       })
-      expect(() => res.stream(errorStream)).not.toThrow()
+      errorStream.on('error', () => {}) // prevent stream-level unhandled error
+      const streamResult = res.stream(errorStream)
+      // Verify it returns a promise (doesn't throw sync)
+      expect(streamResult).toBeInstanceOf(Promise)
+      // Catch the expected async rejection to prevent unhandled rejection
+      streamResult.catch(() => {})
     })
   })
 

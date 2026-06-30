@@ -1,5 +1,5 @@
 import type { Router } from '../router/index.js'
-import type { Schema } from '../../schema/types.js'
+import { Schema, OptionalSchema } from '../../schema/types.js'
 
 interface RouteInfo {
   methods: string[]
@@ -92,7 +92,7 @@ function schemaToJsonSchema(schema?: Schema<unknown>): Record<string, unknown> |
       const sub = schemaToJsonSchema(val as Schema<unknown>)
       if (sub) {
         properties[key] = sub
-        if (!(val instanceof (require('../../schema/types.js').OptionalSchema as any) || val?.constructor?.name === 'OptionalSchema')) {
+        if (!(val instanceof OptionalSchema || val?.constructor?.name === 'OptionalSchema')) {
           required.push(key)
         }
       }
@@ -104,18 +104,24 @@ function schemaToJsonSchema(schema?: Schema<unknown>): Record<string, unknown> |
       additionalProperties: anySchema.isStrictMode ? false : undefined,
     }
   }
-  if (anySchema instanceof (require('../../schema/types.js').Schema as any)) {
+  if (anySchema instanceof Schema) {
     const name = anySchema.constructor?.name
     if (name === 'StringSchema' || name?.startsWith('String')) return { type: 'string' }
     if (name === 'NumberSchema' || name?.startsWith('Number')) return { type: 'number' }
     if (name === 'BooleanSchema' || name?.startsWith('Boolean')) return { type: 'boolean' }
     if (name === 'ArraySchema') {
-      const itemSchema = anySchema.itemSchema
-      return { type: 'array', items: schemaToJsonSchema(itemSchema) ?? {} }
+      const anySchemaAny = anySchema as any
+      return { type: 'array', items: schemaToJsonSchema(anySchemaAny.itemSchema) ?? {} }
     }
-    if (name === 'EnumSchema') return { type: 'string', enum: [...(anySchema.values ?? [])] }
+    if (name === 'EnumSchema') {
+      const anySchemaAny = anySchema as any
+      return { type: 'string', enum: [...(anySchemaAny.values ?? [])] }
+    }
     if (name === 'DateSchema') return { type: 'string', format: 'date-time' }
-    if (name === 'LiteralSchema') return { type: typeof anySchema.expected, enum: [anySchema.expected] }
+    if (name === 'LiteralSchema') {
+      const anySchemaAny = anySchema as any
+      return { type: typeof anySchemaAny.expected, enum: [anySchemaAny.expected] }
+    }
     if (name === 'AnySchema' || name === 'UnknownSchema') return {}
     if (name === 'NullableSchema') {
       const base = schemaToJsonSchema((anySchema as any).inner)

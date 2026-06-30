@@ -85,18 +85,31 @@ export class TokenGuard {
 
   async validate(token: string): Promise<boolean> {
     const record = await this.findTokenRecord(token)
-    return record !== null
+    if (record === null) return false
+    if (this.config.userLookup !== undefined) {
+      const user = await this.config.userLookup.findById(record.userId)
+      if (user === null) return false
+    }
+    return true
   }
 
   async abilities(token: string): Promise<string[]> {
     const record = await this.findTokenRecord(token)
     if (record === null) return []
+    if (this.config.userLookup !== undefined) {
+      const user = await this.config.userLookup.findById(record.userId)
+      if (user === null) return []
+    }
     return record.abilities
   }
 
   async can(token: string, ability: string): Promise<boolean> {
     const record = await this.findTokenRecord(token)
     if (record === null) return false
+    if (this.config.userLookup !== undefined) {
+      const user = await this.config.userLookup.findById(record.userId)
+      if (user === null) return false
+    }
     if (record.abilities.length === 0) return true
     return record.abilities.includes(ability)
   }

@@ -1,6 +1,6 @@
 // ─── Types ──────────────────────────────────────────────────
 
-export { Schema, SchemaError } from './types.js'
+export { Schema, SchemaError, lazy, LazySchema } from './types.js'
 export type { Infer } from './types.js'
 
 // ─── Messages ───────────────────────────────────────────────
@@ -9,11 +9,35 @@ export { setLocale, getLocale } from './messages.js'
 
 // ─── Primitives ─────────────────────────────────────────────
 
-export { StringSchema, NumberSchema, BooleanSchema, BigIntSchema, SymbolSchema, UndefinedSchema, NullSchema, NaNSchema } from './primitives.js'
+export {
+  StringSchema,
+  NumberSchema,
+  BooleanSchema,
+  BigIntSchema,
+  SymbolSchema,
+  UndefinedSchema,
+  NullSchema,
+  NaNSchema,
+} from './primitives.js'
 
 // ─── Complex ────────────────────────────────────────────────
 
-export { ObjectSchema, ArraySchema, TupleSchema, EnumSchema, UnionSchema, IntersectionSchema, RecordSchema, MapSchema, SetSchema, DateSchema, LiteralSchema, AnySchema, UnknownSchema } from './complex.js'
+export {
+  ObjectSchema,
+  ArraySchema,
+  TupleSchema,
+  EnumSchema,
+  UnionSchema,
+  DiscriminatedUnionSchema,
+  IntersectionSchema,
+  RecordSchema,
+  MapSchema,
+  SetSchema,
+  DateSchema,
+  LiteralSchema,
+  AnySchema,
+  UnknownSchema,
+} from './complex.js'
 
 // ─── Transform ──────────────────────────────────────────────
 
@@ -21,10 +45,34 @@ export { CoerceStringSchema, CoerceNumberSchema, CoerceBooleanSchema, CoerceDate
 
 // ─── Factory imports ────────────────────────────────────────
 
-import { Schema as SchemaBase } from './types.js'
+import { Schema as SchemaBase, lazy as lazyFn } from './types.js'
 import type { Infer } from './types.js'
-import { StringSchema, NumberSchema, BooleanSchema, BigIntSchema, SymbolSchema, UndefinedSchema, NullSchema, NaNSchema } from './primitives.js'
-import { ObjectSchema, ArraySchema, TupleSchema, EnumSchema, UnionSchema, IntersectionSchema, RecordSchema, MapSchema, SetSchema, DateSchema, LiteralSchema, AnySchema, UnknownSchema } from './complex.js'
+import {
+  StringSchema,
+  NumberSchema,
+  BooleanSchema,
+  BigIntSchema,
+  SymbolSchema,
+  UndefinedSchema,
+  NullSchema,
+  NaNSchema,
+} from './primitives.js'
+import {
+  ObjectSchema,
+  ArraySchema,
+  TupleSchema,
+  EnumSchema,
+  UnionSchema,
+  DiscriminatedUnionSchema,
+  IntersectionSchema,
+  RecordSchema,
+  MapSchema,
+  SetSchema,
+  DateSchema,
+  LiteralSchema,
+  AnySchema,
+  UnknownSchema,
+} from './complex.js'
 import { CoerceStringSchema, CoerceNumberSchema, CoerceBooleanSchema, CoerceDateSchema, StandaloneTransformSchema } from './transform.js'
 
 // ─── schema factory namespace ────────────────────────────────
@@ -53,6 +101,9 @@ export const schema = {
   literal: <T extends string | number | boolean | null | undefined>(value: T) => new LiteralSchema(value),
   any: () => new AnySchema(),
   unknown: () => new UnknownSchema(),
+  lazy: <T>(factory: () => SchemaBase<T>) => lazyFn(factory),
+  discriminatedUnion: <K extends string, U extends Record<string, SchemaBase<unknown>>>(key: K, schemasMap: U) =>
+    new DiscriminatedUnionSchema(key, schemasMap),
 
   coerce: {
     string: () => new CoerceStringSchema(),

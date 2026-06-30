@@ -14,19 +14,28 @@ import { makeCrud } from './commands/make-crud.js'
 import { makeResource } from './commands/make-resource.js'
 import { makeSchema } from './commands/make-schema.js'
 import { makeAgent } from './commands/make-agent.js'
+import { makeFlag } from './commands/make-flag.js'
+import { generateApp } from './commands/generate-app.js'
 import { generateSdk } from './commands/generate-sdk.js'
 import { openapiGenerate } from './commands/openapi-generate.js'
-import { pluginInstall, pluginList } from './commands/plugin.js'
+import { pluginInstall, pluginList, pluginSearch } from './commands/plugin.js'
 import { serve } from './commands/serve.js'
+import { envGenerate } from './commands/env-generate.js'
+import { envCheck } from './commands/env-check.js'
+import { schemaDiff } from './commands/schema-diff.js'
+import { schemaMigrate } from './commands/schema-migrate.js'
+import { buildFunction } from './commands/build-function.js'
+import { profileCommand } from './commands/profile.js'
 
 function showHelp(): void {
-  console.log(`${colors.bold('SpeexJS')} ${colors.cyan('v0.2.0')}`)
+  console.log(`${colors.bold('SpeexJS')} ${colors.cyan('v2.0.0')}`)
   console.log('Fullstack JavaScript/TypeScript Framework')
   console.log()
   console.log(`${colors.bold('Usage:')}`)
   console.log('  speexjs init [name] [options]              Create new project')
   console.log('  speexjs build [options]                    Build the project')
   console.log('  speexjs build --ssg                        Build with Static Site Generation')
+  console.log('  speexjs build:function --target <type>     Build serverless function (lambda|vercel|cloudflare)')
   console.log('  speexjs bench                              Run benchmarks')
   console.log('  speexjs make:controller <name>             Generate controller')
   console.log('  speexjs make:middleware <name>             Generate middleware')
@@ -37,6 +46,9 @@ function showHelp(): void {
   console.log('  speexjs make:schema <name>                 Generate schema')
   console.log('  speexjs make:crud                          Generate complete CRUD (interactive)')
   console.log('  speexjs make:agent <name>                  Generate AI agent')
+  console.log('  speexjs make:flag <name>                   Generate feature flag')
+  console.log('  speexjs make:admin <name> [fields...]       Generate admin config')
+  console.log('  speexjs generate:app <description>          Generate fullstack app from description')
   console.log('  speexjs migrate                            Run migrations')
   console.log('  speexjs db:seed                            Seed the database')
   console.log('  speexjs list-routes                        View all routes')
@@ -45,7 +57,14 @@ function showHelp(): void {
   console.log('  speexjs openapi:generate [options]         Generate OpenAPI 3.1 spec from routes')
   console.log('  speexjs plugin:install <name> [options]     Install a plugin')
   console.log('  speexjs plugin:list                        List installed plugins')
-  console.log('  speexjs deploy [options]                   Deploy application (docker/vercel)')
+  console.log('  speexjs plugin:search <query> [options]    Search the plugin marketplace')
+  console.log('  speexjs deploy [options]                   Deploy application (docker/vercel/railway/render/flyio)')
+  console.log('  speexjs env:generate [--overwrite]         Generate typed src/env.ts from .env')
+  console.log('  speexjs env:check                          Validate environment variables')
+  console.log('  speexjs schema:diff [--verbose]             Compare models vs database schema')
+  console.log('  speexjs schema:migrate [--dry-run]          Generate migration from schema diff')
+  console.log('  speexjs profile [options]                  Profile route performance')
+  console.log('  speexjs profile --route "GET /users"       Profile a specific route')
   console.log('  speexjs --help                             Show help')
   console.log()
   console.log(`${colors.bold('Aliases:')}`)
@@ -152,10 +171,18 @@ async function main(): Promise<void> {
       await pluginList()
       break
     }
+    case 'plugin:search': {
+      const query = parsed.args[0] || ''
+      await pluginSearch(query, parsed.options)
+      break
+    }
     case 'deploy': {
       await deploy({
         docker: parsed.options.docker === true,
         vercel: parsed.options.vercel === true,
+        railway: parsed.options.railway === true,
+        render: parsed.options.render === true,
+        flyio: parsed.options.flyio === true,
         init: parsed.options.init === true,
       })
       break
@@ -202,6 +229,37 @@ async function main(): Promise<void> {
       await makeAgent(parsed.args[0])
       break
     }
+    case 'make:admin': {
+      if (!parsed.args[0]) {
+        console.error(colors.red('Resource name required'))
+        console.log(`  ${colors.cyan('speexjs make:admin <resource> [fields...]')}`)
+        process.exit(1)
+      }
+      const args = parsed.args
+      const resourceName = args[0] ?? 'resource'
+      const fields = args.slice(1).length > 0 ? args.slice(1) : ['name:string', 'email:string']
+      const { generateAdminConfig } = await import('./commands/make-admin.js')
+      generateAdminConfig(resourceName, fields)
+      break
+    }
+    case 'generate:app': {
+      if (!parsed.args[0]) {
+        console.error(colors.red('App description required'))
+        console.log(`  ${colors.cyan('speexjs generate:app "create a blog with posts"')}`)
+        process.exit(1)
+      }
+      await generateApp(parsed.args.join(' ') || parsed.args[0])
+      break
+    }
+    case 'make:flag': {
+      if (!parsed.args[0]) {
+        console.error(colors.red('Flag name required'))
+        console.log(`  ${colors.cyan('speexjs make:flag <name>')}`)
+        process.exit(1)
+      }
+      await makeFlag(parsed.args[0])
+      break
+    }
     case 'make:crud':
     case 'crud': {
       await makeCrud()
@@ -210,6 +268,59 @@ async function main(): Promise<void> {
     case 'serve':
     case 'dev': {
       await serve(parsed.options)
+      break
+    }
+    case 'env:generate': {
+      await envGenerate({
+        overwrite: parsed.options.overwrite === true,
+      })
+      break
+    }
+    case 'build:function': {
+      const bfTarget = parsed.options.target as 'lambda' | 'vercel' | 'cloudflare' | undefined
+      if (bfTarget === undefined) {
+        console.error(colors.red('Target required: --target lambda|vercel|cloudflare'))
+        console.log(`  ${colors.cyan('speexjs build:function --target lambda')}`)
+        console.log(`  ${colors.cyan('speexjs build:function --target vercel')}`)
+        console.log(`  ${colors.cyan('speexjs build:function --target cloudflare')}`)
+        process.exit(1)
+      }
+      if (!['lambda', 'vercel', 'cloudflare'].includes(bfTarget)) {
+        console.error(colors.red(`Unknown target '${bfTarget}'. Use lambda, vercel, or cloudflare.`))
+        process.exit(1)
+      }
+      await buildFunction({
+        target: bfTarget,
+        outDir: (parsed.options.outDir as string) ?? undefined,
+      })
+      break
+    }
+    case 'env:check': {
+      await envCheck()
+      break
+    }
+    case 'schema:diff': {
+      await schemaDiff({
+        verbose: parsed.options.verbose === true,
+      })
+      break
+    }
+    case 'schema:migrate': {
+      await schemaMigrate({
+        dryRun: parsed.options['dry-run'] === true,
+        force: parsed.options.force === true,
+        backup: parsed.options.backup === true,
+      })
+      break
+    }
+    case 'profile': {
+      await profileCommand({
+        samples: parsed.options.samples ? Number(parsed.options.samples) : undefined,
+        output: parsed.options.output as string | undefined,
+        route: parsed.options.route as string | undefined,
+        method: parsed.options.method as string | undefined,
+        warmup: parsed.options.warmup !== false,
+      })
       break
     }
     case 'help':
@@ -221,7 +332,7 @@ async function main(): Promise<void> {
     case 'version':
     case '--version':
     case '-v': {
-      console.log('SpeexJS v0.2.0')
+      console.log('SpeexJS v2.0.0')
       break
     }
     default: {

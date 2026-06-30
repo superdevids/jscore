@@ -44,9 +44,12 @@ const EN: Record<string, string> = {
   date_invalid: 'Invalid date',
   date_not_date: 'Value must be a valid date',
   coerce_number_fail: 'Value cannot be coerced to a number',
+  coerce_boolean_fail: 'Value cannot be coerced to a boolean',
   coerce_date_fail: 'Value cannot be coerced to a date',
   map_not_map: 'Expected a Map',
   set_not_set: 'Expected a Set',
+  discriminator_missing: 'Missing discriminator key "{key}"',
+  discriminator_invalid: 'Invalid discriminator value "{value}" for key "{key}". Expected one of: {expected}',
 }
 
 const store: Record<string, string> = { ...EN }
